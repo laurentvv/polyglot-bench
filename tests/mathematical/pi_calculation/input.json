@@ -1,0 +1,10 @@
+{
+  "test_name": "pi_calculation",
+  "description": "Monte Carlo pi calculation benchmark",
+  "parameters": {
+    "num_samples": 1000000
+  },
+  "expected_result": "approximately 3.14159",
+  "complexity": "O(n)",
+  "category": "mathematical"
+}

@@ -1,0 +1,10 @@
+{
+  "test_name": "quicksort",
+  "description": "Quicksort algorithm benchmark",
+  "parameters": {
+    "array_size": 10000
+  },
+  "expected_behavior": "Sort array correctly",
+  "complexity": "O(n log n) average, O(n^2) worst",
+  "category": "algorithms"
+}

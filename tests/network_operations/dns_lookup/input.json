@@ -1,0 +1,22 @@
+{
+  "test_name": "dns_lookup",
+  "description": "DNS resolution performance measurement",
+  "parameters": {
+    "domains": [
+      "google.com",
+      "github.com",
+      "stackoverflow.com",
+      "amazon.com",
+      "microsoft.com",
+      "cloudflare.com"
+    ],
+    "resolution_modes": ["sequential", "concurrent"],
+    "iterations": 3,
+    "timeout_seconds": 5,
+    "concurrent_workers": 3
+  },
+  "expected_metrics": ["resolution_time", "success_rate", "resolved_ips"],
+  "category": "network_operations",
+  "max_execution_time": 30,
+  "requires_network": true
+}

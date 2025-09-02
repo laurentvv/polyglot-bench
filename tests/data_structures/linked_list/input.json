@@ -1,0 +1,16 @@
+{
+  "test_name": "linked_list",
+  "description": "Linked list operations benchmark",
+  "category": "data_structures",
+  "parameters": {
+    "operations": 10000,
+    "test_cases": [
+      {"operation": "insert", "value": 42},
+      {"operation": "search", "value": 42},
+      {"operation": "delete", "value": 42}
+    ]
+  },
+  "expected_output_pattern": "Operations completed",
+  "timeout": 30,
+  "memory_limit": "512MB"
+}

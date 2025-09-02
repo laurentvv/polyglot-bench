@@ -1,0 +1,10 @@
+{
+  "test_name": "matrix_multiply",
+  "description": "Matrix multiplication benchmark",
+  "parameters": {
+    "matrix_size": 200
+  },
+  "expected_behavior": "Multiply two square matrices",
+  "complexity": "O(n^3)",
+  "category": "mathematical"
+}

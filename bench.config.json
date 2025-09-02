@@ -1,0 +1,102 @@
+{
+  "languages": {
+    "python": {
+      "executable": "python",
+      "version_check": "--version",
+      "timeout": 240,
+      "file_extension": ".py",
+      "compile_required": false
+    },
+    "rust": {
+      "executable": "cargo",
+      "compile_cmd": "cargo build --release",
+      "version_check": "--version",
+      "timeout": 120,
+      "file_extension": ".rs",
+      "compile_required": true,
+      "binary_extension": ".exe"
+    },
+    "go": {
+      "executable": "go",
+      "compile_cmd": "go build -ldflags=\"-s -w\" -o {output} {source}",
+      "version_check": "version",
+      "timeout": 240,
+      "file_extension": ".go",
+      "compile_required": true,
+      "binary_extension": ".exe"
+    },
+    "typescript": {
+      "executable": "node",
+      "compile_cmd": "tsc {source} --outDir {output_dir}",
+      "version_check": "--version",
+      "timeout": 180,
+      "file_extension": ".ts",
+      "compile_required": true,
+      "runtime_args": []
+    }
+  },
+  "test_suites": {
+    "algorithms": {
+      "enabled": true,
+      "timeout": 30,
+      "iterations": 10,
+      "tests": ["fibonacci", "quicksort", "binary_search", "prime_sieve"]
+    },
+    "data_structures": {
+      "enabled": true,
+      "timeout": 20,
+      "iterations": 5,
+      "tests": ["hash_table", "binary_tree", "linked_list"]
+    },
+    "mathematical": {
+      "enabled": true,
+      "timeout": 60,
+      "iterations": 5,
+      "tests": ["pi_calculation", "matrix_multiply"]
+    },
+    "io_operations": {
+      "enabled": true,
+      "timeout": 45,
+      "iterations": 8,
+      "tests": ["large_file_read", "json_parsing", "csv_processing"],
+      "test_file_size": "50MB"
+    },
+    "network_operations": {
+      "enabled": true,
+      "timeout": 180,
+      "iterations": 5,
+      "tests": ["ping_test", "http_request", "dns_lookup"],
+      "requires_network": true
+    },
+    "compression_tests": {
+      "enabled": true,
+      "timeout": 180,
+      "iterations": 10,
+      "tests": ["gzip_compression", "text_compression"],
+      "test_data_size": "10MB"
+    },
+    "system_tests": {
+      "enabled": true,
+      "timeout": 40,
+      "iterations": 6,
+      "tests": ["memory_allocation"]
+    }
+  },
+  "performance": {
+    "iterations": 10,
+    "warmup_runs": 2,
+    "timeout_per_test": 120,
+    "memory_sampling_interval": 0.1
+  },
+  "output": {
+    "format": "all",
+    "directory": "./results",
+    "timestamp": true,
+    "include_metadata": true
+  },
+  "system": {
+    "collect_system_info": true,
+    "monitor_resources": true,
+    "cleanup_binaries": false
+  }
+}

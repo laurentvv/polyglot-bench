@@ -1,0 +1,14 @@
+{
+  "test_name": "csv_processing",
+  "description": "CSV file processing and manipulation performance",
+  "parameters": {
+    "row_counts": [1000, 10000, 50000],
+    "column_counts": [5, 10, 20],
+    "operations": ["read", "write", "filter", "aggregate"],
+    "data_types": ["mixed", "numeric", "text"],
+    "iterations": 3
+  },
+  "expected_metrics": ["read_time", "write_time", "processing_time", "memory_usage"],
+  "category": "io_operations",
+  "max_execution_time": 90
+}

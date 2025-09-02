@@ -1,0 +1,14 @@
+{
+  "name": "large_file_read",
+  "version": "1.0.0",
+  "description": "Large file reading benchmark test",
+  "main": "large_file_read.js",
+  "scripts": {
+    "build": "tsc large_file_read.ts --target es2020 --module commonjs",
+    "test": "node large_file_read.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}

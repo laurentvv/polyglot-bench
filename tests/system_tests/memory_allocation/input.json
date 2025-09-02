@@ -1,0 +1,14 @@
+{
+  "test_name": "memory_allocation",
+  "description": "Memory allocation and deallocation performance benchmark",
+  "parameters": {
+    "allocation_sizes": [1024, 10240],
+    "allocation_patterns": ["sequential"],
+    "allocation_counts": [100, 1000],
+    "data_structures": ["array"],
+    "iterations": 2
+  },
+  "expected_metrics": ["allocation_time", "deallocation_time", "memory_efficiency", "fragmentation"],
+  "category": "system_tests",
+  "max_execution_time": 60
+}

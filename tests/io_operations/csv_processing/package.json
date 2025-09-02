@@ -1,0 +1,13 @@
+{
+  "name": "csv_processing",
+  "version": "1.0.0",
+  "description": "CSV processing benchmark",
+  "main": "csv_processing.js",
+  "scripts": {
+    "build": "tsc csv_processing.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}

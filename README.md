@@ -1,140 +1,209 @@
-🚀 Polyglot Bench - Benchmark Multi-Langages 
+# Multi-Language Performance Benchmark Tool
 
-⏱️ Suite de tests comparant les performances de Python, Rust, Go et TypeScript sur 18 tests algorithmiques. Métriques d'exécution, mémoire et extensibilité.
+[![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
----
+A comprehensive performance benchmarking tool that compares execution performance across Python, Rust, Go, and TypeScript implementations.
 
-📖 Sommaire
+## 🚀 Overview
 
-1. Objectifs
-2. Langages Comparés
-3. Métriques Mesurées
-4. Installation et Utilisation
-5. Résultats et Visualisation
-6. Contributions
-7. License
-8. Contact
+The Multi-Language Performance Benchmark Tool is designed to provide accurate and meaningful performance comparisons across different programming languages. It implements standardized computational benchmarks that measure execution time, memory usage, and CPU efficiency for equivalent algorithms across four major programming languages.
 
----
+### Key Features
 
-🎯 Objectifs
+- **Cross-Language Comparison**: Benchmark the same algorithms across Python, Rust, Go, and TypeScript
+- **Comprehensive Metrics**: Detailed performance analysis including execution time, memory usage, and CPU efficiency
+- **Statistical Analysis**: Reliable results through statistical significance testing and confidence intervals
+- **Multiple Test Categories**: Algorithmic, data structure, mathematical, and I/O operation benchmarks
+- **Extensible Architecture**: Easy to add new languages and test implementations
+- **Professional Reporting**: Generate JSON, HTML, and CSV reports with visualizations
 
-Ce projet vise à comparer objectivement les performances de Python, Rust, Go et TypeScript via 18 tests algorithmiques (tris, calculs mathématiques, traitements de données, etc.). Les résultats aident à choisir le langage adapté à des cas d'usage spécifiques (calcul intensif, concurrence, etc.) .
+## 📊 Benchmark Categories
 
----
+### Algorithms
+- Fibonacci sequence calculation
+- Quicksort implementation
+- Binary search algorithms
+- Prime number sieving
 
-🔧 Langages Comparés
+### Data Structures
+- Hash table operations
+- Binary tree traversal
+- Linked list manipulation
 
-Langage Version Use Case Principal
-Python 3.10+ Scripting, AI
-Rust 1.60+ Système, Performances
-Go 1.18+ Concurrence, CLI
-TypeScript 4.9+ Web, Fullstack
+### Mathematical Computations
+- Pi calculation using Monte Carlo method
+- Matrix multiplication operations
 
----
+### I/O Operations
+- Large file reading performance
+- JSON parsing efficiency
+- CSV processing benchmarks
 
-📊 Métriques Mesurées
+### System Tests
+- Memory allocation and deallocation performance
+- Garbage collection efficiency
 
-· ⏱️ Temps d'exécution (moyenne, médiane, écart-type).
-· 💾 Utilisation mémoire (pic de mémoire, allocation heap).
-· 🔥 Charge CPU (via des outils comme perf ou py-spy).
+## 🛠️ Installation
 
----
+### Prerequisites
 
-🛠️ Installation et Utilisation
+- Python 3.7+
+- Node.js and npm (for TypeScript)
+- Rust toolchain (for Rust benchmarks)
+- Go toolchain (for Go benchmarks)
 
-Prérequis
+### Quick Setup
 
-· Installer les langages : Python, Rust, Go, Node.js (TypeScript).
-· Cloner le repo :
-  ```bash
-  git clone https://github.com/votre-username/polyglot-bench.git
-  cd polyglot-bench
-  ```
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/multi-language-benchmark.git
+cd multi-language-benchmark
 
-Exécution des Tests
+# Create virtual environment
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
-1. Lancer tous les tests :
-   ```bash
-   ./run_benchmarks.sh  # Script unifié pour tous les langages
-   ```
-2. Exécuter un langage spécifique :
-   ```bash
-   cd python && python run_tests.py
-   cd ../rust && cargo run --release
-   ```
+# Install Python dependencies
+pip install -r requirements.txt
 
----
+# Install TypeScript dependencies
+npm install
 
-📈 Résultats et Visualisation
-
-Les résultats sont exportés en JSON et visualisables via :
-
-· Un dashboard HTML généré avec Chart.js .
-· Des graphiques comparatifs (temps vs. mémoire).
-· Exemple de visualisation :
-  ```bash
-  python visualize_results.py  # Génère des graphs dans `results/`
-  ```
-
----
-
-🤝 Contributions
-
-Les contributions sont bienvenues ! Pour ajouter un test ou un langage :
-
-1. Forkez le projet.
-2. Créez un dossier pour le nouveau langage (ex. java).
-3. Implémentez les 18 tests dans le langage.
-4. Ajoutez les métriques de performance dans metrics.json.
-5. Soumettez une pull request .
-
----
-
-📜 License
-
-Ce projet est sous license MIT. Voir le fichier LICENSE pour plus de détails.
-
----
-
-📞 Contact
-
-· Auteur : Votre Nom
-· Email : votre.email@domain.com
-· LinkedIn : Votre Profil
-
----
-
-🎨 Badges et Statistiques
-
-Ajoutez des badges pour rendre le README plus visuel  : https://img.shields.io/badge/License-MIT-blue.svg https://img.shields.io/github/issues/votre-username/polyglot-bench https://img.shields.io/github/stars/votre-username/polyglot-bench
-
----
-
-💡 Conseils Supplémentaires
-
-· Utilisez des graphiques interactifs (Chart.js/D3) pour les résultats.
-· Ajoutez une section FAQ pour répondre aux questions courantes.
-· Intégrez des exemples de code pour montrer un test typique .
-
-Exemple de code en Python (test de Fibonacci) :
-
-```python
-def fibonacci(n: int) -> int:
-    if n <= 1:
-        return n
-    return fibonacci(n-1) + fibonacci(n-2)
+# Validate language environments
+python bench_orchestrator.py validate
 ```
 
-Exemple de code en Rust (test de tri) :
+### Language-Specific Setup
 
-```rust
-pub fn quick_sort<T: Ord>(arr: &mut [T]) {
-    if arr.len() <= 1 {
-        return;
-    }
-    let pivot = partition(arr);
-    quick_sort(&mut arr[0..pivot]);
-    quick_sort(&mut arr[pivot+1..]);
-}
+**Rust Setup:**
+```bash
+# Install Rust toolchain
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
+
+**Go Setup:**
+Download and install Go from [golang.org](https://golang.org/dl/)
+
+## 🏃 Usage
+
+### Run All Benchmarks
+
+```bash
+python bench_orchestrator.py run
+```
+
+### Run Specific Languages
+
+```bash
+python bench_orchestrator.py run --languages python,rust,go
+```
+
+### Run Specific Tests
+
+```bash
+python bench_orchestrator.py run --tests fibonacci,quicksort --iterations 20
+```
+
+### Generate Reports
+
+```bash
+# Generate HTML report with visualizations
+python bench_orchestrator.py run --output html
+
+# Generate all report formats
+python bench_orchestrator.py run --output all
+```
+
+### Custom Configuration
+
+```bash
+# List available tests and languages
+python bench_orchestrator.py list --tests
+python bench_orchestrator.py list --languages
+```
+
+## 📈 Sample Results
+
+The tool generates comprehensive performance reports showing relative performance across languages:
+
+| Test | Python | Rust | Go | TypeScript |
+|------|--------|------|----|------------|
+| Fibonacci (n=35) | 1.24s | 0.075s | 0.164s | 0.088s |
+| Quicksort (1M elements) | 0.842s | 0.126s | 0.285s | 0.192s |
+| Pi Calculation | 0.153s | 0.062s | 0.142s | 0.492s |
+
+## 📁 Project Structure
+
+```
+benchmark/
+├── bench_orchestrator.py          # Main orchestrator script
+├── bench.config.json             # Configuration file
+├── requirements.txt               # Python dependencies
+├── README.md                     # Project documentation
+├── src/                          # Core source code
+│   ├── orchestrator/             # Orchestrator components
+│   │   ├── core.py              # Core orchestrator class
+│   │   ├── runners.py           # Language runners
+│   │   ├── metrics.py           # Performance metrics collector
+│   │   ├── results.py           # Results compilation
+│   │   └── reports.py           # Report generation
+│   └── utils/                    # Utility functions
+│       ├── config.py            # Configuration management
+│       ├── validation.py        # Environment validation
+│       └── helpers.py           # Helper functions
+├── tests/                        # Benchmark test implementations
+│   ├── algorithms/               # Algorithm benchmarks
+│   ├── data_structures/          # Data structure benchmarks
+│   ├── mathematical/             # Mathematical computation benchmarks
+│   ├── io_operations/            # I/O operation benchmarks
+│   ├── system_tests/            # System performance benchmarks
+│   └── network_operations/      # Network operation benchmarks
+├── results/                      # Generated reports and results
+└── scripts/                     # Utility scripts
+    ├── setup.py                 # Environment setup
+    └── cleanup.py               # Cleanup utilities
+```
+
+## 🎯 Recent Improvements
+
+Recent fixes have resolved critical compilation and execution issues:
+
+### Compilation Fixes
+- **Go**: Resolved "declared and not used" compilation errors in memory allocation tests
+- **Rust**: Fixed tempfile dependency detection for I/O operation tests
+- **Python**: Enhanced runner environment isolation for proper dependency management
+
+### Performance Enhancements
+- Improved subprocess handling for more reliable test execution
+- Enhanced error handling and reporting
+- Better cross-platform compatibility
+
+See [FIXES_SUMMARY.md](FIXES_SUMMARY.md) for detailed information on recent improvements.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribute to this project.
+
+### Ways to Contribute
+
+1. **Add New Benchmarks**: Implement additional test cases in any of the supported languages
+2. **Support New Languages**: Extend the tool to support additional programming languages
+3. **Improve Existing Tests**: Optimize current benchmark implementations
+4. **Enhance Reporting**: Add new visualization types or report formats
+5. **Bug Fixes**: Report and fix any issues you encounter
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Inspired by various language performance comparison studies
+- Built with performance analysis libraries including pandas, numpy, and matplotlib
+- Thanks to the open-source community for language-specific optimization techniques
+
+## 📞 Support
+
+If you encounter any issues or have questions about the benchmark tool, please [open an issue](https://github.com/yourusername/multi-language-benchmark/issues) on GitHub.

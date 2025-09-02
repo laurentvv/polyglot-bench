@@ -1,0 +1,13 @@
+{
+  "test_name": "text_compression",
+  "description": "Text-specific compression algorithms performance",
+  "parameters": {
+    "input_sizes": [1024, 10240, 102400],
+    "text_types": ["ascii", "unicode", "code", "natural_language"],
+    "compression_algorithms": ["gzip", "zlib"],
+    "iterations": 3
+  },
+  "expected_metrics": ["compression_ratio", "compression_time", "decompression_time", "algorithm_efficiency"],
+  "category": "compression_tests",
+  "max_execution_time": 45
+}

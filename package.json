@@ -1,0 +1,23 @@
+{
+  "name": "benchmark",
+  "version": "1.0.0",
+  "description": "``` benchmark/ ├── bench_orchestrator.py          # Main orchestrator script ├── bench.config.json             # Configuration file ├── requirements.txt               # Python dependencies ├── README.md                      # Project documentation ├── src/                          # Core source code │   ├── __init__.py │   ├── orchestrator/             # Orchestrator components │   │   ├── __init__.py │   │   ├── core.py              # Core orchestrator class │   │   ├── runners.py           # Language runners │   │   ├── metrics.py           # Performance metrics collector │   │   ├── results.py           # Results compilation │   │   └── reports.py           # Report generation │   └── utils/                    # Utility functions │       ├── __init__.py │       ├── config.py            # Configuration management │       ├── validation.py        # Environment validation │       └── helpers.py           # Helper functions ├── tests/                        # Benchmark test implementations │   ├── algorithms/               # Algorithm benchmarks │   │   ├── fibonacci/ │   │   │   ├── fibonacci.py │   │   │   ├── fibonacci.rs │   │   │   ├── fibonacci.go │   │   │   ├── fibonacci.ts │   │   │   └── input.json │   │   ├── quicksort/ │   │   ├── binary_search/ │   │   └── prime_sieve/ │   ├── data_structures/          # Data structure benchmarks │   │   ├── hash_table/ │   │   ├── binary_tree/ │   │   └── linked_list/ │   ├── mathematical/             # Mathematical computation benchmarks │   │   ├── pi_calculation/ │   │   └── matrix_multiply/ │   └── io_operations/            # I/O operation benchmarks │       ├── file_read/ │       └── json_parse/ ├── results/                      # Generated reports and results ├── binaries/                     # Compiled binaries (temporary) └── scripts/                      # Utility scripts     ├── setup.py                 # Environment setup     └── cleanup.py               # Cleanup utilities ```",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}

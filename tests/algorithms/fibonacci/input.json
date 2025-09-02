@@ -1,0 +1,10 @@
+{
+  "test_name": "fibonacci",
+  "description": "Recursive Fibonacci calculation benchmark",
+  "parameters": {
+    "n": 35
+  },
+  "expected_result": 9227465,
+  "complexity": "O(2^n)",
+  "category": "algorithms"
+}

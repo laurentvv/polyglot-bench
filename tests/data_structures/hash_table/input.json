@@ -1,0 +1,11 @@
+{
+  "test_name": "hash_table",
+  "description": "Hash table operations benchmark",
+  "parameters": {
+    "num_operations": 100000,
+    "key_length": 10
+  },
+  "expected_behavior": "Fast insert, lookup, and delete operations",
+  "complexity": "O(1) average case",
+  "category": "data_structures"
+}

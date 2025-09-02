@@ -1,0 +1,13 @@
+{
+  "test_name": "gzip_compression",
+  "description": "GZIP compression performance benchmark",
+  "parameters": {
+    "input_sizes": [1024, 10240],
+    "data_types": ["text"],
+    "compression_levels": [6],
+    "iterations": 2
+  },
+  "expected_metrics": ["compression_ratio", "compression_time", "decompression_time", "throughput"],
+  "category": "compression_tests",
+  "max_execution_time": 60
+}

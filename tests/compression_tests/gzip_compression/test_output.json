@@ -1,0 +1,2429 @@
+{
+  "start_time": 1756488353.0647237,
+  "test_cases": [
+    {
+      "input_size": 1024,
+      "data_type": "text",
+      "compression_level": 1,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 818,
+            "compression_ratio": 1.252,
+            "compression_time": 0.19,
+            "throughput_mb_s": 5.16
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 816,
+            "compression_ratio": 1.255,
+            "compression_time": 0.12,
+            "throughput_mb_s": 8.43
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 815,
+            "compression_ratio": 1.256,
+            "compression_time": 0.1,
+            "throughput_mb_s": 9.73
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 818,
+            "compression_ratio": 1.252,
+            "compression_time": 0.1,
+            "throughput_mb_s": 10.14
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 819,
+            "compression_ratio": 1.25,
+            "compression_time": 0.1,
+            "throughput_mb_s": 9.48
+          }
+        }
+      ],
+      "avg_compression_ratio": 1.253,
+      "avg_compression_time": 0.122,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 8.588,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 1024,
+      "data_type": "text",
+      "compression_level": 6,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 817,
+            "compression_ratio": 1.253,
+            "compression_time": 0.11,
+            "throughput_mb_s": 8.68
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 817,
+            "compression_ratio": 1.253,
+            "compression_time": 0.1,
+            "throughput_mb_s": 9.53
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 816,
+            "compression_ratio": 1.255,
+            "compression_time": 0.09,
+            "throughput_mb_s": 10.45
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 816,
+            "compression_ratio": 1.255,
+            "compression_time": 0.09,
+            "throughput_mb_s": 10.84
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 818,
+            "compression_ratio": 1.252,
+            "compression_time": 0.13,
+            "throughput_mb_s": 7.68
+          }
+        }
+      ],
+      "avg_compression_ratio": 1.2536,
+      "avg_compression_time": 0.10400000000000001,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 9.436,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 1024,
+      "data_type": "text",
+      "compression_level": 9,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 816,
+            "compression_ratio": 1.255,
+            "compression_time": 0.12,
+            "throughput_mb_s": 8.33
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 820,
+            "compression_ratio": 1.249,
+            "compression_time": 0.1,
+            "throughput_mb_s": 9.97
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 815,
+            "compression_ratio": 1.256,
+            "compression_time": 0.09,
+            "throughput_mb_s": 10.37
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 815,
+            "compression_ratio": 1.256,
+            "compression_time": 0.1,
+            "throughput_mb_s": 10.16
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 814,
+            "compression_ratio": 1.258,
+            "compression_time": 0.09,
+            "throughput_mb_s": 10.32
+          }
+        }
+      ],
+      "avg_compression_ratio": 1.2548,
+      "avg_compression_time": 0.1,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 9.83,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 1024,
+      "data_type": "binary",
+      "compression_level": 1,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 1047,
+            "compression_ratio": 0.978,
+            "compression_time": 0.13,
+            "throughput_mb_s": 7.73
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 1047,
+            "compression_ratio": 0.978,
+            "compression_time": 0.12,
+            "throughput_mb_s": 8.13
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 1047,
+            "compression_ratio": 0.978,
+            "compression_time": 0.13,
+            "throughput_mb_s": 7.46
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 1047,
+            "compression_ratio": 0.978,
+            "compression_time": 0.11,
+            "throughput_mb_s": 8.52
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 1047,
+            "compression_ratio": 0.978,
+            "compression_time": 0.13,
+            "throughput_mb_s": 7.74
+          }
+        }
+      ],
+      "avg_compression_ratio": 0.978,
+      "avg_compression_time": 0.124,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 7.9159999999999995,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 1024,
+      "data_type": "binary",
+      "compression_level": 6,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 1047,
+            "compression_ratio": 0.978,
+            "compression_time": 0.14,
+            "throughput_mb_s": 6.87
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 1047,
+            "compression_ratio": 0.978,
+            "compression_time": 0.14,
+            "throughput_mb_s": 7.03
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 1047,
+            "compression_ratio": 0.978,
+            "compression_time": 0.13,
+            "throughput_mb_s": 7.67
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 1047,
+            "compression_ratio": 0.978,
+            "compression_time": 0.13,
+            "throughput_mb_s": 7.79
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 1047,
+            "compression_ratio": 0.978,
+            "compression_time": 0.11,
+            "throughput_mb_s": 8.83
+          }
+        }
+      ],
+      "avg_compression_ratio": 0.978,
+      "avg_compression_time": 0.13,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 7.638,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 1024,
+      "data_type": "binary",
+      "compression_level": 9,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 1047,
+            "compression_ratio": 0.978,
+            "compression_time": 0.13,
+            "throughput_mb_s": 7.79
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 1047,
+            "compression_ratio": 0.978,
+            "compression_time": 0.13,
+            "throughput_mb_s": 7.26
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 1047,
+            "compression_ratio": 0.978,
+            "compression_time": 0.12,
+            "throughput_mb_s": 8.09
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 1047,
+            "compression_ratio": 0.978,
+            "compression_time": 0.12,
+            "throughput_mb_s": 7.97
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 1047,
+            "compression_ratio": 0.978,
+            "compression_time": 0.12,
+            "throughput_mb_s": 7.91
+          }
+        }
+      ],
+      "avg_compression_ratio": 0.978,
+      "avg_compression_time": 0.124,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 7.803999999999999,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 1024,
+      "data_type": "json",
+      "compression_level": 1,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 567,
+            "compression_ratio": 1.806,
+            "compression_time": 0.12,
+            "throughput_mb_s": 8.18
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 563,
+            "compression_ratio": 1.819,
+            "compression_time": 0.12,
+            "throughput_mb_s": 7.86
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 568,
+            "compression_ratio": 1.803,
+            "compression_time": 0.13,
+            "throughput_mb_s": 7.77
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 567,
+            "compression_ratio": 1.806,
+            "compression_time": 0.1,
+            "throughput_mb_s": 9.39
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 567,
+            "compression_ratio": 1.806,
+            "compression_time": 0.11,
+            "throughput_mb_s": 8.9
+          }
+        }
+      ],
+      "avg_compression_ratio": 1.8079999999999998,
+      "avg_compression_time": 0.11599999999999999,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 8.42,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 1024,
+      "data_type": "json",
+      "compression_level": 6,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 552,
+            "compression_ratio": 1.855,
+            "compression_time": 0.09,
+            "throughput_mb_s": 10.42
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 553,
+            "compression_ratio": 1.852,
+            "compression_time": 0.08,
+            "throughput_mb_s": 11.74
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 553,
+            "compression_ratio": 1.852,
+            "compression_time": 0.09,
+            "throughput_mb_s": 10.69
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 549,
+            "compression_ratio": 1.865,
+            "compression_time": 0.09,
+            "throughput_mb_s": 11.41
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 551,
+            "compression_ratio": 1.858,
+            "compression_time": 0.09,
+            "throughput_mb_s": 11.44
+          }
+        }
+      ],
+      "avg_compression_ratio": 1.8564,
+      "avg_compression_time": 0.088,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 11.14,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 1024,
+      "data_type": "json",
+      "compression_level": 9,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 548,
+            "compression_ratio": 1.869,
+            "compression_time": 0.09,
+            "throughput_mb_s": 11.38
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 550,
+            "compression_ratio": 1.862,
+            "compression_time": 0.08,
+            "throughput_mb_s": 11.67
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 552,
+            "compression_ratio": 1.855,
+            "compression_time": 0.08,
+            "throughput_mb_s": 11.84
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 553,
+            "compression_ratio": 1.852,
+            "compression_time": 0.08,
+            "throughput_mb_s": 12.3
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 1024,
+            "compressed_size": 551,
+            "compression_ratio": 1.858,
+            "compression_time": 0.08,
+            "throughput_mb_s": 11.84
+          }
+        }
+      ],
+      "avg_compression_ratio": 1.8592,
+      "avg_compression_time": 0.082,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 11.806000000000001,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 10240,
+      "data_type": "text",
+      "compression_level": 1,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 7806,
+            "compression_ratio": 1.312,
+            "compression_time": 0.27,
+            "throughput_mb_s": 36.06
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 7803,
+            "compression_ratio": 1.312,
+            "compression_time": 0.25,
+            "throughput_mb_s": 39.2
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 7804,
+            "compression_ratio": 1.312,
+            "compression_time": 0.24,
+            "throughput_mb_s": 40.76
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 7802,
+            "compression_ratio": 1.312,
+            "compression_time": 0.26,
+            "throughput_mb_s": 37.0
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 7804,
+            "compression_ratio": 1.312,
+            "compression_time": 0.27,
+            "throughput_mb_s": 35.74
+          }
+        }
+      ],
+      "avg_compression_ratio": 1.312,
+      "avg_compression_time": 0.258,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 37.751999999999995,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 10240,
+      "data_type": "text",
+      "compression_level": 6,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 7777,
+            "compression_ratio": 1.317,
+            "compression_time": 0.26,
+            "throughput_mb_s": 37.96
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 7777,
+            "compression_ratio": 1.317,
+            "compression_time": 0.26,
+            "throughput_mb_s": 37.44
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 7776,
+            "compression_ratio": 1.317,
+            "compression_time": 0.29,
+            "throughput_mb_s": 33.22
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 7781,
+            "compression_ratio": 1.316,
+            "compression_time": 0.3,
+            "throughput_mb_s": 32.18
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 7777,
+            "compression_ratio": 1.317,
+            "compression_time": 0.27,
+            "throughput_mb_s": 36.8
+          }
+        }
+      ],
+      "avg_compression_ratio": 1.3168,
+      "avg_compression_time": 0.27599999999999997,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 35.519999999999996,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 10240,
+      "data_type": "text",
+      "compression_level": 9,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 7772,
+            "compression_ratio": 1.318,
+            "compression_time": 0.26,
+            "throughput_mb_s": 38.17
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 7777,
+            "compression_ratio": 1.317,
+            "compression_time": 0.28,
+            "throughput_mb_s": 35.01
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 7772,
+            "compression_ratio": 1.318,
+            "compression_time": 0.28,
+            "throughput_mb_s": 35.43
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 7773,
+            "compression_ratio": 1.317,
+            "compression_time": 0.26,
+            "throughput_mb_s": 37.72
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 7773,
+            "compression_ratio": 1.317,
+            "compression_time": 0.25,
+            "throughput_mb_s": 38.35
+          }
+        }
+      ],
+      "avg_compression_ratio": 1.3174,
+      "avg_compression_time": 0.266,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 36.936,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 10240,
+      "data_type": "binary",
+      "compression_level": 1,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 10263,
+            "compression_ratio": 0.998,
+            "compression_time": 0.24,
+            "throughput_mb_s": 40.8
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 10263,
+            "compression_ratio": 0.998,
+            "compression_time": 0.24,
+            "throughput_mb_s": 39.96
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 10263,
+            "compression_ratio": 0.998,
+            "compression_time": 0.24,
+            "throughput_mb_s": 40.51
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 10263,
+            "compression_ratio": 0.998,
+            "compression_time": 0.22,
+            "throughput_mb_s": 44.62
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 10263,
+            "compression_ratio": 0.998,
+            "compression_time": 0.2,
+            "throughput_mb_s": 49.53
+          }
+        }
+      ],
+      "avg_compression_ratio": 0.998,
+      "avg_compression_time": 0.22799999999999998,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 43.083999999999996,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 10240,
+      "data_type": "binary",
+      "compression_level": 6,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 10263,
+            "compression_ratio": 0.998,
+            "compression_time": 0.24,
+            "throughput_mb_s": 40.08
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 10263,
+            "compression_ratio": 0.998,
+            "compression_time": 0.22,
+            "throughput_mb_s": 45.36
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 10263,
+            "compression_ratio": 0.998,
+            "compression_time": 0.25,
+            "throughput_mb_s": 39.81
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 10263,
+            "compression_ratio": 0.998,
+            "compression_time": 0.25,
+            "throughput_mb_s": 38.82
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 10263,
+            "compression_ratio": 0.998,
+            "compression_time": 0.22,
+            "throughput_mb_s": 45.11
+          }
+        }
+      ],
+      "avg_compression_ratio": 0.998,
+      "avg_compression_time": 0.236,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 41.836,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 10240,
+      "data_type": "binary",
+      "compression_level": 9,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 10263,
+            "compression_ratio": 0.998,
+            "compression_time": 0.21,
+            "throughput_mb_s": 46.76
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 10263,
+            "compression_ratio": 0.998,
+            "compression_time": 0.24,
+            "throughput_mb_s": 40.04
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 10263,
+            "compression_ratio": 0.998,
+            "compression_time": 0.21,
+            "throughput_mb_s": 45.61
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 10263,
+            "compression_ratio": 0.998,
+            "compression_time": 0.2,
+            "throughput_mb_s": 49.95
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 10263,
+            "compression_ratio": 0.998,
+            "compression_time": 0.27,
+            "throughput_mb_s": 36.44
+          }
+        }
+      ],
+      "avg_compression_ratio": 0.998,
+      "avg_compression_time": 0.22599999999999998,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 43.760000000000005,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 10240,
+      "data_type": "json",
+      "compression_level": 1,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 4785,
+            "compression_ratio": 2.14,
+            "compression_time": 0.23,
+            "throughput_mb_s": 42.23
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 4815,
+            "compression_ratio": 2.127,
+            "compression_time": 0.19,
+            "throughput_mb_s": 50.2
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 4800,
+            "compression_ratio": 2.133,
+            "compression_time": 0.2,
+            "throughput_mb_s": 48.3
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 4790,
+            "compression_ratio": 2.138,
+            "compression_time": 0.19,
+            "throughput_mb_s": 50.57
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 4800,
+            "compression_ratio": 2.133,
+            "compression_time": 0.23,
+            "throughput_mb_s": 42.49
+          }
+        }
+      ],
+      "avg_compression_ratio": 2.1342,
+      "avg_compression_time": 0.20800000000000002,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 46.757999999999996,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 10240,
+      "data_type": "json",
+      "compression_level": 6,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 4593,
+            "compression_ratio": 2.229,
+            "compression_time": 0.27,
+            "throughput_mb_s": 35.62
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 4598,
+            "compression_ratio": 2.227,
+            "compression_time": 0.28,
+            "throughput_mb_s": 34.39
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 4595,
+            "compression_ratio": 2.229,
+            "compression_time": 0.25,
+            "throughput_mb_s": 39.42
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 4598,
+            "compression_ratio": 2.227,
+            "compression_time": 0.24,
+            "throughput_mb_s": 40.55
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 4589,
+            "compression_ratio": 2.231,
+            "compression_time": 0.26,
+            "throughput_mb_s": 37.51
+          }
+        }
+      ],
+      "avg_compression_ratio": 2.2286,
+      "avg_compression_time": 0.26,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 37.498000000000005,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 10240,
+      "data_type": "json",
+      "compression_level": 9,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 4590,
+            "compression_ratio": 2.231,
+            "compression_time": 0.24,
+            "throughput_mb_s": 40.68
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 4591,
+            "compression_ratio": 2.23,
+            "compression_time": 0.21,
+            "throughput_mb_s": 45.87
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 4586,
+            "compression_ratio": 2.233,
+            "compression_time": 0.24,
+            "throughput_mb_s": 41.21
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 4584,
+            "compression_ratio": 2.234,
+            "compression_time": 0.27,
+            "throughput_mb_s": 36.67
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 10240,
+            "compressed_size": 4585,
+            "compression_ratio": 2.233,
+            "compression_time": 0.21,
+            "throughput_mb_s": 46.97
+          }
+        }
+      ],
+      "avg_compression_ratio": 2.2321999999999997,
+      "avg_compression_time": 0.23399999999999999,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 42.28,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 102400,
+      "data_type": "text",
+      "compression_level": 1,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 79097,
+            "compression_ratio": 1.295,
+            "compression_time": 3.82,
+            "throughput_mb_s": 25.55
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 79091,
+            "compression_ratio": 1.295,
+            "compression_time": 3.28,
+            "throughput_mb_s": 29.81
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 79087,
+            "compression_ratio": 1.295,
+            "compression_time": 3.32,
+            "throughput_mb_s": 29.39
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 79101,
+            "compression_ratio": 1.295,
+            "compression_time": 3.42,
+            "throughput_mb_s": 28.55
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 79091,
+            "compression_ratio": 1.295,
+            "compression_time": 3.53,
+            "throughput_mb_s": 27.65
+          }
+        }
+      ],
+      "avg_compression_ratio": 1.295,
+      "avg_compression_time": 3.4739999999999993,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 28.189999999999998,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 102400,
+      "data_type": "text",
+      "compression_level": 6,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 77605,
+            "compression_ratio": 1.32,
+            "compression_time": 4.06,
+            "throughput_mb_s": 24.03
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 77609,
+            "compression_ratio": 1.319,
+            "compression_time": 4.77,
+            "throughput_mb_s": 20.49
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 77616,
+            "compression_ratio": 1.319,
+            "compression_time": 5.95,
+            "throughput_mb_s": 16.4
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 77621,
+            "compression_ratio": 1.319,
+            "compression_time": 3.93,
+            "throughput_mb_s": 24.84
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 77621,
+            "compression_ratio": 1.319,
+            "compression_time": 3.74,
+            "throughput_mb_s": 26.12
+          }
+        }
+      ],
+      "avg_compression_ratio": 1.3192,
+      "avg_compression_time": 4.49,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 22.375999999999998,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 102400,
+      "data_type": "text",
+      "compression_level": 9,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 77597,
+            "compression_ratio": 1.32,
+            "compression_time": 5.68,
+            "throughput_mb_s": 17.18
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 77623,
+            "compression_ratio": 1.319,
+            "compression_time": 4.99,
+            "throughput_mb_s": 19.56
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 77611,
+            "compression_ratio": 1.319,
+            "compression_time": 3.79,
+            "throughput_mb_s": 25.76
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 77604,
+            "compression_ratio": 1.32,
+            "compression_time": 3.85,
+            "throughput_mb_s": 25.36
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 77600,
+            "compression_ratio": 1.32,
+            "compression_time": 3.85,
+            "throughput_mb_s": 25.34
+          }
+        }
+      ],
+      "avg_compression_ratio": 1.3195999999999999,
+      "avg_compression_time": 4.432,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 22.64,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 102400,
+      "data_type": "binary",
+      "compression_level": 1,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 102453,
+            "compression_ratio": 0.999,
+            "compression_time": 2.92,
+            "throughput_mb_s": 33.39
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 102453,
+            "compression_ratio": 0.999,
+            "compression_time": 2.6,
+            "throughput_mb_s": 37.52
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 102453,
+            "compression_ratio": 0.999,
+            "compression_time": 2.63,
+            "throughput_mb_s": 37.2
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 102453,
+            "compression_ratio": 0.999,
+            "compression_time": 2.55,
+            "throughput_mb_s": 38.29
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 102453,
+            "compression_ratio": 0.999,
+            "compression_time": 2.6,
+            "throughput_mb_s": 37.53
+          }
+        }
+      ],
+      "avg_compression_ratio": 0.999,
+      "avg_compression_time": 2.66,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 36.786,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 102400,
+      "data_type": "binary",
+      "compression_level": 6,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 102453,
+            "compression_ratio": 0.999,
+            "compression_time": 2.66,
+            "throughput_mb_s": 36.78
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 102453,
+            "compression_ratio": 0.999,
+            "compression_time": 2.51,
+            "throughput_mb_s": 38.89
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 102453,
+            "compression_ratio": 0.999,
+            "compression_time": 2.78,
+            "throughput_mb_s": 35.18
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 102453,
+            "compression_ratio": 0.999,
+            "compression_time": 2.61,
+            "throughput_mb_s": 37.36
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 102453,
+            "compression_ratio": 0.999,
+            "compression_time": 2.67,
+            "throughput_mb_s": 36.55
+          }
+        }
+      ],
+      "avg_compression_ratio": 0.999,
+      "avg_compression_time": 2.646,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 36.952,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 102400,
+      "data_type": "binary",
+      "compression_level": 9,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 102453,
+            "compression_ratio": 0.999,
+            "compression_time": 2.64,
+            "throughput_mb_s": 36.98
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 102453,
+            "compression_ratio": 0.999,
+            "compression_time": 2.64,
+            "throughput_mb_s": 37.04
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 102453,
+            "compression_ratio": 0.999,
+            "compression_time": 2.63,
+            "throughput_mb_s": 37.12
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 102453,
+            "compression_ratio": 0.999,
+            "compression_time": 2.62,
+            "throughput_mb_s": 37.23
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 102453,
+            "compression_ratio": 0.999,
+            "compression_time": 2.58,
+            "throughput_mb_s": 37.87
+          }
+        }
+      ],
+      "avg_compression_ratio": 0.999,
+      "avg_compression_time": 2.622,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 37.248,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 102400,
+      "data_type": "json",
+      "compression_level": 1,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 47598,
+            "compression_ratio": 2.151,
+            "compression_time": 2.18,
+            "throughput_mb_s": 44.73
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 47800,
+            "compression_ratio": 2.142,
+            "compression_time": 1.68,
+            "throughput_mb_s": 58.18
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 47700,
+            "compression_ratio": 2.147,
+            "compression_time": 2.22,
+            "throughput_mb_s": 44.08
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 47624,
+            "compression_ratio": 2.15,
+            "compression_time": 3.27,
+            "throughput_mb_s": 29.89
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 47758,
+            "compression_ratio": 2.144,
+            "compression_time": 3.22,
+            "throughput_mb_s": 30.28
+          }
+        }
+      ],
+      "avg_compression_ratio": 2.1468,
+      "avg_compression_time": 2.5140000000000002,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 41.432,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 102400,
+      "data_type": "json",
+      "compression_level": 6,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 44594,
+            "compression_ratio": 2.296,
+            "compression_time": 2.61,
+            "throughput_mb_s": 37.38
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 44574,
+            "compression_ratio": 2.297,
+            "compression_time": 2.7,
+            "throughput_mb_s": 36.16
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 44568,
+            "compression_ratio": 2.298,
+            "compression_time": 2.64,
+            "throughput_mb_s": 37.03
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 44532,
+            "compression_ratio": 2.299,
+            "compression_time": 2.68,
+            "throughput_mb_s": 36.47
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 44521,
+            "compression_ratio": 2.3,
+            "compression_time": 3.11,
+            "throughput_mb_s": 31.42
+          }
+        }
+      ],
+      "avg_compression_ratio": 2.298,
+      "avg_compression_time": 2.748,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 35.692,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 102400,
+      "data_type": "json",
+      "compression_level": 9,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 44391,
+            "compression_ratio": 2.307,
+            "compression_time": 12.73,
+            "throughput_mb_s": 7.67
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 44401,
+            "compression_ratio": 2.306,
+            "compression_time": 7.72,
+            "throughput_mb_s": 12.65
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 44446,
+            "compression_ratio": 2.304,
+            "compression_time": 7.35,
+            "throughput_mb_s": 13.29
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 44392,
+            "compression_ratio": 2.307,
+            "compression_time": 11.14,
+            "throughput_mb_s": 8.77
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 102400,
+            "compressed_size": 44398,
+            "compression_ratio": 2.306,
+            "compression_time": 7.69,
+            "throughput_mb_s": 12.7
+          }
+        }
+      ],
+      "avg_compression_ratio": 2.306,
+      "avg_compression_time": 9.326,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 11.016,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 1048576,
+      "data_type": "text",
+      "compression_level": 1,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 811619,
+            "compression_ratio": 1.292,
+            "compression_time": 39.51,
+            "throughput_mb_s": 25.31
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 811617,
+            "compression_ratio": 1.292,
+            "compression_time": 43.04,
+            "throughput_mb_s": 23.24
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 811622,
+            "compression_ratio": 1.292,
+            "compression_time": 41.19,
+            "throughput_mb_s": 24.28
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 811630,
+            "compression_ratio": 1.292,
+            "compression_time": 38.18,
+            "throughput_mb_s": 26.19
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 811578,
+            "compression_ratio": 1.292,
+            "compression_time": 37.61,
+            "throughput_mb_s": 26.59
+          }
+        }
+      ],
+      "avg_compression_ratio": 1.292,
+      "avg_compression_time": 39.906,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 25.122,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 1048576,
+      "data_type": "text",
+      "compression_level": 6,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 794398,
+            "compression_ratio": 1.32,
+            "compression_time": 52.47,
+            "throughput_mb_s": 19.06
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 794410,
+            "compression_ratio": 1.32,
+            "compression_time": 46.08,
+            "throughput_mb_s": 21.7
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 794402,
+            "compression_ratio": 1.32,
+            "compression_time": 45.33,
+            "throughput_mb_s": 22.06
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 794420,
+            "compression_ratio": 1.32,
+            "compression_time": 49.64,
+            "throughput_mb_s": 20.15
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 794395,
+            "compression_ratio": 1.32,
+            "compression_time": 45.44,
+            "throughput_mb_s": 22.0
+          }
+        }
+      ],
+      "avg_compression_ratio": 1.32,
+      "avg_compression_time": 47.791999999999994,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 20.994,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 1048576,
+      "data_type": "text",
+      "compression_level": 9,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 794391,
+            "compression_ratio": 1.32,
+            "compression_time": 46.55,
+            "throughput_mb_s": 21.48
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 794367,
+            "compression_ratio": 1.32,
+            "compression_time": 48.9,
+            "throughput_mb_s": 20.45
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 794400,
+            "compression_ratio": 1.32,
+            "compression_time": 44.97,
+            "throughput_mb_s": 22.24
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 794376,
+            "compression_ratio": 1.32,
+            "compression_time": 45.3,
+            "throughput_mb_s": 22.07
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 794376,
+            "compression_ratio": 1.32,
+            "compression_time": 45.78,
+            "throughput_mb_s": 21.84
+          }
+        }
+      ],
+      "avg_compression_ratio": 1.32,
+      "avg_compression_time": 46.3,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 21.616,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 1048576,
+      "data_type": "binary",
+      "compression_level": 1,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 1048914,
+            "compression_ratio": 1.0,
+            "compression_time": 34.31,
+            "throughput_mb_s": 29.15
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 1048914,
+            "compression_ratio": 1.0,
+            "compression_time": 35.53,
+            "throughput_mb_s": 28.15
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 1048914,
+            "compression_ratio": 1.0,
+            "compression_time": 34.7,
+            "throughput_mb_s": 28.82
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 1048914,
+            "compression_ratio": 1.0,
+            "compression_time": 34.8,
+            "throughput_mb_s": 28.73
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 1048914,
+            "compression_ratio": 1.0,
+            "compression_time": 35.56,
+            "throughput_mb_s": 28.12
+          }
+        }
+      ],
+      "avg_compression_ratio": 1.0,
+      "avg_compression_time": 34.980000000000004,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 28.594,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 1048576,
+      "data_type": "binary",
+      "compression_level": 6,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 1048914,
+            "compression_ratio": 1.0,
+            "compression_time": 37.06,
+            "throughput_mb_s": 26.98
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 1048914,
+            "compression_ratio": 1.0,
+            "compression_time": 37.68,
+            "throughput_mb_s": 26.54
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 1048914,
+            "compression_ratio": 1.0,
+            "compression_time": 31.55,
+            "throughput_mb_s": 31.7
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 1048914,
+            "compression_ratio": 1.0,
+            "compression_time": 31.45,
+            "throughput_mb_s": 31.79
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 1048914,
+            "compression_ratio": 1.0,
+            "compression_time": 34.66,
+            "throughput_mb_s": 28.85
+          }
+        }
+      ],
+      "avg_compression_ratio": 1.0,
+      "avg_compression_time": 34.480000000000004,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 29.172000000000004,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 1048576,
+      "data_type": "binary",
+      "compression_level": 9,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 1048914,
+            "compression_ratio": 1.0,
+            "compression_time": 31.08,
+            "throughput_mb_s": 32.17
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 1048914,
+            "compression_ratio": 1.0,
+            "compression_time": 31.58,
+            "throughput_mb_s": 31.66
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 1048914,
+            "compression_ratio": 1.0,
+            "compression_time": 32.94,
+            "throughput_mb_s": 30.36
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 1048914,
+            "compression_ratio": 1.0,
+            "compression_time": 31.08,
+            "throughput_mb_s": 32.18
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 1048914,
+            "compression_ratio": 1.0,
+            "compression_time": 30.49,
+            "throughput_mb_s": 32.8
+          }
+        }
+      ],
+      "avg_compression_ratio": 1.0,
+      "avg_compression_time": 31.433999999999997,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 31.833999999999996,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 1048576,
+      "data_type": "json",
+      "compression_level": 1,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 484982,
+            "compression_ratio": 2.162,
+            "compression_time": 23.97,
+            "throughput_mb_s": 41.71
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 484909,
+            "compression_ratio": 2.162,
+            "compression_time": 24.6,
+            "throughput_mb_s": 40.64
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 484815,
+            "compression_ratio": 2.163,
+            "compression_time": 25.83,
+            "throughput_mb_s": 38.71
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 484911,
+            "compression_ratio": 2.162,
+            "compression_time": 29.17,
+            "throughput_mb_s": 34.28
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 484966,
+            "compression_ratio": 2.162,
+            "compression_time": 22.78,
+            "throughput_mb_s": 43.91
+          }
+        }
+      ],
+      "avg_compression_ratio": 2.1622,
+      "avg_compression_time": 25.27,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 39.85,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 1048576,
+      "data_type": "json",
+      "compression_level": 6,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 451919,
+            "compression_ratio": 2.32,
+            "compression_time": 31.74,
+            "throughput_mb_s": 31.51
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 451801,
+            "compression_ratio": 2.321,
+            "compression_time": 27.53,
+            "throughput_mb_s": 36.32
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 451806,
+            "compression_ratio": 2.321,
+            "compression_time": 35.5,
+            "throughput_mb_s": 28.17
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 451912,
+            "compression_ratio": 2.32,
+            "compression_time": 29.15,
+            "throughput_mb_s": 34.3
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 451867,
+            "compression_ratio": 2.321,
+            "compression_time": 29.0,
+            "throughput_mb_s": 34.48
+          }
+        }
+      ],
+      "avg_compression_ratio": 2.3205999999999998,
+      "avg_compression_time": 30.583999999999996,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 32.956,
+      "avg_decompression_throughput": 0.0
+    },
+    {
+      "input_size": 1048576,
+      "data_type": "json",
+      "compression_level": 9,
+      "iterations": [
+        {
+          "iteration": 1,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 449894,
+            "compression_ratio": 2.331,
+            "compression_time": 89.98,
+            "throughput_mb_s": 11.11
+          }
+        },
+        {
+          "iteration": 2,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 449957,
+            "compression_ratio": 2.33,
+            "compression_time": 96.69,
+            "throughput_mb_s": 10.34
+          }
+        },
+        {
+          "iteration": 3,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 449945,
+            "compression_ratio": 2.33,
+            "compression_time": 106.47,
+            "throughput_mb_s": 9.39
+          }
+        },
+        {
+          "iteration": 4,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 449968,
+            "compression_ratio": 2.33,
+            "compression_time": 85.72,
+            "throughput_mb_s": 11.67
+          }
+        },
+        {
+          "iteration": 5,
+          "compression": {
+            "success": true,
+            "original_size": 1048576,
+            "compressed_size": 449918,
+            "compression_ratio": 2.331,
+            "compression_time": 98.98,
+            "throughput_mb_s": 10.1
+          }
+        }
+      ],
+      "avg_compression_ratio": 2.3304,
+      "avg_compression_time": 95.56800000000001,
+      "avg_decompression_time": 0.0,
+      "avg_compression_throughput": 10.522,
+      "avg_decompression_throughput": 0.0
+    }
+  ],
+  "summary": {
+    "total_tests": 180,
+    "successful_tests": 180,
+    "failed_tests": 0,
+    "avg_compression_ratio": 1.47725,
+    "avg_compression_time": 11.789111111111112,
+    "avg_decompression_time": 0.0,
+    "avg_compression_throughput": 26.694277777777778,
+    "avg_decompression_throughput": 0.0
+  },
+  "end_time": 1756488732.7795796,
+  "total_execution_time": 379.71485590934753
+}

@@ -1,0 +1,13 @@
+{
+  "test_name": "ping_test",
+  "description": "Network latency measurement using ping/ICMP",
+  "parameters": {
+    "targets": ["8.8.8.8", "1.1.1.1", "google.com"],
+    "packet_count": 5,
+    "timeout": 5000
+  },
+  "expected_metrics": ["avg_latency", "packet_loss", "min_latency", "max_latency"],
+  "category": "network_operations",
+  "max_execution_time": 30,
+  "requires_network": true
+}

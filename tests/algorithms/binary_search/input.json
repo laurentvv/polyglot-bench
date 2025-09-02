@@ -1,0 +1,11 @@
+{
+  "test_name": "binary_search",
+  "description": "Binary search algorithm benchmark",
+  "parameters": {
+    "array_size": 1000000,
+    "num_searches": 1000
+  },
+  "expected_behavior": "Find targets in sorted array",
+  "complexity": "O(log n)",
+  "category": "algorithms"
+}

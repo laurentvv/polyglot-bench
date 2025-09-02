@@ -1,0 +1,14 @@
+{
+  "test_name": "large_file_read",
+  "description": "Large file sequential reading benchmark",
+  "parameters": {
+    "file_sizes": [1048576, 10485760, 52428800],
+    "buffer_sizes": [4096, 65536, 1048576],
+    "read_patterns": ["sequential", "chunked"],
+    "iterations": 3,
+    "generate_test_files": true
+  },
+  "expected_metrics": ["read_throughput", "memory_efficiency", "io_wait_time"],
+  "category": "io_operations",
+  "max_execution_time": 120
+}

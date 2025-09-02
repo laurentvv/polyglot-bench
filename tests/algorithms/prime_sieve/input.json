@@ -1,0 +1,10 @@
+{
+  "test_name": "prime_sieve",
+  "description": "Sieve of Eratosthenes prime number finder",
+  "parameters": {
+    "n": 100000
+  },
+  "expected_result": "9592 primes up to 100000",
+  "complexity": "O(n log log n)",
+  "category": "algorithms"
+}

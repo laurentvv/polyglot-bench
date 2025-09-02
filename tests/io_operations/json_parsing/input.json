@@ -1,0 +1,13 @@
+{
+  "test_name": "json_parsing",
+  "description": "JSON parsing and processing performance benchmark",
+  "parameters": {
+    "json_sizes": [1000, 10000, 100000],
+    "json_structures": ["flat", "nested", "array_heavy", "mixed"],
+    "operations": ["parse", "stringify", "traverse"],
+    "iterations": 5
+  },
+  "expected_metrics": ["parse_time", "stringify_time", "memory_usage", "throughput"],
+  "category": "io_operations",
+  "max_execution_time": 60
+}
