@@ -62,6 +62,4 @@ function main(): void {
     console.log(`  Total time: ${totalTime.toFixed(6)} seconds`);
 }
 
-if (require.main === module) {
-    main();
-}
+main();
