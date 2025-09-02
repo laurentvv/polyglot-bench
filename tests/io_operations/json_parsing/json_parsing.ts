@@ -224,23 +224,26 @@ function generateMixedJson(size: number): Record<string, any> {
     };
 }
 
+// Optimized traversal function using iterative approach to avoid call stack limit
 function traverseJson(data: any): number {
     let count = 0;
+    const stack: any[] = [data];
     
-    if (typeof data === 'object' && data !== null) {
-        if (Array.isArray(data)) {
-            for (const item of data) {
-                count++;
-                count += traverseJson(item);
-            }
-        } else {
-            for (const [key, value] of Object.entries(data)) {
-                count++;
-                count += traverseJson(value);
+    while (stack.length > 0) {
+        const current = stack.pop();
+        count++;
+        
+        if (typeof current === 'object' && current !== null) {
+            if (Array.isArray(current)) {
+                for (const item of current) {
+                    stack.push(item);
+                }
+            } else {
+                for (const [key, value] of Object.entries(current)) {
+                    stack.push(value);
+                }
             }
         }
-    } else {
-        count++;
     }
     
     return count;
@@ -263,6 +266,16 @@ function runJsonParsingBenchmark(config: Config): BenchmarkResult {
     let totalTests = 0;
     let successfulTests = 0;
     let failedTests = 0;
+    
+    // Pre-allocate arrays for better performance
+    const totalExpectedTests = jsonSizes.length * structures.length * iterations;
+    allParseTimes.length = totalExpectedTests;
+    allStringifyTimes.length = totalExpectedTests;
+    allTraverseTimes.length = totalExpectedTests;
+    
+    let parseIdx = 0;
+    let stringifyIdx = 0;
+    let traverseIdx = 0;
     
     const generators: Record<string, (size: number) => any> = {
         flat: generateFlatJson,
@@ -313,7 +326,7 @@ function runJsonParsingBenchmark(config: Config): BenchmarkResult {
                         const parseTime = Number(end - start) / 1e6; // Convert nanoseconds to milliseconds
                         
                         parseTimes.push(parseTime);
-                        allParseTimes.push(parseTime);
+                        allParseTimes[parseIdx++] = parseTime;
                         
                         iterationResult.operations.parse = {
                             success: true,
@@ -338,7 +351,7 @@ function runJsonParsingBenchmark(config: Config): BenchmarkResult {
                         const stringifyTime = Number(end - start) / 1e6; // Convert nanoseconds to milliseconds
                         
                         stringifyTimes.push(stringifyTime);
-                        allStringifyTimes.push(stringifyTime);
+                        allStringifyTimes[stringifyIdx++] = stringifyTime;
                         
                         iterationResult.operations.stringify = {
                             success: true,
@@ -363,7 +376,7 @@ function runJsonParsingBenchmark(config: Config): BenchmarkResult {
                         const traverseTime = Number(end - start) / 1e6; // Convert nanoseconds to milliseconds
                         
                         traverseTimes.push(traverseTime);
-                        allTraverseTimes.push(traverseTime);
+                        allTraverseTimes[traverseIdx++] = traverseTime;
                         
                         iterationResult.operations.traverse = {
                             success: true,
@@ -403,14 +416,18 @@ function runJsonParsingBenchmark(config: Config): BenchmarkResult {
         }
     }
     
-    // Calculate overall summary
+    // Filter out unused slots and calculate overall summary
+    const validParseTimes = allParseTimes.slice(0, parseIdx);
+    const validStringifyTimes = allStringifyTimes.slice(0, stringifyIdx);
+    const validTraverseTimes = allTraverseTimes.slice(0, traverseIdx);
+    
     const summary: Summary = {
         total_tests: totalTests,
         successful_tests: successfulTests,
         failed_tests: failedTests,
-        avg_parse_time: allParseTimes.length > 0 ? allParseTimes.reduce((sum, t) => sum + t, 0) / allParseTimes.length : 0,
-        avg_stringify_time: allStringifyTimes.length > 0 ? allStringifyTimes.reduce((sum, t) => sum + t, 0) / allStringifyTimes.length : 0,
-        avg_traverse_time: allTraverseTimes.length > 0 ? allTraverseTimes.reduce((sum, t) => sum + t, 0) / allTraverseTimes.length : 0
+        avg_parse_time: validParseTimes.length > 0 ? validParseTimes.reduce((sum, t) => sum + t, 0) / validParseTimes.length : 0,
+        avg_stringify_time: validStringifyTimes.length > 0 ? validStringifyTimes.reduce((sum, t) => sum + t, 0) / validStringifyTimes.length : 0,
+        avg_traverse_time: validTraverseTimes.length > 0 ? validTraverseTimes.reduce((sum, t) => sum + t, 0) / validTraverseTimes.length : 0
     };
     
     const endTime = Date.now();

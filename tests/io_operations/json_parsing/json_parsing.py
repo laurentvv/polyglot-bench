@@ -2,6 +2,7 @@
 """
 JSON parsing test implementation in Python.
 Measures JSON parsing, stringification, and traversal performance.
+Optimized version for better performance.
 """
 
 import json
@@ -17,14 +18,14 @@ def generate_flat_json(size: int) -> Dict[str, Any]:
     data = {}
     for i in range(size):
         key = f"key_{i}"
-        value_type = random.choice(['string', 'number', 'boolean'])
+        value_type = random.randrange(3)
         
-        if value_type == 'string':
+        if value_type == 0:
             data[key] = ''.join(random.choices(string.ascii_letters, k=10))
-        elif value_type == 'number':
+        elif value_type == 1:
             data[key] = random.randint(1, 1000)
         else:
-            data[key] = random.choice([True, False])
+            data[key] = bool(random.getrandbits(1))
     
     return data
 
@@ -33,13 +34,15 @@ def generate_nested_json(size: int, max_depth: int = 5) -> Dict[str, Any]:
     """Generate nested JSON structure."""
     def create_nested_object(remaining_size: int, current_depth: int) -> Union[Dict, List, str, int, bool]:
         if remaining_size <= 0 or current_depth >= max_depth:
-            return random.choice([
-                ''.join(random.choices(string.ascii_letters, k=5)),
-                random.randint(1, 100),
-                random.choice([True, False])
-            ])
+            choice = random.randrange(3)
+            if choice == 0:
+                return ''.join(random.choices(string.ascii_letters, k=5))
+            elif choice == 1:
+                return random.randint(1, 100)
+            else:
+                return bool(random.getrandbits(1))
         
-        if random.choice([True, False]):  # Create object
+        if bool(random.getrandbits(1)):  # Create object
             obj = {}
             keys_count = min(random.randint(2, 5), remaining_size)
             remaining_per_key = remaining_size // keys_count
@@ -76,24 +79,26 @@ def generate_array_heavy_json(size: int) -> Dict[str, Any]:
             "id": i,
             "name": f"User_{i}",
             "email": f"user{i}@example.com",
-            "active": random.choice([True, False])
+            "active": bool(random.getrandbits(1))
         })
     
     # Products array
+    categories = ["electronics", "clothing", "books", "home"]
     for i in range(items_per_array):
         data["products"].append({
             "id": i,
             "name": f"Product_{i}",
             "price": round(random.uniform(10.0, 500.0), 2),
-            "category": random.choice(["electronics", "clothing", "books", "home"])
+            "category": random.choice(categories)
         })
     
     # Orders array
     for i in range(items_per_array):
+        product_ids = [random.randrange(items_per_array) for _ in range(random.randint(1, 5))]
         data["orders"].append({
             "id": i,
-            "user_id": random.randint(0, items_per_array - 1),
-            "product_ids": random.sample(range(items_per_array), k=random.randint(1, 5)),
+            "user_id": random.randrange(items_per_array),
+            "product_ids": product_ids,
             "total": round(random.uniform(20.0, 1000.0), 2),
             "timestamp": f"2024-{random.randint(1, 12):02d}-{random.randint(1, 28):02d}"
         })
@@ -119,39 +124,46 @@ def generate_mixed_json(size: int) -> Dict[str, Any]:
         "data": []
     }
     
+    types = ["A", "B", "C"]
+    tags = ["urgent", "normal", "low", "critical"]
+    
     for i in range(size):
-        record = {
+        selected_tags = random.sample(tags, k=min(random.randint(1, 2), len(tags)))
+        relationships = [
+            {"id": random.randrange(size), "type": "related"}
+            for _ in range(random.randint(0, 3))
+        ]
+        
+        data["data"].append({
             "id": i,
-            "type": random.choice(["A", "B", "C"]),
+            "type": random.choice(types),
             "attributes": {
                 "name": f"Item_{i}",
                 "value": random.randint(1, 1000),
-                "tags": random.sample(["urgent", "normal", "low", "critical"], k=random.randint(1, 2))
+                "tags": selected_tags
             },
-            "relationships": [
-                {"id": random.randint(0, size - 1), "type": "related"}
-                for _ in range(random.randint(0, 3))
-            ]
-        }
-        data["data"].append(record)
+            "relationships": relationships
+        })
     
     return data
 
 
-def traverse_json(data: Any, operation_count: int = 0) -> int:
+# Optimized traversal function using iterative approach to avoid recursion limit issues
+def traverse_json(data: Any) -> int:
     """Traverse JSON structure and count operations."""
-    if isinstance(data, dict):
-        for key, value in data.items():
-            operation_count += 1
-            operation_count = traverse_json(value, operation_count)
-    elif isinstance(data, list):
-        for item in data:
-            operation_count += 1
-            operation_count = traverse_json(item, operation_count)
-    else:
-        operation_count += 1
+    count = 0
+    stack = [data]
     
-    return operation_count
+    while stack:
+        current = stack.pop()
+        count += 1
+        
+        if isinstance(current, dict):
+            stack.extend(current.values())
+        elif isinstance(current, list):
+            stack.extend(current)
+    
+    return count
 
 
 def run_json_parsing_benchmark(config: Dict) -> Dict:
@@ -186,6 +198,15 @@ def run_json_parsing_benchmark(config: Dict) -> Dict:
     all_stringify_times = []
     all_traverse_times = []
     
+    # Pre-allocate lists for better performance
+    all_parse_times = [0.0] * (len(json_sizes) * len(structures) * iterations)
+    all_stringify_times = [0.0] * (len(json_sizes) * len(structures) * iterations)
+    all_traverse_times = [0.0] * (len(json_sizes) * len(structures) * iterations)
+    
+    parse_idx = 0
+    stringify_idx = 0
+    traverse_idx = 0
+    
     for size in json_sizes:
         for structure in structures:
             if structure not in generators:
@@ -214,9 +235,13 @@ def run_json_parsing_benchmark(config: Dict) -> Dict:
                 # Generate test data
                 json_data = generators[structure](size)
                 
+                # Optimize data size calculation
+                json_string = json.dumps(json_data)
+                data_size = len(json_string)
+                
                 iteration_result = {
                     "iteration": i + 1,
-                    "data_size": len(str(json_data)),
+                    "data_size": data_size,
                     "operations": {}
                 }
                 
@@ -226,14 +251,13 @@ def run_json_parsing_benchmark(config: Dict) -> Dict:
                 # Parse operation (stringify then parse)
                 if "parse" in operations:
                     try:
-                        json_string = json.dumps(json_data)
-                        
-                        start_time = time.time()
+                        start_time = time.perf_counter()
                         parsed_data = json.loads(json_string)
-                        parse_time = (time.time() - start_time) * 1000  # ms
+                        parse_time = (time.perf_counter() - start_time) * 1000  # ms
                         
                         parse_times.append(parse_time)
-                        all_parse_times.append(parse_time)
+                        all_parse_times[parse_idx] = parse_time
+                        parse_idx += 1
                         
                         iteration_result["operations"]["parse"] = {
                             "success": True,
@@ -251,12 +275,13 @@ def run_json_parsing_benchmark(config: Dict) -> Dict:
                 # Stringify operation
                 if "stringify" in operations:
                     try:
-                        start_time = time.time()
+                        start_time = time.perf_counter()
                         json_string = json.dumps(json_data)
-                        stringify_time = (time.time() - start_time) * 1000  # ms
+                        stringify_time = (time.perf_counter() - start_time) * 1000  # ms
                         
                         stringify_times.append(stringify_time)
-                        all_stringify_times.append(stringify_time)
+                        all_stringify_times[stringify_idx] = stringify_time
+                        stringify_idx += 1
                         
                         iteration_result["operations"]["stringify"] = {
                             "success": True,
@@ -274,12 +299,13 @@ def run_json_parsing_benchmark(config: Dict) -> Dict:
                 # Traverse operation
                 if "traverse" in operations:
                     try:
-                        start_time = time.time()
+                        start_time = time.perf_counter()
                         operation_count = traverse_json(json_data)
-                        traverse_time = (time.time() - start_time) * 1000  # ms
+                        traverse_time = (time.perf_counter() - start_time) * 1000  # ms
                         
                         traverse_times.append(traverse_time)
-                        all_traverse_times.append(traverse_time)
+                        all_traverse_times[traverse_idx] = traverse_time
+                        traverse_idx += 1
                         
                         iteration_result["operations"]["traverse"] = {
                             "success": True,
@@ -311,7 +337,11 @@ def run_json_parsing_benchmark(config: Dict) -> Dict:
             
             results["test_cases"].append(test_case)
     
-    # Calculate overall summary
+    # Filter out unused slots and calculate overall summary
+    all_parse_times = [t for t in all_parse_times if t > 0]
+    all_stringify_times = [t for t in all_stringify_times if t > 0]
+    all_traverse_times = [t for t in all_traverse_times if t > 0]
+    
     if all_parse_times:
         results["summary"]["avg_parse_time"] = sum(all_parse_times) / len(all_parse_times)
     if all_stringify_times:

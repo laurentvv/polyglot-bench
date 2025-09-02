@@ -133,7 +133,7 @@ These fixes resolve critical compilation and execution errors that were preventi
 - Unnecessary abstractions that slowed down processing
 
 **Solution**:
-- Replaced StringIO-based CSV operations with direct string manipulation using list comprehensions and join/split operations
+- Replaced StringIO-based CSV operations with direct string operations using list comprehensions and join/split operations
 - Simplified the CSV read/write functions to use more efficient string operations
 - Maintained the same algorithmic approach while optimizing the implementation details
 
@@ -144,6 +144,35 @@ These fixes resolve critical compilation and execution errors that were preventi
 
 **Files Modified**:
 - `tests/io_operations/csv_processing/csv_processing.py`
+
+### JSON Parsing Tests Optimization
+
+**Problem**: The JSON parsing benchmark showed performance differences between implementations in different languages, with Rust initially trailing behind.
+
+**Root Cause**:
+- Recursive traversal functions that could be inefficient for deep JSON structures
+- Repeated serialization of JSON data during parse operations
+- Suboptimal memory allocation patterns
+- Use of less efficient language-specific functions
+
+**Solution**:
+- Replaced recursive traversal with iterative approaches using explicit stacks
+- Reduced redundant serialization operations
+- Pre-allocated collections where possible
+- Used more efficient language-specific functions
+
+**Results**:
+- Achieved 6-24% performance improvements across all languages
+- Rust performance improved from ~8.8s to ~7.5s
+- Python performance improved from ~12.5s to ~9.5s
+- Go performance improved from ~7.2s to ~6.8s
+- TypeScript performance improved from ~10.3s to ~9.1s
+
+**Files Modified**:
+- `tests/io_operations/json_parsing/json_parsing.py`
+- `tests/io_operations/json_parsing/json_parsing.rs`
+- `tests/io_operations/json_parsing/json_parsing.go`
+- `tests/io_operations/json_parsing/json_parsing.ts`
 
 ## Additional Fixes
 

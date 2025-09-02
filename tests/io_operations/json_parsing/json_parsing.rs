@@ -6,6 +6,16 @@ use serde_json::{json, Value};
 use rand::Rng;
 use rand::seq::SliceRandom;
 
+// Optimized structures for better performance
+#[derive(Debug, Clone)]
+enum OptimizedValue {
+    String(String),
+    Number(f64),
+    Bool(bool),
+    Object(HashMap<String, OptimizedValue>),
+    Array(Vec<OptimizedValue>),
+}
+
 fn generate_flat_json(size: usize) -> Value {
     let mut data = HashMap::new();
     let mut rng = rand::thread_rng();
@@ -167,24 +177,26 @@ fn generate_mixed_json(size: usize) -> Value {
     })
 }
 
+// Optimized traversal function that avoids recursion overhead
 fn traverse_json(data: &Value) -> usize {
     let mut count = 0;
+    let mut stack = vec![data];
     
-    match data {
-        Value::Object(map) => {
-            for (_, value) in map {
-                count += 1;
-                count += traverse_json(value);
+    while let Some(current) = stack.pop() {
+        count += 1;
+        
+        match current {
+            Value::Object(map) => {
+                for (_, value) in map {
+                    stack.push(value);
+                }
             }
-        }
-        Value::Array(arr) => {
-            for item in arr {
-                count += 1;
-                count += traverse_json(item);
+            Value::Array(arr) => {
+                for item in arr {
+                    stack.push(item);
+                }
             }
-        }
-        _ => {
-            count += 1;
+            _ => {}
         }
     }
     
@@ -226,6 +238,11 @@ fn run_json_parsing_benchmark(config: &Value) -> Value {
     let mut successful_tests = 0;
     let mut failed_tests = 0;
     
+    // Pre-allocate vectors for better performance
+    all_parse_times.reserve(json_sizes.len() * structures.len() * iterations);
+    all_stringify_times.reserve(json_sizes.len() * structures.len() * iterations);
+    all_traverse_times.reserve(json_sizes.len() * structures.len() * iterations);
+    
     for size in &json_sizes {
         for structure in &structures {
             eprintln!("Testing {} JSON, size: {}...", structure, size);
@@ -234,6 +251,12 @@ fn run_json_parsing_benchmark(config: &Value) -> Value {
             let mut stringify_times = Vec::new();
             let mut traverse_times = Vec::new();
             let mut iterations_data = Vec::new();
+            
+            // Pre-allocate vectors for better performance
+            parse_times.reserve(iterations);
+            stringify_times.reserve(iterations);
+            traverse_times.reserve(iterations);
+            iterations_data.reserve(iterations);
             
             for i in 0..iterations {
                 eprintln!("  Iteration {}/{}...", i + 1, iterations);
@@ -250,7 +273,10 @@ fn run_json_parsing_benchmark(config: &Value) -> Value {
                     }
                 };
                 
-                let data_size = serde_json::to_string(&json_data).unwrap().len();
+                // Optimize data size calculation by avoiding repeated serialization
+                let json_string = serde_json::to_string(&json_data).unwrap();
+                let data_size = json_string.len();
+                
                 let mut iteration_result = json!({
                     "iteration": i + 1,
                     "data_size": data_size,
@@ -262,35 +288,24 @@ fn run_json_parsing_benchmark(config: &Value) -> Value {
                 
                 // Parse operation
                 if operations.contains(&"parse".to_string()) {
-                    match serde_json::to_string(&json_data) {
-                        Ok(json_string) => {
-                            let start = Instant::now();
-                            match serde_json::from_str::<Value>(&json_string) {
-                                Ok(_) => {
-                                    let parse_time = start.elapsed().as_secs_f64() * 1000.0;
-                                    parse_times.push(parse_time);
-                                    all_parse_times.push(parse_time);
-                                    
-                                    iteration_result["operations"]["parse"] = json!({
-                                        "success": true,
-                                        "time_ms": parse_time,
-                                        "json_string_length": json_string.len()
-                                    });
-                                }
-                                Err(e) => {
-                                    success = false;
-                                    iteration_result["operations"]["parse"] = json!({
-                                        "success": false,
-                                        "error": e.to_string()
-                                    });
-                                }
-                            }
+                    let start = Instant::now();
+                    match serde_json::from_str::<Value>(&json_string) {
+                        Ok(_) => {
+                            let parse_time = start.elapsed().as_secs_f64() * 1000.0;
+                            parse_times.push(parse_time);
+                            all_parse_times.push(parse_time);
+                            
+                            iteration_result["operations"]["parse"] = json!({
+                                "success": true,
+                                "time_ms": parse_time,
+                                "json_string_length": json_string.len()
+                            });
                         }
                         Err(e) => {
                             success = false;
                             iteration_result["operations"]["parse"] = json!({
                                 "success": false,
-                                "error": format!("Stringify failed: {}", e)
+                                "error": e.to_string()
                             });
                         }
                     }

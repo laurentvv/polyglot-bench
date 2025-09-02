@@ -229,22 +229,27 @@ func generateMixedJson(size int) interface{} {
 	}
 }
 
+// Optimized traversal function using iterative approach to avoid stack overflow
 func traverseJson(data interface{}) int {
 	count := 0
+	stack := []interface{}{data}
 
-	switch v := data.(type) {
-	case map[string]interface{}:
-		for _, value := range v {
-			count++
-			count += traverseJson(value)
-		}
-	case []interface{}:
-		for _, item := range v {
-			count++
-			count += traverseJson(item)
-		}
-	default:
+	for len(stack) > 0 {
+		// Pop from stack
+		current := stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
 		count++
+
+		switch v := current.(type) {
+		case map[string]interface{}:
+			for _, value := range v {
+				stack = append(stack, value)
+			}
+		case []interface{}:
+			for _, item := range v {
+				stack = append(stack, item)
+			}
+		}
 	}
 
 	return count
@@ -269,9 +274,9 @@ func runJsonParsingBenchmark(config Config) TestResult {
 
 	startTime := time.Now()
 	var testCases []TestCase
-	var allParseTimes []float64
-	var allStringifyTimes []float64
-	var allTraverseTimes []float64
+	allParseTimes := make([]float64, 0, len(params.JsonSizes)*len(params.JsonStructures)*params.Iterations)
+	allStringifyTimes := make([]float64, 0, len(params.JsonSizes)*len(params.JsonStructures)*params.Iterations)
+	allTraverseTimes := make([]float64, 0, len(params.JsonSizes)*len(params.JsonStructures)*params.Iterations)
 	totalTests := 0
 	successfulTests := 0
 	failedTests := 0
@@ -293,10 +298,10 @@ func runJsonParsingBenchmark(config Config) TestResult {
 
 			fmt.Fprintf(os.Stderr, "Testing %s JSON, size: %d...\n", structure, size)
 
-			var parseTimes []float64
-			var stringifyTimes []float64
-			var traverseTimes []float64
-			var iterationsData []IterationResult
+			parseTimes := make([]float64, 0, params.Iterations)
+			stringifyTimes := make([]float64, 0, params.Iterations)
+			traverseTimes := make([]float64, 0, params.Iterations)
+			iterationsData := make([]IterationResult, 0, params.Iterations)
 
 			for i := 0; i < params.Iterations; i++ {
 				fmt.Fprintf(os.Stderr, "  Iteration %d/%d...\n", i+1, params.Iterations)

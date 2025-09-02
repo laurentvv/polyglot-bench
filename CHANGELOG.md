@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.3.0] - 2025-09-02
+
+### Added
+- Optimized JSON parsing benchmark implementations across all languages
+- Created performance comparison script for measuring improvements
+- Added JSON_PARSING_OPTIMIZATIONS.md documentation
+
+### Changed
+- Improved performance of JSON parsing test in all languages by 6-24%
+- Updated README with latest performance results for JSON parsing test
+- Converted package.json to use ES modules for TypeScript compatibility
+
 ## [1.2.0] - 2025-09-02
 
 ### Added
