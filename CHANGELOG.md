@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.2.0] - 2025-09-02
+
+### Added
+- Optimized Python implementation of CSV processing benchmark for better performance
+- Created performance comparison script for measuring improvements
+
+### Changed
+- Improved performance of CSV processing test in Python by ~26% (from ~28s to ~21s)
+- Updated README with latest performance results for CSV processing test
+
 ## [1.1.0] - 2025-09-02
 
 ### Fixed

@@ -133,6 +133,7 @@ The tool generates comprehensive performance reports showing relative performanc
 | Fibonacci (n=35) | 1.24s | 0.075s | 0.164s | 0.088s |
 | Quicksort (1M elements) | 0.842s | 0.126s | 0.285s | 0.192s |
 | Pi Calculation | 0.153s | 0.062s | 0.142s | 0.492s |
+| CSV Processing (50K rows) | 20.68s | 6.15s | 5.59s | 12.99s |
 
 ## 📁 Project Structure
 
@@ -179,8 +180,9 @@ Recent fixes have resolved critical compilation and execution issues:
 - Improved subprocess handling for more reliable test execution
 - Enhanced error handling and reporting
 - Better cross-platform compatibility
+- **Python CSV Processing**: Optimized implementation for ~26% performance improvement
 
-See [FIXES_SUMMARY.md](FIXES_SUMMARY.md) for detailed information on recent improvements.
+See [FIXES_SUMMARY.md](FIXES_SUMMARY.md) for detailed information on recent improvements and [PERFORMANCE_OPTIMIZATIONS.md](PERFORMANCE_OPTIMIZATIONS.md) for details on performance optimization strategies.
 
 ## 🤝 Contributing
 
