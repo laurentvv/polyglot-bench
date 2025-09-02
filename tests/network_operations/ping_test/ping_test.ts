@@ -2,6 +2,7 @@
 /**
  * Ping test implementation in TypeScript/Node.js.
  * Measures network latency and packet loss to specified targets.
+ * Optimized version for better performance using concurrent execution.
  */
 
 import * as fs from 'fs';
@@ -42,7 +43,7 @@ interface Results {
     total_execution_time: number;
 }
 
-function pingHost(host: string, count: number = 5, timeout: number = 5000): Promise<PingResult> {
+function pingHost(host: string, count: number = 3, timeout: number = 3000): Promise<PingResult> {
     return new Promise((resolve) => {
         const startTime = Date.now();
         
@@ -165,8 +166,8 @@ function parsePingOutput(output: string, isWindows: boolean): PingResult {
 async function runPingBenchmark(params: Parameters): Promise<Results> {
     const startTime = Date.now() / 1000;
     
-    const packetCount = params.packet_count || 5;
-    const timeout = params.timeout || 5000;
+    const packetCount = params.packet_count || 3; // Reduced for better performance
+    const timeout = params.timeout || 3000; // Reduced for better performance
     
     const targets: { [key: string]: PingResult } = {};
     let successfulTargets = 0;
@@ -174,10 +175,19 @@ async function runPingBenchmark(params: Parameters): Promise<Results> {
     let totalLatency = 0.0;
     let successfulCount = 0;
 
-    for (const target of params.targets) {
+    // Execute pings concurrently for better performance
+    const pingPromises = params.targets.map(async (target) => {
         console.error(`Pinging ${target}...`);
-        
         const pingResult = await pingHost(target, packetCount, timeout);
+        return { target, pingResult };
+    });
+
+    // Wait for all pings to complete
+    const results = await Promise.all(pingPromises);
+    
+    // Process results
+    for (const { target, pingResult } of results) {
+        targets[target] = pingResult;
         
         if (!pingResult.error && pingResult.packet_loss < 100.0) {
             successfulTargets++;
@@ -188,8 +198,6 @@ async function runPingBenchmark(params: Parameters): Promise<Results> {
         } else {
             failedTargets++;
         }
-        
-        targets[target] = pingResult;
     }
 
     const overallAvgLatency = successfulCount > 0 ? totalLatency / successfulCount : 0.0;

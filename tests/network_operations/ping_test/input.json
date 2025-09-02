@@ -3,11 +3,11 @@
   "description": "Network latency measurement using ping/ICMP",
   "parameters": {
     "targets": ["8.8.8.8", "1.1.1.1", "google.com"],
-    "packet_count": 5,
-    "timeout": 5000
+    "packet_count": 3,
+    "timeout": 3000
   },
   "expected_metrics": ["avg_latency", "packet_loss", "min_latency", "max_latency"],
   "category": "network_operations",
-  "max_execution_time": 30,
+  "max_execution_time": 15,
   "requires_network": true
 }

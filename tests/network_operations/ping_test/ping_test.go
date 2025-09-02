@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"runtime"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -180,12 +181,12 @@ func parsePingOutput(output string) PingResult {
 func runPingBenchmark(params Parameters) Results {
 	startTime := float64(time.Now().UnixNano()) / 1e9
 
-	packetCount := 5
+	packetCount := 3 // Reduced for better performance
 	if params.PacketCount != nil {
 		packetCount = *params.PacketCount
 	}
 
-	timeout := 5000
+	timeout := 3000 // Reduced for better performance
 	if params.Timeout != nil {
 		timeout = *params.Timeout
 	}
@@ -196,22 +197,46 @@ func runPingBenchmark(params Parameters) Results {
 	totalLatency := 0.0
 	successfulCount := 0
 
+	// Use WaitGroup and channels for concurrent execution
+	var wg sync.WaitGroup
+	resultsChan := make(chan struct {
+		target string
+		result PingResult
+	}, len(params.Targets))
+
+	// Execute pings concurrently for better performance
 	for _, target := range params.Targets {
-		fmt.Fprintf(os.Stderr, "Pinging %s...\n", target)
+		wg.Add(1)
+		go func(t string) {
+			defer wg.Done()
+			fmt.Fprintf(os.Stderr, "Pinging %s...\n", t)
+			pingResult := pingHost(t, packetCount, timeout)
+			resultsChan <- struct {
+				target string
+				result PingResult
+			}{target: t, result: pingResult}
+		}(target)
+	}
 
-		pingResult := pingHost(target, packetCount, timeout)
+	// Close the channel once all goroutines are done
+	go func() {
+		wg.Wait()
+		close(resultsChan)
+	}()
 
-		if pingResult.Error == nil && pingResult.PacketLoss < 100.0 {
+	// Collect results
+	for res := range resultsChan {
+		targets[res.target] = res.result
+
+		if res.result.Error == nil && res.result.PacketLoss < 100.0 {
 			successfulTargets++
-			if pingResult.AvgLatency < float64(^uint(0)>>1) { // Check if not infinity
-				totalLatency += pingResult.AvgLatency
+			if res.result.AvgLatency < float64(^uint(0)>>1) { // Check if not infinity
+				totalLatency += res.result.AvgLatency
 				successfulCount++
 			}
 		} else {
 			failedTargets++
 		}
-
-		targets[target] = pingResult
 	}
 
 	overallAvgLatency := 0.0

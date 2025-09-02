@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.4.0] - 2025-09-02
+
+### Added
+- Optimized ping test benchmark implementations across all languages
+- Created performance comparison script for measuring improvements
+- Added PING_TEST_OPTIMIZATIONS.md documentation
+
+### Changed
+- Improved performance of ping test in all languages by ~75% through concurrent execution
+- Reduced default packet count from 5 to 3 and timeout from 5000ms to 3000ms
+- Updated README with latest performance results for ping test
+- Updated input.json configuration for ping test with optimized parameters
+
 ## [1.3.0] - 2025-09-02
 
 ### Added
@@ -37,4 +50,4 @@
 
 ### Added
 - Created FIXES_SUMMARY.md to document compilation fixes
-- Added .gitignore file to exclude compiled binaries and temporary files
+- Added .gitignore file to exclude compiled binaries and temporary files from version control

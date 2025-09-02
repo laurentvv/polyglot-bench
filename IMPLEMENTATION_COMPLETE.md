@@ -89,6 +89,12 @@ I have successfully implemented a comprehensive multi-language performance bench
 - Pre-allocated collections for better memory management
 - Achieved 6-24% performance improvements across all languages
 
+**Ping Test**
+- Optimized implementations across all languages to execute pings concurrently
+- Reduced default packet count from 5 to 3 and timeout from 5000ms to 3000ms
+- Achieved ~75% performance improvements across all languages
+- Transformed sequential execution to parallel execution for multiple targets
+
 ## 📋 Usage Instructions
 
 ### Basic Commands

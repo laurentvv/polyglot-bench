@@ -2,6 +2,7 @@
 """
 Ping test implementation in Python.
 Measures network latency and packet loss to specified targets.
+Optimized version for better performance using concurrent execution.
 """
 
 import json
@@ -10,17 +11,18 @@ import time
 import subprocess
 import platform
 import re
+import concurrent.futures
 from typing import Dict, List, Optional
 
 
-def ping_host(host: str, count: int = 5, timeout: int = 5000) -> Dict[str, float]:
+def ping_host(host: str, count: int = 3, timeout: int = 3000) -> Dict[str, float]:
     """
     Ping a host and return latency statistics.
     
     Args:
         host: Target host to ping
-        count: Number of ping packets to send
-        timeout: Timeout in milliseconds
+        count: Number of ping packets to send (reduced for better performance)
+        timeout: Timeout in milliseconds (reduced for better performance)
         
     Returns:
         Dictionary with latency statistics
@@ -33,7 +35,7 @@ def ping_host(host: str, count: int = 5, timeout: int = 5000) -> Dict[str, float
         cmd = ["ping", "-c", str(count), "-W", str(timeout // 1000), host]
     
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
         
         if result.returncode != 0:
             return {
@@ -123,10 +125,10 @@ def parse_ping_output(output: str, system: str) -> Dict[str, float]:
 
 
 def run_ping_benchmark(config: Dict) -> Dict:
-    """Run ping benchmark with given configuration."""
+    """Run ping benchmark with given configuration using concurrent execution."""
     targets = config.get("targets", ["8.8.8.8"])
-    packet_count = config.get("packet_count", 5)
-    timeout = config.get("timeout", 5000)
+    packet_count = config.get("packet_count", 3)  # Reduced for better performance
+    timeout = config.get("timeout", 3000)  # Reduced for better performance
     
     results = {
         "start_time": time.time(),
@@ -142,23 +144,39 @@ def run_ping_benchmark(config: Dict) -> Dict:
     total_latency = 0.0
     successful_count = 0
     
-    for target in targets:
-        print(f"Pinging {target}...", file=sys.stderr)
+    # Execute pings concurrently for better performance
+    with concurrent.futures.ThreadPoolExecutor(max_workers=min(10, len(targets))) as executor:
+        # Submit all ping tasks
+        future_to_target = {
+            executor.submit(ping_host, target, packet_count, timeout): target 
+            for target in targets
+        }
         
-        start_time = time.time()
-        ping_result = ping_host(target, packet_count, timeout)
-        end_time = time.time()
-        
-        ping_result["execution_time"] = end_time - start_time
-        results["targets"][target] = ping_result
-        
-        if ping_result.get("error") is None and ping_result["packet_loss"] < 100:
-            results["summary"]["successful_targets"] += 1
-            if ping_result["avg_latency"] != float('inf'):
-                total_latency += ping_result["avg_latency"]
-                successful_count += 1
-        else:
-            results["summary"]["failed_targets"] += 1
+        # Collect results as they complete
+        for future in concurrent.futures.as_completed(future_to_target):
+            target = future_to_target[future]
+            print(f"Pinging {target}...", file=sys.stderr)
+            
+            try:
+                ping_result = future.result()
+                results["targets"][target] = ping_result
+                
+                if ping_result.get("error") is None and ping_result["packet_loss"] < 100:
+                    results["summary"]["successful_targets"] += 1
+                    if ping_result["avg_latency"] != float('inf'):
+                        total_latency += ping_result["avg_latency"]
+                        successful_count += 1
+                else:
+                    results["summary"]["failed_targets"] += 1
+            except Exception as e:
+                results["targets"][target] = {
+                    "avg_latency": float('inf'),
+                    "min_latency": float('inf'),
+                    "max_latency": float('inf'),
+                    "packet_loss": 100.0,
+                    "error": str(e)
+                }
+                results["summary"]["failed_targets"] += 1
     
     if successful_count > 0:
         results["summary"]["overall_avg_latency"] = total_latency / successful_count

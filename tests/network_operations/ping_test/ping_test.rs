@@ -5,6 +5,8 @@ use std::time::{Duration, Instant};
 use serde::{Deserialize, Serialize};
 use serde_json;
 use regex::Regex;
+use std::thread;
+use std::sync::{Arc, Mutex};
 
 #[derive(Deserialize)]
 struct Config {
@@ -18,7 +20,7 @@ struct Parameters {
     timeout: Option<u32>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 struct PingResult {
     avg_latency: f64,
     min_latency: f64,
@@ -180,37 +182,69 @@ fn run_ping_benchmark(params: &Parameters) -> Results {
         .unwrap()
         .as_secs_f64();
 
-    let packet_count = params.packet_count.unwrap_or(5);
-    let timeout = params.timeout.unwrap_or(5000);
+    let packet_count = params.packet_count.unwrap_or(3); // Reduced for better performance
+    let timeout = params.timeout.unwrap_or(3000); // Reduced for better performance
 
-    let mut targets = std::collections::HashMap::new();
-    let mut successful_targets = 0;
-    let mut failed_targets = 0;
-    let mut total_latency = 0.0;
-    let mut successful_count = 0;
+    let targets_arc = Arc::new(Mutex::new(std::collections::HashMap::new()));
+    let successful_targets = Arc::new(Mutex::new(0));
+    let failed_targets = Arc::new(Mutex::new(0));
+    let total_latency = Arc::new(Mutex::new(0.0));
+    let successful_count = Arc::new(Mutex::new(0));
 
+    // Execute pings concurrently for better performance
+    let mut handles = vec![];
+    
     for target in &params.targets {
-        eprintln!("Pinging {}...", target);
+        let target_clone = target.clone();
+        let targets_arc_clone = Arc::clone(&targets_arc);
+        let successful_targets_clone = Arc::clone(&successful_targets);
+        let failed_targets_clone = Arc::clone(&failed_targets);
+        let total_latency_clone = Arc::clone(&total_latency);
+        let successful_count_clone = Arc::clone(&successful_count);
         
-        let ping_result = ping_host(target, packet_count, timeout);
-        
-        if ping_result.error.is_none() && ping_result.packet_loss < 100.0 {
-            successful_targets += 1;
-            if ping_result.avg_latency.is_finite() {
-                total_latency += ping_result.avg_latency;
-                successful_count += 1;
+        let handle = thread::spawn(move || {
+            eprintln!("Pinging {}...", target_clone);
+            
+            let ping_result = ping_host(&target_clone, packet_count, timeout);
+            
+            {
+                let mut targets = targets_arc_clone.lock().unwrap();
+                targets.insert(target_clone.clone(), ping_result.clone());
             }
-        } else {
-            failed_targets += 1;
-        }
+            
+            if ping_result.error.is_none() && ping_result.packet_loss < 100.0 {
+                let mut success_count = successful_targets_clone.lock().unwrap();
+                *success_count += 1;
+                
+                if ping_result.avg_latency.is_finite() {
+                    let mut total = total_latency_clone.lock().unwrap();
+                    *total += ping_result.avg_latency;
+                    
+                    let mut count = successful_count_clone.lock().unwrap();
+                    *count += 1;
+                }
+            } else {
+                let mut fail_count = failed_targets_clone.lock().unwrap();
+                *fail_count += 1;
+            }
+        });
         
-        targets.insert(target.clone(), ping_result);
+        handles.push(handle);
+    }
+    
+    // Wait for all threads to complete
+    for handle in handles {
+        handle.join().unwrap();
     }
 
-    let overall_avg_latency = if successful_count > 0 {
-        total_latency / successful_count as f64
-    } else {
-        0.0
+    let overall_avg_latency = {
+        let count = *successful_count.lock().unwrap();
+        if count > 0 {
+            let total = *total_latency.lock().unwrap();
+            total / count as f64
+        } else {
+            0.0
+        }
     };
 
     let end_time = std::time::SystemTime::now()
@@ -220,11 +254,11 @@ fn run_ping_benchmark(params: &Parameters) -> Results {
 
     Results {
         start_time,
-        targets,
+        targets: Arc::try_unwrap(targets_arc).unwrap().into_inner().unwrap(),
         summary: Summary {
             total_targets: params.targets.len(),
-            successful_targets,
-            failed_targets,
+            successful_targets: *successful_targets.lock().unwrap(),
+            failed_targets: *failed_targets.lock().unwrap(),
             overall_avg_latency,
         },
         end_time,

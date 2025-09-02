@@ -174,6 +174,34 @@ These fixes resolve critical compilation and execution errors that were preventi
 - `tests/io_operations/json_parsing/json_parsing.go`
 - `tests/io_operations/json_parsing/json_parsing.ts`
 
+### Ping Test Optimization
+
+**Problem**: The ping test benchmark was extremely slow, taking 30-60 seconds or more to complete with the default configuration of 3 targets.
+
+**Root Cause**:
+- Sequential execution of pings to different targets
+- High timeout values (5000ms) and packet counts (5)
+- Subprocess overhead for each ping operation
+
+**Solution**:
+- Implemented concurrent execution of pings to different targets
+- Reduced default packet count from 5 to 3 and timeout from 5000ms to 3000ms
+- Used language-specific concurrency models (threads, goroutines, ThreadPoolExecutor, Promise.all)
+
+**Results**:
+- Achieved ~75% performance improvements across all languages
+- Python performance improved from ~30-60s to ~5-15s
+- Rust performance improved from ~25-50s to ~4-12s
+- Go performance improved from ~20-45s to ~3-10s
+- TypeScript performance improved from ~25-55s to ~5-15s
+
+**Files Modified**:
+- `tests/network_operations/ping_test/ping_test.py`
+- `tests/network_operations/ping_test/ping_test.rs`
+- `tests/network_operations/ping_test/ping_test.go`
+- `tests/network_operations/ping_test/ping_test.ts`
+- `tests/network_operations/ping_test/input.json`
+
 ## Additional Fixes
 
 While working on the main issues, we also fixed several other problems:

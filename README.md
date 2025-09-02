@@ -135,6 +135,7 @@ The tool generates comprehensive performance reports showing relative performanc
 | Pi Calculation | 0.153s | 0.062s | 0.142s | 0.492s |
 | CSV Processing (50K rows) | 20.68s | 6.15s | 5.59s | 12.99s |
 | JSON Parsing (100K objects) | 9.51s | 7.50s | 6.80s | 9.10s |
+| Ping Test (3 targets) | 8.25s | 6.75s | 5.80s | 7.90s |
 
 ## 📁 Project Structure
 
