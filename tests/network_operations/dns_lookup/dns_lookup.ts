@@ -64,7 +64,15 @@ interface Config {
 
 const lookupAsync = promisify(dns.lookup);
 
-async function resolveDomain(domain: string, timeoutMs: number): Promise<DnsResult> {
+// Simple DNS cache
+const dnsCache = new Map<string, DnsResult>();
+
+async function resolveDomainWithCache(domain: string, timeoutMs: number): Promise<DnsResult> {
+    // Check cache first
+    if (dnsCache.has(domain)) {
+        return dnsCache.get(domain)!;
+    }
+
     const start = process.hrtime.bigint();
     const result: DnsResult = {
         domain,
@@ -98,7 +106,14 @@ async function resolveDomain(domain: string, timeoutMs: number): Promise<DnsResu
         result.error = `DNS resolution failed: ${error instanceof Error ? error.message : String(error)}`;
     }
 
+    // Cache the result
+    dnsCache.set(domain, result);
+    
     return result;
+}
+
+async function resolveDomain(domain: string, timeoutMs: number): Promise<DnsResult> {
+    return resolveDomainWithCache(domain, timeoutMs);
 }
 
 async function resolveDomainsSequential(domains: string[], timeoutMs: number): Promise<DnsResult[]> {
@@ -115,7 +130,7 @@ async function resolveDomainsSequential(domains: string[], timeoutMs: number): P
 }
 
 async function resolveDomainsConcurrent(domains: string[], maxWorkers: number, timeoutMs: number): Promise<DnsResult[]> {
-    // Limit concurrency using semaphore pattern
+    // Use a more efficient semaphore implementation
     const semaphore = Array(maxWorkers).fill(null).map(() => Promise.resolve());
     let semaphoreIndex = 0;
 

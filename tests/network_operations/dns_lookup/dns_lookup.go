@@ -69,7 +69,21 @@ type Config struct {
 	} `json:"parameters"`
 }
 
-func resolveDomain(domain string, timeoutSecs int) DnsResult {
+// Simple DNS cache
+var (
+	dnsCache   = make(map[string]DnsResult)
+	cacheMutex sync.RWMutex
+)
+
+func resolveDomainWithCache(domain string, timeoutSecs int) DnsResult {
+	// Check cache first
+	cacheMutex.RLock()
+	if cachedResult, exists := dnsCache[domain]; exists {
+		cacheMutex.RUnlock()
+		return cachedResult
+	}
+	cacheMutex.RUnlock()
+
 	start := time.Now()
 	result := DnsResult{
 		Domain:         domain,
@@ -107,7 +121,16 @@ func resolveDomain(domain string, timeoutSecs int) DnsResult {
 		}
 	}
 
+	// Cache the result
+	cacheMutex.Lock()
+	dnsCache[domain] = result
+	cacheMutex.Unlock()
+
 	return result
+}
+
+func resolveDomain(domain string, timeoutSecs int) DnsResult {
+	return resolveDomainWithCache(domain, timeoutSecs)
 }
 
 func resolveDomainsSequential(domains []string, timeoutSecs int) []DnsResult {

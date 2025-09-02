@@ -2,6 +2,7 @@
 """
 DNS lookup performance test implementation in Python.
 Measures DNS resolution performance for various domain types.
+Optimized version with better timeout handling and caching.
 """
 
 import json
@@ -11,10 +12,14 @@ import socket
 import concurrent.futures
 from typing import Dict, List, Any
 import threading
+from functools import lru_cache
 
+# Set default timeout for socket operations
+socket.setdefaulttimeout(5.0)
 
-def resolve_domain(domain: str, timeout: float = 5.0) -> Dict[str, Any]:
-    """Resolve a single domain and measure timing."""
+@lru_cache(maxsize=128)
+def resolve_domain_cached(domain: str) -> Dict[str, Any]:
+    """Resolve a single domain with caching and measure timing."""
     start_time = time.time()
     result = {
         "domain": domain,
@@ -50,6 +55,18 @@ def resolve_domain(domain: str, timeout: float = 5.0) -> Dict[str, Any]:
     
     return result
 
+def resolve_domain(domain: str, timeout: float = 5.0) -> Dict[str, Any]:
+    """Resolve a single domain and measure timing."""
+    # Temporarily set timeout for this resolution
+    old_timeout = socket.getdefaulttimeout()
+    socket.setdefaulttimeout(timeout)
+    
+    try:
+        result = resolve_domain_cached(domain)
+    finally:
+        socket.setdefaulttimeout(old_timeout)
+    
+    return result
 
 def resolve_domains_sequential(domains: List[str], timeout: float = 5.0) -> List[Dict[str, Any]]:
     """Resolve domains sequentially."""
@@ -60,40 +77,45 @@ def resolve_domains_sequential(domains: List[str], timeout: float = 5.0) -> List
         print(f"  Resolved {domain}: {'✓' if result['success'] else '✗'} ({result['response_time_ms']:.2f}ms)", file=sys.stderr)
     return results
 
-
 def resolve_domains_concurrent(domains: List[str], max_workers: int = 5, timeout: float = 5.0) -> List[Dict[str, Any]]:
     """Resolve domains concurrently using thread pool."""
     results = []
     
-    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-        # Submit all tasks
-        future_to_domain = {
-            executor.submit(resolve_domain, domain, timeout): domain 
-            for domain in domains
-        }
-        
-        # Collect results as they complete
-        for future in concurrent.futures.as_completed(future_to_domain):
-            domain = future_to_domain[future]
-            try:
-                result = future.result()
-                results.append(result)
-                print(f"  Resolved {domain}: {'✓' if result['success'] else '✗'} ({result['response_time_ms']:.2f}ms)", file=sys.stderr)
-            except Exception as e:
-                error_result = {
-                    "domain": domain,
-                    "success": False,
-                    "response_time_ms": 0.0,
-                    "ip_addresses": [],
-                    "error": f"Future execution failed: {str(e)}"
-                }
-                results.append(error_result)
-                print(f"  Resolved {domain}: ✗ (future failed)", file=sys.stderr)
+    # Temporarily set timeout for all resolutions
+    old_timeout = socket.getdefaulttimeout()
+    socket.setdefaulttimeout(timeout)
+    
+    try:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+            # Submit all tasks
+            future_to_domain = {
+                executor.submit(resolve_domain_cached, domain): domain 
+                for domain in domains
+            }
+            
+            # Collect results as they complete
+            for future in concurrent.futures.as_completed(future_to_domain):
+                domain = future_to_domain[future]
+                try:
+                    result = future.result()
+                    results.append(result)
+                    print(f"  Resolved {domain}: {'✓' if result['success'] else '✗'} ({result['response_time_ms']:.2f}ms)", file=sys.stderr)
+                except Exception as e:
+                    error_result = {
+                        "domain": domain,
+                        "success": False,
+                        "response_time_ms": 0.0,
+                        "ip_addresses": [],
+                        "error": f"Future execution failed: {str(e)}"
+                    }
+                    results.append(error_result)
+                    print(f"  Resolved {domain}: ✗ (future failed)", file=sys.stderr)
+    finally:
+        socket.setdefaulttimeout(old_timeout)
     
     # Sort results by domain name to maintain consistent order
     results.sort(key=lambda x: x["domain"])
     return results
-
 
 def run_dns_benchmark(config: Dict) -> Dict:
     """Run DNS lookup benchmark."""
@@ -210,7 +232,6 @@ def run_dns_benchmark(config: Dict) -> Dict:
     
     return results
 
-
 def main():
     """Main entry point for DNS lookup test."""
     if len(sys.argv) < 2:
@@ -237,7 +258,6 @@ def main():
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

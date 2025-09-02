@@ -45,6 +45,5 @@ function main(): void {
     console.log(`Execution time: ${executionTime.toFixed(6)} seconds`);
 }
 
-if (require.main === module) {
-    main();
-}
+// Always run main for benchmark purposes
+main();

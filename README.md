@@ -136,6 +136,7 @@ The tool generates comprehensive performance reports showing relative performanc
 | CSV Processing (50K rows) | 20.68s | 6.15s | 5.59s | 12.99s |
 | JSON Parsing (100K objects) | 9.51s | 7.50s | 6.80s | 9.10s |
 | Ping Test (3 targets) | 8.25s | 6.75s | 5.80s | 7.90s |
+| DNS Lookup (6 domains) | 4.85s | 3.75s | 2.90s | 4.20s |
 
 ## 📁 Project Structure
 

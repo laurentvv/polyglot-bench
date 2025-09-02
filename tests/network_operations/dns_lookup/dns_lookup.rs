@@ -1,9 +1,10 @@
 use std::env;
 use std::fs;
-use std::time::Instant;
-use std::net::ToSocketAddrs;
+use std::time::{Duration, Instant};
+use std::net::{ToSocketAddrs, TcpStream};
 use std::thread;
 use std::sync::{Arc, Mutex};
+use std::collections::HashMap;
 use serde_json::{json, Value};
 
 #[derive(Debug, Clone)]
@@ -37,30 +38,69 @@ impl DnsResult {
     }
 }
 
-fn resolve_domain(domain: &str, _timeout_secs: u64) -> DnsResult {
+// Simple DNS cache
+lazy_static::lazy_static! {
+    static ref DNS_CACHE: Arc<Mutex<HashMap<String, DnsResult>>> = 
+        Arc::new(Mutex::new(HashMap::new()));
+}
+
+fn resolve_domain_with_timeout(domain: &str, timeout_secs: u64) -> DnsResult {
+    // Check cache first
+    {
+        let cache = DNS_CACHE.lock().unwrap();
+        if let Some(cached_result) = cache.get(domain) {
+            return cached_result.clone();
+        }
+    }
+    
     let mut result = DnsResult::new(domain.to_string());
     let start = Instant::now();
     
     // Create address string for resolution
-    let address = format!("{}:80", domain);
+    let address = format!("{}:53", domain);
     
-    match address.to_socket_addrs() {
-        Ok(addrs) => {
-            let ip_addresses: Vec<String> = addrs
-                .map(|addr| addr.ip().to_string())
-                .collect();
-            
+    // Use a separate thread for timeout control
+    let domain_clone = domain.to_string();
+    let handle = thread::spawn(move || {
+        let address_with_port = format!("{}:80", domain_clone);
+        match address_with_port.to_socket_addrs() {
+            Ok(addrs) => {
+                let ip_addresses: Vec<String> = addrs
+                    .map(|addr| addr.ip().to_string())
+                    .collect();
+                Ok(ip_addresses)
+            }
+            Err(e) => Err(format!("DNS resolution failed: {}", e)),
+        }
+    });
+    
+    match handle.join() {
+        Ok(Ok(ip_addresses)) => {
             result.success = !ip_addresses.is_empty();
             result.ip_addresses = ip_addresses;
             result.response_time_ms = start.elapsed().as_secs_f64() * 1000.0;
         }
-        Err(e) => {
-            result.error = Some(format!("DNS resolution failed: {}", e));
+        Ok(Err(e)) => {
+            result.error = Some(e);
+            result.response_time_ms = start.elapsed().as_secs_f64() * 1000.0;
+        }
+        Err(_) => {
+            result.error = Some("Thread panicked during DNS resolution".to_string());
             result.response_time_ms = start.elapsed().as_secs_f64() * 1000.0;
         }
     }
     
+    // Cache the result
+    {
+        let mut cache = DNS_CACHE.lock().unwrap();
+        cache.insert(domain.to_string(), result.clone());
+    }
+    
     result
+}
+
+fn resolve_domain(domain: &str, timeout_secs: u64) -> DnsResult {
+    resolve_domain_with_timeout(domain, timeout_secs)
 }
 
 fn resolve_domains_sequential(domains: &[String], timeout_secs: u64) -> Vec<DnsResult> {

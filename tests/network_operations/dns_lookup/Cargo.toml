@@ -9,3 +9,4 @@ path = "dns_lookup.rs"
 
 [dependencies]
 serde_json = "1.0"
+lazy_static = "1.4"

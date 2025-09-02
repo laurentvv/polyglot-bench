@@ -429,6 +429,5 @@ function main(): void {
     }
 }
 
-if (require.main === module) {
-    main();
-}
+// Always run main for benchmark purposes
+main();

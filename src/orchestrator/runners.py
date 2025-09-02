@@ -871,15 +871,15 @@ class TypeScriptRunner(BaseLanguageRunner):
         original_cwd = os.getcwd()
         
         try:
-            # Use more specific TypeScript compilation flags
+            # Use more specific TypeScript compilation flags for ES modules
             compile_cmd = [
                 'tsc', source_file,
                 '--outDir', output_dir,
                 '--target', 'ES2020',
-                '--module', 'commonjs',
+                '--module', 'es2020',
+                '--moduleResolution', 'node',
                 '--strict',
-                '--noEmitOnError',
-                '--moduleResolution', 'node'
+                '--noEmitOnError'
             ]
             
             result = self._run_command(compile_cmd)
@@ -900,15 +900,15 @@ class TypeScriptRunner(BaseLanguageRunner):
         original_cwd = os.getcwd()
         
         try:
-            # Use npx to run TypeScript compiler
+            # Use npx to run TypeScript compiler with ES modules
             compile_cmd = [
                 'npx', 'tsc', source_file,
                 '--outDir', output_dir,
                 '--target', 'ES2020',
-                '--module', 'commonjs',
+                '--module', 'es2020',
+                '--moduleResolution', 'node',
                 '--strict',
-                '--noEmitOnError',
-                '--moduleResolution', 'node'
+                '--noEmitOnError'
             ]
             
             result = self._run_command(compile_cmd, timeout=60)
@@ -929,7 +929,7 @@ class TypeScriptRunner(BaseLanguageRunner):
         original_cwd = os.getcwd()
         
         try:
-            # Use local TypeScript compiler
+            # Use local TypeScript compiler with ES modules
             tsc_path = os.path.join('node_modules', '.bin', 'tsc')
             if os.name == 'nt':  # Windows
                 tsc_path += '.cmd'
@@ -938,10 +938,10 @@ class TypeScriptRunner(BaseLanguageRunner):
                 tsc_path, source_file,
                 '--outDir', output_dir,
                 '--target', 'ES2020',
-                '--module', 'commonjs',
+                '--module', 'es2020',
+                '--moduleResolution', 'node',
                 '--strict',
-                '--noEmitOnError',
-                '--moduleResolution', 'node'
+                '--noEmitOnError'
             ]
             
             result = self._run_command(compile_cmd, timeout=60)
