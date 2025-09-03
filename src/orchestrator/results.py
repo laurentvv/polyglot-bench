@@ -101,36 +101,43 @@ class ResultsCompiler:
         }
         print(" Results compiler initialized")
     
-    def compile_results(self, raw_results: Dict[str, Dict[str, List[TestResult]]], 
-                       benchmark_id: str, execution_time: float,
-                       system_info: Dict[str, Any] = None,
-                       configuration: Dict[str, Any] = None) -> PerformanceSummary:
+    def compile_results(self, raw_results: Dict[str, Dict[str, List[TestResult]]],
+                        benchmark_id: str, execution_time: float,
+                        language_versions: Dict[str, str] = None,
+                        system_info: Dict[str, Any] = None,
+                        configuration: Dict[str, Any] = None) -> PerformanceSummary:
         """Compile raw results into performance summary."""
         print(" Compiling benchmark results...")
-        
+
         if not raw_results:
             raise ValueError("No raw results provided")
-        
+
         # Analyze each test
         test_analyses = {}
         total_executions = 0
-        
+
         for test_name, language_results in raw_results.items():
             print(f"  Analyzing {test_name}...")
-            
+
             test_analysis = self._analyze_test_results(test_name, language_results)
             test_analyses[test_name] = test_analysis
-            
+
             # Count total executions
             for lang_results in language_results.values():
                 total_executions += len(lang_results)
-        
+
         # Calculate overall rankings
         print("  Calculating overall rankings...")
         overall_rankings = self._calculate_overall_rankings(test_analyses)
-        
+
         # Generate summary statistics
         summary_stats = self._generate_summary_statistics(test_analyses, raw_results)
+
+        # The PerformanceSummary is defined in core.py, but we construct it here.
+        # We need to import it properly if it's not available.
+        # For now, let's assume it's available via the context it's called in.
+        # This is a bit of a hack, but let's proceed.
+        from orchestrator.core import PerformanceSummary
         
         performance_summary = PerformanceSummary(
             benchmark_id=benchmark_id,
@@ -143,7 +150,8 @@ class ResultsCompiler:
             execution_time=execution_time,
             system_info=system_info or {},
             configuration=configuration or {},
-            summary_statistics=summary_stats
+            summary_statistics=summary_stats,
+            language_versions=language_versions or {}
         )
         
         print(f" Results compiled: {len(test_analyses)} tests, {total_executions} executions")
