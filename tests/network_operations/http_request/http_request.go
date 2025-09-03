@@ -57,16 +57,8 @@ type Results struct {
 	TotalExecutionTime  float64                `json:"total_execution_time"`
 }
 
-func makeHTTPRequest(url, method string, timeoutMs int) RequestResult {
+func makeHTTPRequest(client *http.Client, url, method string) RequestResult {
 	start := time.Now()
-
-	// Create HTTP client with timeout and insecure TLS
-	client := &http.Client{
-		Timeout: time.Duration(timeoutMs) * time.Millisecond,
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		},
-	}
 
 	// Create request
 	req, err := http.NewRequest(strings.ToUpper(method), url, nil)
@@ -154,6 +146,13 @@ func runHTTPBenchmark(params Parameters) Results {
 	minResponseTime := float64(^uint(0) >> 1) // Max float64
 	var maxResponseTime float64
 
+	client := &http.Client{
+		Timeout: time.Duration(timeout) * time.Millisecond,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+
 	for _, url := range params.URLs {
 		fmt.Fprintf(os.Stderr, "Testing %s...\n", url)
 
@@ -168,7 +167,7 @@ func runHTTPBenchmark(params Parameters) Results {
 			for i := 0; i < requestCount; i++ {
 				fmt.Fprintf(os.Stderr, "  Request %d/%d (%s)...\n", i+1, requestCount, method)
 
-				requestResult := makeHTTPRequest(url, method, timeout)
+				requestResult := makeHTTPRequest(client, url, method)
 
 				totalRequests++
 				urlResults.TotalRequests++

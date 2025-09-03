@@ -7,29 +7,20 @@ Performs matrix multiplication on randomly generated matrices.
 import sys
 import time
 import random
+import numpy as np
 
 
 def create_matrix(rows, cols):
-    """Create a matrix filled with random values."""
-    return [[random.uniform(0, 100) for _ in range(cols)] for _ in range(rows)]
+    """Create a matrix filled with random values using NumPy."""
+    return np.random.rand(rows, cols) * 100
 
 
 def multiply_matrices(a, b):
-    """Multiply two matrices."""
-    rows_a, cols_a = len(a), len(a[0])
-    rows_b, cols_b = len(b), len(b[0])
-    
-    if cols_a != rows_b:
+    """Multiply two matrices using NumPy's optimized multiplication."""
+    if a.shape[1] != b.shape[0]:
         raise ValueError("Matrices cannot be multiplied")
-    
-    result = [[0 for _ in range(cols_b)] for _ in range(rows_a)]
-    
-    for i in range(rows_a):
-        for j in range(cols_b):
-            for k in range(cols_a):
-                result[i][j] += a[i][k] * b[k][j]
-    
-    return result
+    # Use the @ operator for matrix multiplication in NumPy
+    return a @ b
 
 
 def main():
@@ -52,7 +43,7 @@ def main():
     total_time = create_time + multiply_time
     
     # Verify result dimensions
-    result_rows, result_cols = len(result), len(result[0])
+    result_rows, result_cols = result.shape
     
     print(f"Result: {result_rows}x{result_cols} matrix")
     print(f"Sample result[0][0]: {result[0][0]:.6f}")

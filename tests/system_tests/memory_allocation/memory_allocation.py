@@ -12,6 +12,7 @@ import gc
 import psutil
 import os
 from typing import Dict, List, Any, Optional
+import numpy as np
 
 
 def get_memory_usage() -> int:
@@ -23,11 +24,12 @@ def get_memory_usage() -> int:
         return 0
 
 
-def allocate_array(size: int, count: int) -> List[List[int]]:
-    """Allocate arrays of specified size."""
+def allocate_array(size: int, count: int) -> List[np.ndarray]:
+    """Allocate arrays of specified size using NumPy for performance."""
     arrays = []
     for i in range(count):
-        array = [random.randint(0, 1000) for _ in range(size)]
+        # Use NumPy's optimized random integer generation
+        array = np.random.randint(0, 1001, size=size)
         arrays.append(array)
     return arrays
 
@@ -212,7 +214,8 @@ def run_memory_allocation_benchmark(config: Dict) -> Dict:
                             
                             # Calculate theoretical vs actual memory usage
                             if structure == "array":
-                                theoretical_size = size * count * 8  # Assuming 8 bytes per int
+                                # For NumPy, we can get the exact byte size
+                                theoretical_size = sum(arr.nbytes for arr in allocated_data)
                             elif structure == "hash_map":
                                 theoretical_size = size * count * 16  # Key-value pairs
                             else:  # linked_list
