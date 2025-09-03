@@ -1,7 +1,11 @@
 [package]
-name = "benchmark_test"
+name = "memory_allocation"
 version = "0.1.0"
 edition = "2021"
+
+[[bin]]
+name = "memory_allocation"
+path = "memory_allocation.rs"
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }

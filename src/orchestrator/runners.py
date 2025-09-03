@@ -246,6 +246,8 @@ class RustRunner(BaseLanguageRunner):
                 dependencies.append('tokio = { version = "1.0", features = ["full"] }')
             if 'use tempfile::' in content or 'tempfile::' in content:
                 dependencies.append('tempfile = "3.0"')
+            if 'use lazy_static::' in content or 'lazy_static::' in content:
+                dependencies.append('lazy_static = "1.4"')
             
         except Exception as e:
             print(f"    Warning: Could not analyze dependencies in {source_file}: {e}")

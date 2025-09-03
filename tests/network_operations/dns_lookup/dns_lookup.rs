@@ -1,11 +1,12 @@
 use std::env;
 use std::fs;
-use std::time::{Duration, Instant};
-use std::net::{ToSocketAddrs, TcpStream};
+use std::time::Instant;
+use std::net::ToSocketAddrs;
 use std::thread;
 use std::sync::{Arc, Mutex};
 use std::collections::HashMap;
 use serde_json::{json, Value};
+use lazy_static::lazy_static;
 
 #[derive(Debug, Clone)]
 struct DnsResult {
@@ -44,7 +45,7 @@ lazy_static::lazy_static! {
         Arc::new(Mutex::new(HashMap::new()));
 }
 
-fn resolve_domain_with_timeout(domain: &str, timeout_secs: u64) -> DnsResult {
+fn resolve_domain_with_timeout(domain: &str, _timeout_secs: u64) -> DnsResult {
     // Check cache first
     {
         let cache = DNS_CACHE.lock().unwrap();
@@ -55,9 +56,6 @@ fn resolve_domain_with_timeout(domain: &str, timeout_secs: u64) -> DnsResult {
     
     let mut result = DnsResult::new(domain.to_string());
     let start = Instant::now();
-    
-    // Create address string for resolution
-    let address = format!("{}:53", domain);
     
     // Use a separate thread for timeout control
     let domain_clone = domain.to_string();

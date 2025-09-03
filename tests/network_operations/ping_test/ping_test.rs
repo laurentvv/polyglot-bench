@@ -1,7 +1,7 @@
 use std::env;
 use std::fs;
 use std::process::Command;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 use serde::{Deserialize, Serialize};
 use serde_json;
 use regex::Regex;
@@ -20,7 +20,7 @@ struct Parameters {
     timeout: Option<u32>,
 }
 
-#[derive(Serialize, Clone)]
+#[derive(Serialize, Clone, Debug)]
 struct PingResult {
     avg_latency: f64,
     min_latency: f64,
@@ -252,13 +252,17 @@ fn run_ping_benchmark(params: &Parameters) -> Results {
         .unwrap()
         .as_secs_f64();
 
+    // Extract values before creating Results struct to avoid borrowing issues
+    let successful_targets_count = *successful_targets.lock().unwrap();
+    let failed_targets_count = *failed_targets.lock().unwrap();
+    
     Results {
         start_time,
         targets: Arc::try_unwrap(targets_arc).unwrap().into_inner().unwrap(),
         summary: Summary {
             total_targets: params.targets.len(),
-            successful_targets: *successful_targets.lock().unwrap(),
-            failed_targets: *failed_targets.lock().unwrap(),
+            successful_targets: successful_targets_count,
+            failed_targets: failed_targets_count,
             overall_avg_latency,
         },
         end_time,

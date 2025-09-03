@@ -144,11 +144,23 @@ class ReportGenerator:
         
         # Add test results
         for test_name, analysis in performance_summary.results.items():
+            # Calculate average test time for this test
+            total_test_time = 0.0
+            test_count = 0
+            
+            # Sum up all successful execution times for this test
+            for language, perf in analysis.language_performances.items():
+                total_test_time += perf.avg_time * perf.successful_iterations
+                test_count += perf.successful_iterations
+            
+            avg_test_time = total_test_time / test_count if test_count > 0 else 0.0
+            
             data['test_results'][test_name] = {
                 'fastest_language': analysis.fastest_language,
                 'most_memory_efficient': analysis.most_memory_efficient,
                 'most_reliable': analysis.most_reliable,
                 'performance_ranking': analysis.performance_ranking,
+                'average_test_time': avg_test_time,  # Add average test time
                 'language_performances': {}
             }
             
@@ -167,7 +179,8 @@ class ReportGenerator:
                     'total_iterations': perf.total_iterations,
                     'successful_iterations': perf.successful_iterations,
                     'performance_score': perf.performance_score,
-                    'reliability_score': perf.reliability_score
+                    'reliability_score': perf.reliability_score,
+                    'avg_test_time': perf.avg_time  # Individual average test time
                 }
         
         return data
@@ -385,6 +398,7 @@ class ReportGenerator:
                         <th>Memory (MB)</th>
                         <th>Success Rate</th>
                         <th>Performance Score</th>
+                        <th>Avg Test Time (s)</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -406,6 +420,9 @@ class ReportGenerator:
                 avg_memory_mb = perf.avg_memory / 1024 / 1024
                 success_rate_pct = perf.success_rate * 100
                 
+                # Calculate average test time for this specific language and test
+                avg_test_time = perf.avg_time
+                
                 status = " Winner" if language == analysis.fastest_language else ""
                 if language == analysis.most_memory_efficient:
                     status += "  Memory Efficient"
@@ -419,6 +436,7 @@ class ReportGenerator:
                             <td>{avg_memory_mb:.2f}</td>
                             <td>{success_rate_pct:.1f}%</td>
                             <td><span class="performance-score {score_class}">{perf.performance_score:.2f}</span></td>
+                            <td>{avg_test_time:.3f}</td>
                             <td>{status}</td>
                         </tr>
                 '''
@@ -441,11 +459,23 @@ class ReportGenerator:
                 'Test', 'Language', 'Avg Time (ms)', 'Min Time (ms)', 'Max Time (ms)',
                 'Std Dev (ms)', 'Median Time (ms)', 'Avg Memory (MB)', 'Peak Memory (MB)',
                 'Avg CPU (%)', 'Max CPU (%)', 'Success Rate (%)', 'Total Iterations',
-                'Successful Iterations', 'Performance Score', 'Reliability Score'
+                'Successful Iterations', 'Performance Score', 'Reliability Score',
+                'Avg Test Time (s)'  # Add average test time
             ])
             
             # Data rows
             for test_name, analysis in performance_summary.results.items():
+                # Calculate average test time for this test
+                total_test_time = 0.0
+                test_count = 0
+                
+                # Sum up all successful execution times for this test
+                for language, perf in analysis.language_performances.items():
+                    total_test_time += perf.avg_time * perf.successful_iterations
+                    test_count += perf.successful_iterations
+                
+                avg_test_time = total_test_time / test_count if test_count > 0 else 0.0
+                
                 for language, perf in analysis.language_performances.items():
                     writer.writerow([
                         test_name,
@@ -463,7 +493,8 @@ class ReportGenerator:
                         perf.total_iterations,
                         perf.successful_iterations,
                         round(perf.performance_score, 2),
-                        round(perf.reliability_score, 2)
+                        round(perf.reliability_score, 2),
+                        round(avg_test_time, 3)  # Add average test time
                     ])
     
     def _generate_rankings_csv(self, performance_summary, file_path: str):

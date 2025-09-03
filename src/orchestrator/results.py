@@ -95,9 +95,9 @@ class ResultsCompiler:
     
     def __init__(self):
         self.performance_weights = {
-            'time': 0.7,
-            'memory': 0.2,
-            'reliability': 0.1
+            'time': 0.9,      # Increased from 0.7 to 0.9 - make time the dominant factor
+            'memory': 0.05,   # Decreased from 0.2 to 0.05
+            'reliability': 0.05  # Decreased from 0.1 to 0.05
         }
         print(" Results compiler initialized")
     
@@ -258,12 +258,13 @@ class ResultsCompiler:
             return 0.0
         
         # Normalize execution time (lower is better, so invert)
-        time_score = 1000.0 / (avg_time * 1000)  # Convert to ms and invert
+        # Use a more aggressive scaling to emphasize time differences
+        time_score = 10000.0 / (avg_time * 1000)  # Convert to ms and invert with higher scaling
         
         # Normalize memory usage (lower is better, so invert)
         memory_score = 100.0 / max(avg_memory / 1024 / 1024, 1.0)  # Convert to MB and invert
         
-        # Weight and combine scores
+        # Weight and combine scores - heavily favor time
         total_score = (
             time_score * self.performance_weights['time'] +
             memory_score * self.performance_weights['memory'] +

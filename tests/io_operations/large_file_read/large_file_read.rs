@@ -47,12 +47,13 @@ fn generate_test_file(file_path: &Path, size_bytes: u64) -> Result<(), Box<dyn s
 
 fn read_file_sequential(file_path: &Path, buffer_size: usize) -> Result<ReadResult, Box<dyn std::error::Error>> {
     let start_time = Instant::now();
-    let mut file = File::open(file_path)?;
+    let file = File::open(file_path)?;
+    let mut reader = std::io::BufReader::with_capacity(buffer_size, file);
     let mut buffer = vec![0u8; buffer_size];
     let mut total_bytes = 0u64;
     
     loop {
-        let bytes_read = file.read(&mut buffer)?;
+        let bytes_read = reader.read(&mut buffer)?;
         if bytes_read == 0 {
             break;
         }
@@ -77,13 +78,14 @@ fn read_file_sequential(file_path: &Path, buffer_size: usize) -> Result<ReadResu
 
 fn read_file_chunked(file_path: &Path, buffer_size: usize) -> Result<ReadResult, Box<dyn std::error::Error>> {
     let start_time = Instant::now();
-    let mut file = File::open(file_path)?;
+    let file = File::open(file_path)?;
+    let mut reader = std::io::BufReader::with_capacity(buffer_size, file);
     let mut buffer = vec![0u8; buffer_size];
     let mut total_bytes = 0u64;
     let mut chunk_count = 0u32;
     
     loop {
-        let bytes_read = file.read(&mut buffer)?;
+        let bytes_read = reader.read(&mut buffer)?;
         if bytes_read == 0 {
             break;
         }
