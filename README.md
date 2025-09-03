@@ -60,7 +60,7 @@ Based on extensive benchmarking with the latest performance scoring algorithm (9
 
 ### Prerequisites
 
-- Python 3.7+
+- Python 3.13+
 - Node.js and npm (for TypeScript)
 - Rust toolchain (for Rust benchmarks)
 - Go toolchain (for Go benchmarks)
