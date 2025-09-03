@@ -8,18 +8,17 @@ import sys
 import time
 import random
 import math
+import numpy as np
 
 
 def calculate_pi_monte_carlo(num_samples):
-    """Calculate pi using Monte Carlo method."""
-    inside_circle = 0
+    """Calculate pi using Monte Carlo method with NumPy for vectorization."""
+    # Generate random coordinates in a vectorized manner
+    x = np.random.rand(num_samples)
+    y = np.random.rand(num_samples)
     
-    for _ in range(num_samples):
-        x = random.random()
-        y = random.random()
-        
-        if x*x + y*y <= 1:
-            inside_circle += 1
+    # Use vectorized operations to find points inside the circle
+    inside_circle = np.sum(x*x + y*y <= 1)
     
     return 4.0 * inside_circle / num_samples
 

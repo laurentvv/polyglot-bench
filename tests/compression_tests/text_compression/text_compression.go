@@ -77,37 +77,47 @@ type Parameters struct {
 	Iterations            int      `json:"iterations"`
 }
 
+func safeTruncate(s string, byteLimit int) string {
+	if len(s) <= byteLimit {
+		return s
+	}
+	// Find the last valid rune start byte at or before the limit
+	end := byteLimit
+	for end > 0 && (s[end]&0xC0) == 0x80 { // It's a continuation byte, move back
+		end--
+	}
+	return s[:end]
+}
+
 func generateTextData(size int, textType string) (string, error) {
-	rand.Seed(time.Now().UnixNano())
+	// Seeding is now handled automatically in Go 1.20+
+	// rand.Seed(time.Now().UnixNano()) // This is deprecated and not needed
 
 	switch textType {
 	case "ascii":
 		chars := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 \n"
-		result := make([]byte, size)
+		var sb strings.Builder
+		sb.Grow(size)
 		for i := 0; i < size; i++ {
-			result[i] = chars[rand.Intn(len(chars))]
+			sb.WriteByte(chars[rand.Intn(len(chars))])
 		}
-		return string(result), nil
+		return sb.String(), nil
 
 	case "unicode":
 		chars := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789àáâãäåæçèéêëìíîïñòóôõöøùúûüý你好世界🌟🚀📊 \n"
 		runes := []rune(chars)
-		result := make([]rune, 0, size)
-		for len(string(result)) < size {
-			result = append(result, runes[rand.Intn(len(runes))])
+		var sb strings.Builder
+		sb.Grow(size)
+		for sb.Len() < size {
+			sb.WriteRune(runes[rand.Intn(len(runes))])
 		}
-		resultStr := string(result)
-		if len(resultStr) > size {
-			// Truncate to exact size, being careful with UTF-8
-			return resultStr[:size], nil
-		}
-		return resultStr, nil
+		return safeTruncate(sb.String(), size), nil
 
 	case "code":
 		keywords := []string{"package", "func", "var", "if", "else", "for", "range", "return", "struct", "interface"}
 		operators := []string{"=", "+", "-", "*", "/", "(", ")", "{", "}", "[", "]", ";", ":"}
 		var text strings.Builder
-
+		text.Grow(size)
 		for text.Len() < size {
 			if rand.Float64() < 0.3 {
 				text.WriteString(keywords[rand.Intn(len(keywords))])
@@ -129,17 +139,13 @@ func generateTextData(size int, textType string) (string, error) {
 			}
 		}
 
-		result := text.String()
-		if len(result) > size {
-			return result[:size], nil
-		}
-		return result, nil
+		return safeTruncate(text.String(), size), nil
 
 	case "natural_language":
 		words := []string{"the", "quick", "brown", "fox", "jumps", "over", "lazy", "dog", "and", "runs", "through",
 			"forest", "meadow", "river", "mountain", "valley", "beautiful", "magnificent", "wonderful"}
 		var text strings.Builder
-
+		text.Grow(size)
 		for text.Len() < size {
 			text.WriteString(words[rand.Intn(len(words))])
 
@@ -156,11 +162,7 @@ func generateTextData(size int, textType string) (string, error) {
 			}
 		}
 
-		result := text.String()
-		if len(result) > size {
-			return result[:size], nil
-		}
-		return result, nil
+		return safeTruncate(text.String(), size), nil
 
 	default:
 		return "", fmt.Errorf("unknown text type: %s", textType)
