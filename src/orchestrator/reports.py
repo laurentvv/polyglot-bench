@@ -320,6 +320,8 @@ class ReportGenerator:
                 <div class="value">{performance_summary.execution_time:.1f}s</div>
             </div>
         </div>
+
+        {self._generate_versions_html(performance_summary)}
         
         {self._generate_rankings_html(performance_summary)}
         
@@ -379,6 +381,30 @@ class ReportGenerator:
         '''
         
         return html
+
+    def _generate_versions_html(self, performance_summary) -> str:
+        """Generate HTML for language versions."""
+        versions = getattr(performance_summary, 'language_versions', {})
+        if not versions:
+            return ""
+
+        html = '''
+        <div class="section">
+            <h2>Language Versions</h2>
+            <div class="summary">
+        '''
+        for lang, version in versions.items():
+            html += f'''
+                <div class="metric-card">
+                    <h3 class="language-{lang}">{lang.title()}</h3>
+                    <div class="value" style="font-size: 1em;">{version}</div>
+                </div>
+            '''
+        html += '''
+            </div>
+        </div>
+        '''
+        return html
     
     def _generate_test_results_html(self, performance_summary) -> str:
         """Generate HTML for individual test results."""
@@ -394,12 +420,12 @@ class ReportGenerator:
                 <thead>
                     <tr>
                         <th>Language</th>
-                        <th>Avg Time (ms)</th>
-                        <th>Memory (MB)</th>
-                        <th>Success Rate</th>
-                        <th>Performance Score</th>
-                        <th>Avg Test Time (s)</th>
-                        <th>Status</th>
+                        <th>Avg. Time (ms)</th>
+                        <th>Avg. Memory (MB)</th>
+                        <th>Success</th>
+                        <th>Perf. Score</th>
+                        <th>Avg. Exec Time (s)</th>
+                        <th>Notes</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -456,11 +482,11 @@ class ReportGenerator:
             
             # Header
             writer.writerow([
-                'Test', 'Language', 'Avg Time (ms)', 'Min Time (ms)', 'Max Time (ms)',
-                'Std Dev (ms)', 'Median Time (ms)', 'Avg Memory (MB)', 'Peak Memory (MB)',
-                'Avg CPU (%)', 'Max CPU (%)', 'Success Rate (%)', 'Total Iterations',
+                'Test', 'Language', 'Average Time (ms)', 'Min Time (ms)', 'Max Time (ms)',
+                'Std. Dev. (ms)', 'Median Time (ms)', 'Average Memory (MB)', 'Peak Memory (MB)',
+                'Average CPU (%)', 'Max CPU (%)', 'Success Rate (%)', 'Total Iterations',
                 'Successful Iterations', 'Performance Score', 'Reliability Score',
-                'Avg Test Time (s)'  # Add average test time
+                'Average Execution Time (s)'
             ])
             
             # Data rows

@@ -64,10 +64,14 @@ class PerformanceSummary:
     timestamp: datetime
     total_tests: int
     total_languages: int
+    total_executions: int
     results: Dict[str, TestAnalysis]
-    overall_rankings: Dict[str, int]
+    overall_rankings: Any  # Can be OverallRankings object
     execution_time: float
     system_info: Dict[str, Any]
+    configuration: Dict[str, Any]
+    summary_statistics: Dict[str, Any]
+    language_versions: Dict[str, str] = field(default_factory=dict)
 
 
 class BenchmarkOrchestrator:
@@ -134,45 +138,42 @@ class BenchmarkOrchestrator:
         self.iterations = iterations
         print(f" Iterations set to: {iterations}")
     
-    def validate_environments(self) -> Dict[str, bool]:
-        """Validate that all required language environments are available."""
+    def validate_environments(self) -> Dict[str, str]:
+        """
+        Validate environments and return a dictionary of language versions.
+        Raises EnvironmentError if validation fails.
+        """
         from utils.validation import EnvironmentValidator
         
         validator = EnvironmentValidator(self.config)
-        validation_results = {}
-        
+        versions = {}
+        failed_languages = []
+
         print(" Validating language environments...")
         
         for language in self.target_languages:
-            print(f"  Checking {language}...", end=" ")
-            is_valid = validator.validate_language(language)
-            validation_results[language] = is_valid
-            
-            if is_valid:
-                print("")
+            print(f"  Checking {language}...", end="")
+            if validator.validate_language(language):
+                version = validator.get_language_version(language)
+                versions[language] = version
+                print(f" [OK] {version}")
             else:
-                print("")
-        
-        # Check network connectivity for network tests
+                failed_languages.append(language)
+                print(" [FAILED]")
+
+        # Network validation (existing logic)
         network_tests = self._get_network_tests()
         if network_tests:
             print(" Validating network connectivity for network tests...")
             for test_suite in network_tests:
-                print(f"  Checking network requirements for {test_suite}...", end=" ")
-                network_valid = validator.validate_network_requirements(test_suite)
-                if network_valid:
-                    print("")
-                else:
-                    print(" Network connectivity required but not available")
-                    # Don't fail validation, but warn user
-        
-        failed_languages = [lang for lang, valid in validation_results.items() if not valid]
+                if not validator.validate_network_requirements(test_suite):
+                    print(f"  Warning: Network connectivity for {test_suite} might be limited.")
+
         if failed_languages:
-            print(f"  Failed validation: {', '.join(failed_languages)}")
-            return validation_results
+            raise EnvironmentError(f"Environment validation failed for: {', '.join(failed_languages)}")
         
         print(" All environments validated successfully!")
-        return validation_results
+        return versions
     
     def _get_network_tests(self) -> List[str]:
         """Get list of network-dependent test suites."""
@@ -289,10 +290,7 @@ class BenchmarkOrchestrator:
         self.execution_start_time = time.perf_counter()
         
         # Phase 1: Environment validation
-        validation_results = self.validate_environments()
-        failed_validations = [lang for lang, valid in validation_results.items() if not valid]
-        if failed_validations:
-            raise EnvironmentError(f"Environment validation failed for: {failed_validations}")
+        language_versions = self.validate_environments()
         
         # Phase 2: Component initialization
         self.initialize_components()
@@ -316,7 +314,10 @@ class BenchmarkOrchestrator:
         # Phase 6: Results compilation
         print("\n Compiling results...")
         self.performance_summary = self.results_compiler.compile_results(
-            self.raw_results, self.benchmark_id, self._get_execution_time()
+            raw_results=self.raw_results,
+            benchmark_id=self.benchmark_id,
+            execution_time=self._get_execution_time(),
+            language_versions=language_versions
         )
         
         print(f" Benchmark suite completed in {self._get_execution_time():.2f}s")
