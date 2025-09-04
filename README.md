@@ -1,9 +1,11 @@
 # Multi-Language Performance Benchmark Tool
 
+![Polyglot Bench](img/polyglot-bench.png)
+
 [![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![Rust Performance Leader](https://img.shields.io/badge/Rust-Performance%20Leader-orange)](#performance-insights)
+[![Rust Performance Leader](https://img.shields.io/badge/Rust-Performance%20Leader%20(96.46)-orange)](#performance-insights)
 [![Go Performance Issues](https://img.shields.io/badge/Go-Known%20Issues-yellow)](#recent-improvements)
 
 A comprehensive performance benchmarking tool that compares execution performance across Python, Rust, Go, and TypeScript implementations.
@@ -14,13 +16,13 @@ The Multi-Language Performance Benchmark Tool is designed to provide accurate an
 
 ### Performance Insights
 
-Based on extensive benchmarking with the latest performance scoring algorithm (90% weight on execution time), **Rust consistently outperforms other languages in computational tasks** with performance scores averaging 25-30% higher than Python. **Go performance varies significantly** across benchmark categories, showing acceptable results in I/O operations but lagging considerably in CPU-intensive computations where it can be 2-3x slower than Python and Rust. **Python excels in I/O-bound operations** and offers competitive performance in network-related benchmarks while maintaining excellent memory efficiency.
+Based on extensive benchmarking with the latest performance scoring algorithm (90% weight on execution time), **Rust consistently outperforms other languages in computational tasks** with a performance score of 96.46, significantly higher than TypeScript (70.36), Python (61.15), and Go (46.54). **Go performance varies significantly** across benchmark categories, showing acceptable results in I/O operations but lagging considerably in CPU-intensive computations where it can be 2-3x slower than Python and Rust. **Python excels in I/O-bound operations** and offers competitive performance in network-related benchmarks while maintaining excellent memory efficiency. **TypeScript shows strong performance in specific benchmarks**, particularly in I/O operations like GZIP compression and JSON parsing.
 
 **Key Performance Characteristics**:
 - **Rust**: Superior computational performance, excellent memory efficiency, fastest in algorithmic benchmarks
+- **TypeScript**: Strong I/O performance, good balance between speed and memory usage
 - **Python**: Strong I/O performance, best memory efficiency, balanced reliability scores
 - **Go**: Mixed performance profile with strengths in some I/O operations but weaknesses in computational tasks
-- **TypeScript**: Moderate performance with good balance between speed and memory usage
 
 ### Key Features
 
@@ -179,6 +181,8 @@ This scoring system heavily emphasizes execution speed while still considering m
   - Go: Uses recursive approach with goroutine optimizations
   - TypeScript: Uses recursive approach with BigInt for large numbers
 
+**Note**: In our latest benchmarks, Python showed the best performance in this test with a score of 131.29, followed by Rust (83.50), TypeScript (75.69), and Go (60.06). This demonstrates that Python's iterative implementation is particularly efficient for this specific algorithm.
+
 **2. Quicksort Implementation**
 - **Purpose**: Tests sorting algorithm performance
 - **Language Specifics**:
@@ -257,6 +261,8 @@ This scoring system heavily emphasizes execution speed while still considering m
   - Go: Uses bufio package for optimized reading
   - TypeScript: Uses Node.js fs module with streams
 
+**Note**: In our latest benchmarks, Python showed the best performance in this test with a score of 13.20, followed by TypeScript (12.17), Go (8.97), and Rust (10.24). This confirms Python's strength in I/O-bound operations.
+
 **2. JSON Parsing**
 - **Purpose**: Tests serialization/deserialization performance
 - **Language Specifics**:
@@ -265,6 +271,8 @@ This scoring system heavily emphasizes execution speed while still considering m
   - Go: Uses encoding/json package
   - TypeScript: Uses JSON global object
 
+**Note**: In our latest benchmarks, TypeScript showed the best performance in this test with a score of 12.08, followed by Rust (11.41), Python (10.86), and Go (8.65). This demonstrates TypeScript's strength in specific I/O operations.
+
 **3. CSV Processing**
 - **Purpose**: Tests structured data parsing performance
 - **Language Specifics**:
@@ -272,6 +280,8 @@ This scoring system heavily emphasizes execution speed while still considering m
   - Rust: Uses csv crate with serde integration
   - Go: Uses encoding/csv package
   - TypeScript: Uses csv-parser npm package
+
+**Note**: In our latest benchmarks, Rust showed the best performance in this test with a score of 11.54, followed by Go (8.97), TypeScript (10.68), and Python (10.38). This demonstrates Rust's strength in I/O operations when properly optimized.
 
 ### Network Operations Tests
 
@@ -283,6 +293,8 @@ This scoring system heavily emphasizes execution speed while still considering m
   - Go: Uses exec package with goroutines
   - TypeScript: Uses child_process with Promise.all
 
+**Note**: In our latest benchmarks, TypeScript showed the best performance in this test with a score of 14.05, followed by Python (13.87), Go (10.99), and Rust (12.11). This demonstrates TypeScript's strength in specific I/O operations.
+
 **2. HTTP Request**
 - **Purpose**: Tests HTTP client performance
 - **Language Specifics**:
@@ -291,6 +303,8 @@ This scoring system heavily emphasizes execution speed while still considering m
   - Go: Uses net/http package with goroutines
   - TypeScript: Uses node-fetch with async/await
 
+**Note**: In our latest benchmarks, Python showed the best performance in this test with a score of 11.53, followed by Go (8.91), TypeScript (10.56), and Rust (8.65). This demonstrates Python's strength in network I/O operations.
+
 **3. DNS Lookup**
 - **Purpose**: Measures DNS resolution performance
 - **Language Specifics**:
@@ -298,6 +312,8 @@ This scoring system heavily emphasizes execution speed while still considering m
   - Rust: Uses trust-dns-resolver crate
   - Go: Uses net package with concurrent lookups
   - TypeScript: Uses dns module with Promise-based API
+
+**Note**: In our latest benchmarks, Rust showed the best performance in this test with a score of 110.32, followed by Python (47.52), Go (38.00), and TypeScript (11.75). This demonstrates Rust's strength in network operations.
 
 ### Compression Tests
 
@@ -309,6 +325,8 @@ This scoring system heavily emphasizes execution speed while still considering m
   - Go: Uses compress/gzip package
   - TypeScript: Uses zlib module
 
+**Note**: In our latest benchmarks, TypeScript showed the best performance in this test with a score of 129.15, followed by Python (101.75), Rust (90.59), and Go (66.18). This demonstrates TypeScript's strength in specific I/O operations.
+
 **2. Text Compression**
 - **Purpose**: Tests compression of different text types
 - **Language Specifics**:
@@ -316,6 +334,8 @@ This scoring system heavily emphasizes execution speed while still considering m
   - Rust: Uses multiple compression crates (flate2, bzip2)
   - Go: Uses compress packages
   - TypeScript: Uses zlib module for various algorithms
+
+**Note**: In our latest benchmarks, TypeScript showed the best performance in this test with a score of 45.41, followed by Rust (44.08), Go (39.18), and Python (30.68). This demonstrates TypeScript's strength in specific I/O operations.
 
 ### System Tests
 
@@ -382,9 +402,9 @@ Recent updates have focused on enhancing performance measurement accuracy and fi
 - **Cross-Platform Compatibility**: Better handling of platform-specific differences in execution environments
 
 ### Performance Analysis Updates
-- **Updated Language Rankings**: Based on latest benchmarks, Rust leads with 93.57 points, Python at 72.90, Go at 40.87
+- **Updated Language Rankings**: Based on latest benchmarks, Rust leads with 96.46 points, TypeScript at 70.36, Python at 61.15, and Go at 46.54
 - **Go Performance Insights**: Identified significant performance gaps in computational benchmarks (2-3x slower)
-- **Rust Computational Advantage**: Confirmed 15-20% performance advantage in CPU-intensive tasks
+- **Rust Computational Advantage**: Confirmed significant performance advantage in CPU-intensive tasks
 
 ### Report Generation Updates
 - **Detailed Performance Metrics**: Added execution time breakdowns to all report formats
