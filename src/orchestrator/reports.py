@@ -165,23 +165,22 @@ class ReportGenerator:
             }
             
             for language, perf in analysis.language_performances.items():
-                data['test_results'][test_name]['language_performances'][language] = {
-                    'avg_time': perf.avg_time,
-                    'min_time': perf.min_time,
-                    'max_time': perf.max_time,
-                    'std_time': perf.std_time,
-                    'median_time': perf.median_time,
-                    'avg_memory': perf.avg_memory,
-                    'peak_memory': perf.peak_memory,
-                    'avg_cpu': perf.avg_cpu,
-                    'max_cpu': perf.max_cpu,
-                    'success_rate': perf.success_rate,
-                    'total_iterations': perf.total_iterations,
-                    'successful_iterations': perf.successful_iterations,
-                    'performance_score': perf.performance_score,
-                    'reliability_score': perf.reliability_score,
-                    'avg_test_time': perf.avg_time  # Individual average test time
-                }
+                    data['test_results'][test_name]['language_performances'][language] = {
+                        'avg_time': perf.avg_time,
+                        'min_time': perf.min_time,
+                        'max_time': perf.max_time,
+                        'std_time': perf.std_time,
+                        'median_time': perf.median_time,
+                        'avg_memory': perf.avg_memory,
+                        'peak_memory': perf.peak_memory,
+                        'avg_cpu': perf.avg_cpu,
+                        'max_cpu': perf.max_cpu,
+                        'success_rate': perf.success_rate,
+                        'total_iterations': perf.total_iterations,
+                        'successful_iterations': perf.successful_iterations,
+                        'performance_score': perf.performance_score,
+                        'reliability_score': perf.reliability_score
+                    }
         
         return data
     
@@ -200,7 +199,8 @@ class ReportGenerator:
             line-height: 1.6;
             margin: 0;
             padding: 20px;
-            background-color: #f5f5f5;
+            background-color: #f8f9fa;
+            color: #333;
         }}
         .container {{
             max-width: 1200px;
@@ -208,7 +208,7 @@ class ReportGenerator:
             background-color: white;
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            box-shadow: 0 0 30px rgba(0,0,0,0.1);
         }}
         .header {{
             text-align: center;
@@ -232,6 +232,7 @@ class ReportGenerator:
             padding: 20px;
             border-radius: 8px;
             border-left: 4px solid #007acc;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }}
         .metric-card h3 {{
             margin: 0 0 10px 0;
@@ -250,27 +251,39 @@ class ReportGenerator:
             border-bottom: 2px solid #007acc;
             padding-bottom: 10px;
         }}
+        .explanation {{
+            background-color: #e9f7fe;
+            border-left: 4px solid #007acc;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 4px 4px 0;
+        }}
         table {{
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }}
         th, td {{
-            padding: 12px;
+            padding: 12px 15px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid #eee;
         }}
         th {{
             background-color: #007acc;
             color: white;
+            font-weight: 600;
+        }}
+        tr:nth-child(even) {{
+            background-color: #f8f9fa;
         }}
         tr:hover {{
-            background-color: #f5f5f5;
+            background-color: #e9f7fe;
         }}
-        .language-python {{ color: #3776ab; }}
-        .language-rust {{ color: #dea584; }}
-        .language-go {{ color: #00add8; }}
-        .language-typescript {{ color: #3178c6; }}
+        .language-python {{ color: #3776ab; font-weight: 600; }}
+        .language-rust {{ color: #dea584; font-weight: 600; }}
+        .language-go {{ color: #00add8; font-weight: 600; }}
+        .language-typescript {{ color: #3178c6; font-weight: 600; }}
         .winner {{
             background-color: #d4edda !important;
             font-weight: bold;
@@ -280,6 +293,9 @@ class ReportGenerator:
             border-radius: 4px;
             color: white;
             font-weight: bold;
+            text-align: center;
+            display: inline-block;
+            min-width: 40px;
         }}
         .score-excellent {{ background-color: #28a745; }}
         .score-good {{ background-color: #17a2b8; }}
@@ -291,6 +307,11 @@ class ReportGenerator:
             padding-top: 20px;
             border-top: 1px solid #ddd;
             color: #666;
+        }}
+        .note {{
+            font-size: 0.9em;
+            color: #666;
+            font-style: italic;
         }}
     </style>
 </head>
@@ -348,6 +369,10 @@ class ReportGenerator:
         html = '''
         <div class="section">
             <h2> Overall Performance Rankings</h2>
+            <div class="explanation">
+                <p><strong>Overall Rankings:</strong> These rankings are based on the average performance score across all tests. 
+                The performance score is a weighted composite where execution time has the highest weight (90%), followed by memory usage (5%) and reliability (5%).</p>
+            </div>
             <table>
                 <thead>
                     <tr>
@@ -411,7 +436,14 @@ class ReportGenerator:
         if not performance_summary.results:
             return '<div class="section"><h2> Test Results</h2><p>No test results available.</p></div>'
         
-        html = '<div class="section"><h2> Individual Test Results</h2>'
+        html = '''
+        <div class="section">
+            <h2> Individual Test Results</h2>
+            <div class="explanation">
+                <p><strong>Performance Score Calculation:</strong> The performance score is a weighted composite of execution time (90%), memory usage (5%), and reliability (5%). 
+                Higher scores indicate better performance. Time is the dominant factor - faster execution times contribute significantly more to the score.</p>
+            </div>
+        '''
         
         for test_name, analysis in performance_summary.results.items():
             html += f'''
@@ -424,7 +456,6 @@ class ReportGenerator:
                         <th>Avg. Memory (MB)</th>
                         <th>Success</th>
                         <th>Perf. Score</th>
-                        <th>Avg. Exec Time (s)</th>
                         <th>Notes</th>
                     </tr>
                 </thead>
@@ -446,14 +477,15 @@ class ReportGenerator:
                 avg_memory_mb = perf.avg_memory / 1024 / 1024
                 success_rate_pct = perf.success_rate * 100
                 
-                # Calculate average test time for this specific language and test
-                avg_test_time = perf.avg_time
-                
-                status = " Winner" if language == analysis.fastest_language else ""
+                status = "Winner" if language == analysis.fastest_language else ""
                 if language == analysis.most_memory_efficient:
-                    status += "  Memory Efficient"
+                    status += " | Memory Efficient" if status else "Memory Efficient"
                 if language == analysis.most_reliable:
-                    status += "  Most Reliable"
+                    status += " | Most Reliable" if status else "Most Reliable"
+                
+                # Add note about time being the dominant factor
+                if i == 0:
+                    status += " | Fastest overall"
                 
                 html += f'''
                         <tr class="{row_class}">
@@ -462,7 +494,6 @@ class ReportGenerator:
                             <td>{avg_memory_mb:.2f}</td>
                             <td>{success_rate_pct:.1f}%</td>
                             <td><span class="performance-score {score_class}">{perf.performance_score:.2f}</span></td>
-                            <td>{avg_test_time:.3f}</td>
                             <td>{status}</td>
                         </tr>
                 '''
@@ -470,6 +501,7 @@ class ReportGenerator:
             html += '''
                     </tbody>
                 </table>
+                <p class="note">Note: Avg. Time is shown in milliseconds. Lower values are better. Perf. Score is a composite metric where higher values are better.</p>
             '''
         
         html += '</div>'
@@ -485,8 +517,7 @@ class ReportGenerator:
                 'Test', 'Language', 'Average Time (ms)', 'Min Time (ms)', 'Max Time (ms)',
                 'Std. Dev. (ms)', 'Median Time (ms)', 'Average Memory (MB)', 'Peak Memory (MB)',
                 'Average CPU (%)', 'Max CPU (%)', 'Success Rate (%)', 'Total Iterations',
-                'Successful Iterations', 'Performance Score', 'Reliability Score',
-                'Average Execution Time (s)'
+                'Successful Iterations', 'Performance Score', 'Reliability Score'
             ])
             
             # Data rows
@@ -519,8 +550,7 @@ class ReportGenerator:
                         perf.total_iterations,
                         perf.successful_iterations,
                         round(perf.performance_score, 2),
-                        round(perf.reliability_score, 2),
-                        round(avg_test_time, 3)  # Add average test time
+                        round(perf.reliability_score, 2)
                     ])
     
     def _generate_rankings_csv(self, performance_summary, file_path: str):
