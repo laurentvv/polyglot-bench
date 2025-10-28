@@ -1,5 +1,27 @@
 # Changelog
 
+## [2.0.0] - 2025-10-28
+
+### Added
+- **C++ Language Support**: Complete integration of C++ as a fifth supported language
+- 18 C++ benchmark implementations across all test categories
+- MSVC compiler integration with automated compilation via `compile_cpp.bat`
+- VSCode configuration for C++ development (IntelliSense, tasks, debugging)
+- C++ validation in environment checker
+- Updated orchestrator to support C++ alongside Python, Rust, Go, and TypeScript
+
+### Changed
+- Updated project banner and documentation to reflect 5-language support
+- Enhanced validation system to handle C++ compilation requirements
+- Updated all command-line interfaces to include C++ as an option
+- Revised README with C++ setup instructions and language-specific details
+
+### Technical Details
+- **Compiler**: Microsoft Visual Studio 2022 Community with MSVC
+- **Optimization**: `/O2 /EHsc` flags for release builds
+- **Memory Management**: RAII patterns with smart pointers where appropriate
+- **Performance**: Competitive results across algorithmic and I/O benchmarks
+
 ## [1.5.0] - 2025-09-02
 
 ### Added

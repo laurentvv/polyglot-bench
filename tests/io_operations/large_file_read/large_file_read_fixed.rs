@@ -1,4 +1,5 @@
 use serde_json::{json, Value};
+use std::env;
 use std::fs::File;
 use std::io::{BufReader, Read, Write};
 use std::time::Instant;
@@ -138,7 +139,7 @@ fn run_large_file_read_benchmark() -> Result<Value, Box<dyn std::error::Error>> 
                     eprintln!("  Iteration {}/{}...", i + 1, iterations);
                     total_tests += 1;
                     
-                    let read_result = match *pattern {
+                    let read_result = match pattern.as_str() {
                         "sequential" => read_file_sequential(&test_file_path, *buffer_size)?,
                         "chunked" => read_file_chunked(&test_file_path, *buffer_size)?,
                         _ => return Err("Unknown read pattern".into()),
@@ -162,7 +163,7 @@ fn run_large_file_read_benchmark() -> Result<Value, Box<dyn std::error::Error>> 
                         "io_wait_time": read_time
                     });
                     
-                    if *pattern == "chunked" {
+                    if pattern == "chunked" {
                         iteration_result["chunk_count"] = read_result["chunk_count"].clone();
                         iteration_result["avg_chunk_size"] = read_result["avg_chunk_size"].clone();
                     }

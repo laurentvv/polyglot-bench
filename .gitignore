@@ -178,6 +178,12 @@ results/
 # Compiled binaries and executables
 binaries/
 
+# Executables in test directories
+tests/**/*.exe
+tests/**/*.dll
+tests/**/*.so
+tests/**/*.dylib
+
 # Language-specific compiled files
 # Python
 *.pyc
@@ -191,16 +197,59 @@ target/
 *.rmeta
 
 # Go
-*.exe
-*.dll
-*.so
-*.dylib
 *.test
 
 # TypeScript/JavaScript
 *.js
 *.map
 node_modules/
+
+# C++ compiled files
+*.obj
+*.o
+*.lib
+*.a
+*.pdb
+*.ilk
+*.exp
+*.idb
+*.pch
+*.res
+*.rc
+
+# Visual Studio files
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sln
+*.suo
+*.user
+*.aps
+*.pch
+*.vspscc
+*.vssscc
+.builds
+*.pidb
+*.log
+*.scc
+
+# Visual Studio cache/options directory
+.vs/
+
+# MSBuild Binary and Structured Log
+*.binlog
+
+# C++ temporary files
+*.tmp
+*.temp
+*.cache
+*.tlog
+*.lastbuildstate
+*.unsuccessfulbuild
+
+# Test data files
+test_data.csv
+*.test
 
 # Cargo.lock files (except for libraries)
 **/Cargo.lock

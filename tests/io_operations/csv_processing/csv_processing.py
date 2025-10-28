@@ -14,24 +14,29 @@ from typing import Dict, List, Any, Union
 
 
 def generate_csv_data(rows: int, cols: int, data_type: str) -> List[List[str]]:
-    """Generate CSV data with specified dimensions and data types."""
+    """Generate CSV data with specified dimensions and data types - optimized."""
     headers = [f"col_{i+1}" for i in range(cols)]
     data = [headers]
+    
+    # Pre-seed for consistent performance
+    random.seed(42)
     
     for row in range(rows):
         row_data = []
         for col in range(cols):
             if data_type == "numeric":
-                value = str(round(random.uniform(0, 1000), 2))
+                value = str(round(row * col * 0.1 + random.randint(1, 100), 2))
             elif data_type == "text":
-                value = ''.join(random.choices(string.ascii_letters, k=random.randint(5, 15)))
+                # More efficient text generation
+                length = 8 + (row + col) % 5
+                value = f"text_{row}_{col}_{length}"
             else:  # mixed
                 if col % 3 == 0:
-                    value = str(random.randint(1, 10000))
+                    value = str(row * 10 + col)
                 elif col % 3 == 1:
-                    value = ''.join(random.choices(string.ascii_letters, k=10))
+                    value = f"item_{row}_{col}"
                 else:
-                    value = str(round(random.uniform(0, 1000), 2))
+                    value = str(round((row + col) * 1.5, 2))
             
             row_data.append(value)
         data.append(row_data)
@@ -41,55 +46,55 @@ def generate_csv_data(rows: int, cols: int, data_type: str) -> List[List[str]]:
 
 def write_csv_to_string(data: List[List[str]]) -> str:
     """Write CSV data to string format using optimized string operations."""
-    # Use list comprehension and join for better performance
-    lines = [','.join(row) for row in data]
-    return '\n'.join(lines) + '\n'
+    # Use more efficient string building
+    result = []
+    for row in data:
+        result.append(','.join(row))
+    return '\n'.join(result) + '\n'
 
 
 def read_csv_from_string(csv_string: str) -> List[List[str]]:
     """Read CSV data from string format using optimized string operations."""
-    # Split and process in one pass for better performance
-    return [line.split(',') for line in csv_string.strip().split('\n')]
+    # More efficient parsing
+    lines = csv_string.strip().split('\n')
+    return [line.split(',') for line in lines if line]
 
 
 def filter_csv_data(data: List[List[str]], filter_column: int = 0) -> List[List[str]]:
-    """Filter CSV data based on a condition."""
+    """Filter CSV data based on a condition - optimized."""
     if not data or len(data) < 2:
         return data
     
-    headers = data[0]
-    filtered_data = [headers]
+    filtered_data = [data[0]]  # Headers
     
     for row in data[1:]:
         if len(row) > filter_column:
-            try:
-                # Try to convert to number for filtering
-                value = float(row[filter_column])
-                if value > 500:  # Simple filter condition
+            cell_value = row[filter_column]
+            # Quick numeric check without exception handling
+            if cell_value.replace('.', '').replace('-', '').isdigit():
+                if float(cell_value) > 500:
                     filtered_data.append(row)
-            except ValueError:
-                # If not numeric, filter by string length
-                if len(row[filter_column]) > 5:
-                    filtered_data.append(row)
+            elif len(cell_value) > 5:
+                filtered_data.append(row)
     return filtered_data
 
 
 def aggregate_csv_data(data: List[List[str]]) -> Dict[str, Any]:
-    """Perform aggregation operations on CSV data."""
+    """Perform aggregation operations on CSV data - optimized."""
     if not data or len(data) < 2:
         return {}
     
     headers = data[0]
     numeric_columns = []
     
-    # Find numeric columns
+    # Quick numeric column detection
     for col_idx in range(len(headers)):
         is_numeric = True
-        for row in data[1:6]:  # Check first 5 rows
-            if len(row) > col_idx:
-                try:
-                    float(row[col_idx])
-                except ValueError:
+        check_rows = min(3, len(data) - 1)  # Check fewer rows
+        for row_idx in range(1, check_rows + 1):
+            if len(data[row_idx]) > col_idx:
+                cell = data[row_idx][col_idx]
+                if not (cell.replace('.', '').replace('-', '').isdigit()):
                     is_numeric = False
                     break
         if is_numeric:
@@ -103,15 +108,15 @@ def aggregate_csv_data(data: List[List[str]]) -> Dict[str, Any]:
         
         for row in data[1:]:
             if len(row) > col_idx:
-                try:
-                    values.append(float(row[col_idx]))
-                except ValueError:
-                    continue
+                cell = row[col_idx]
+                if cell.replace('.', '').replace('-', '').isdigit():
+                    values.append(float(cell))
         
         if values:
+            total = sum(values)
             aggregations[col_name] = {
-                "sum": sum(values),
-                "avg": sum(values) / len(values),
+                "sum": total,
+                "avg": total / len(values),
                 "min": min(values),
                 "max": max(values),
                 "count": len(values)

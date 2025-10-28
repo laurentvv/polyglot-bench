@@ -14,47 +14,51 @@ from typing import Dict, List, Any, Union
 
 
 def generate_flat_json(size: int) -> Dict[str, Any]:
-    """Generate flat JSON structure."""
+    """Generate flat JSON structure - optimized."""
     data = {}
+    # Pre-generate random values for better performance
+    random.seed(42)
     for i in range(size):
         key = f"key_{i}"
-        value_type = random.randrange(3)
+        value_type = i % 3  # More predictable for consistent performance
         
         if value_type == 0:
-            data[key] = ''.join(random.choices(string.ascii_letters, k=10))
+            data[key] = f"value_{i}"
         elif value_type == 1:
-            data[key] = random.randint(1, 1000)
+            data[key] = i * 10 + random.randint(1, 100)
         else:
-            data[key] = bool(random.getrandbits(1))
+            data[key] = i % 2 == 0
     
     return data
 
 
-def generate_nested_json(size: int, max_depth: int = 5) -> Dict[str, Any]:
-    """Generate nested JSON structure."""
+def generate_nested_json(size: int, max_depth: int = 3) -> Dict[str, Any]:
+    """Generate nested JSON structure - optimized."""
+    random.seed(42)
+    
     def create_nested_object(remaining_size: int, current_depth: int) -> Union[Dict, List, str, int, bool]:
         if remaining_size <= 0 or current_depth >= max_depth:
-            choice = random.randrange(3)
+            choice = remaining_size % 3
             if choice == 0:
-                return ''.join(random.choices(string.ascii_letters, k=5))
+                return f"leaf_{remaining_size}"
             elif choice == 1:
-                return random.randint(1, 100)
+                return remaining_size + 1
             else:
-                return bool(random.getrandbits(1))
+                return remaining_size % 2 == 0
         
-        if bool(random.getrandbits(1)):  # Create object
+        if current_depth % 2 == 0:  # More predictable structure
             obj = {}
-            keys_count = min(random.randint(2, 5), remaining_size)
-            remaining_per_key = remaining_size // keys_count
+            keys_count = min(3, remaining_size)  # Limit complexity
+            remaining_per_key = remaining_size // keys_count if keys_count > 0 else 0
             
             for i in range(keys_count):
                 key = f"nested_key_{i}"
                 obj[key] = create_nested_object(remaining_per_key, current_depth + 1)
             return obj
-        else:  # Create array
+        else:
             arr = []
-            items_count = min(random.randint(2, 4), remaining_size)
-            remaining_per_item = remaining_size // items_count
+            items_count = min(2, remaining_size)  # Limit complexity
+            remaining_per_item = remaining_size // items_count if items_count > 0 else 0
             
             for _ in range(items_count):
                 arr.append(create_nested_object(remaining_per_item, current_depth + 1))

@@ -775,6 +775,106 @@ go 1.19
             )
 
 
+class CppRunner(BaseLanguageRunner):
+    """Runner for C++ tests with MSVC compiler."""
+    
+    def compile_test(self, source_file: str) -> Optional[str]:
+        """Compile C++ source using MSVC."""
+        if not os.path.exists(source_file):
+            return None
+        
+        base_name = os.path.splitext(os.path.basename(source_file))[0]
+        output_file = os.path.join(self.binaries_dir, f"{base_name}_cpp.exe")
+        
+        # Ensure binaries directory exists
+        os.makedirs(self.binaries_dir, exist_ok=True)
+        
+        # Use the compile script
+        compile_cmd = ['compile_cpp.bat', source_file, output_file]
+        
+        result = self._run_command(compile_cmd, timeout=60)
+        
+        if result.returncode == 0 and os.path.exists(output_file):
+            return output_file
+        else:
+            print(f"    C++ compilation failed: {result.stderr}")
+            return None
+    
+    def execute_test(self, executable_file: str, input_data: str, 
+                    test_name: str, iteration: int) -> TestResult:
+        """Execute compiled C++ binary."""
+        if not os.path.exists(executable_file):
+            return TestResult(
+                execution_time=0.0,
+                memory_usage=0,
+                cpu_usage=0.0,
+                output="",
+                error=f"Executable not found: {executable_file}",
+                success=False,
+                language=self.language,
+                test_name=test_name,
+                iteration=iteration
+            )
+        
+        command = [executable_file]
+        if input_data:
+            command.append(input_data)
+        
+        start_time = time.perf_counter()
+        
+        try:
+            process = subprocess.Popen(
+                command,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True
+            )
+            
+            stdout, stderr = process.communicate(timeout=self.config.timeout)
+            end_time = time.perf_counter()
+            
+            execution_time = end_time - start_time
+            binary_size = os.path.getsize(executable_file)
+            
+            return TestResult(
+                execution_time=execution_time,
+                memory_usage=binary_size,
+                cpu_usage=0.0,
+                output=stdout,
+                error=stderr,
+                success=process.returncode == 0,
+                language=self.language,
+                test_name=test_name,
+                iteration=iteration
+            )
+            
+        except subprocess.TimeoutExpired:
+            return TestResult(
+                execution_time=self.config.timeout,
+                memory_usage=0,
+                cpu_usage=0.0,
+                output="",
+                error=f"Timeout after {self.config.timeout}s",
+                success=False,
+                language=self.language,
+                test_name=test_name,
+                iteration=iteration
+            )
+        except Exception as e:
+            return TestResult(
+                execution_time=0.0,
+                memory_usage=0,
+                cpu_usage=0.0,
+                output="",
+                error=f"Execution error: {str(e)}",
+                success=False,
+                language=self.language,
+                test_name=test_name,
+                iteration=iteration
+            )
+
+
 class TypeScriptRunner(BaseLanguageRunner):
     """Runner for TypeScript tests."""
     
@@ -1043,7 +1143,8 @@ def create_language_runners(config: BenchmarkConfig,
         'python': PythonRunner,
         'rust': RustRunner,
         'go': GoRunner,
-        'typescript': TypeScriptRunner
+        'typescript': TypeScriptRunner,
+        'cpp': CppRunner
     }
     
     for language in target_languages:

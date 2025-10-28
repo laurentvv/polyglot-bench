@@ -74,6 +74,26 @@ class EnvironmentValidator:
         if not lang_config:
             return "Unknown"
         
+        # Special handling for C++
+        if language == 'cpp':
+            try:
+                # Test compile script to get MSVC version
+                result = subprocess.run(
+                    ['cmd', '/c', 'compile_cpp.bat'],
+                    capture_output=True,
+                    text=True,
+                    timeout=10
+                )
+                # Extract version from stderr (MSVC outputs version info there)
+                version = self._extract_version(language, result.stderr)
+                self.version_cache[language] = version
+                return version
+            except Exception as e:
+                return "MSVC available"
+        
+        if not lang_config.version_check:
+            return "Available"
+        
         try:
             result = subprocess.run(
                 [lang_config.executable, lang_config.version_check],
@@ -115,10 +135,20 @@ class EnvironmentValidator:
     
     def _check_executable_exists(self, executable: str) -> bool:
         """Check if an executable exists in PATH."""
+        # Special handling for C++ - we use a compile script
+        if executable == 'cl.exe':
+            return os.path.exists('compile_cpp.bat')
         return shutil.which(executable) is not None
     
     def _check_executable_works(self, language: str, lang_config: LanguageConfig) -> bool:
         """Check if executable actually works."""
+        # Special handling for C++ - check compile script instead
+        if language == 'cpp':
+            return os.path.exists('compile_cpp.bat')
+        
+        if not lang_config.version_check:
+            return True  # Skip version check if not configured
+        
         try:
             result = subprocess.run(
                 [lang_config.executable, lang_config.version_check],
@@ -163,6 +193,11 @@ class EnvironmentValidator:
             # Ensure Cargo is also available for dependency management
             return self._check_executable_exists('rustc') and self._check_executable_exists('cargo')
         
+        # Special handling for C++ - check for compile script
+        if language == 'cpp':
+            # Check if our compile script exists
+            return os.path.exists('compile_cpp.bat')
+        
         return self._check_executable_exists(compiler)
     
     def _extract_version(self, language: str, version_output: str) -> str:
@@ -189,6 +224,12 @@ class EnvironmentValidator:
             for line in lines:
                 if 'v' in line and '.' in line:
                     return f"Node.js {line.strip()}"
+        
+        elif language == 'cpp':
+            # MSVC version for C++
+            for line in lines:
+                if 'Microsoft' in line and 'C/C++' in line:
+                    return line.strip()
         
         # Fallback: return first non-empty line
         for line in lines:
@@ -235,6 +276,14 @@ class EnvironmentValidator:
                 "  Ubuntu/Debian: sudo apt install nodejs npm && npm install -g typescript",
                 "  macOS: brew install node && npm install -g typescript",
                 "  Windows: Download from nodejs.org or use winget install OpenJS.NodeJS"
+            ],
+            'cpp': [
+                "Install Microsoft Visual Studio 2022 Community (free)",
+                "Download from: https://visualstudio.microsoft.com/downloads/",
+                "Make sure to install 'Desktop development with C++' workload",
+                "Or install Build Tools for Visual Studio 2022",
+                "Verify installation by opening 'Developer Command Prompt'",
+                "Test with: cl.exe (should show compiler usage)"
             ]
         }
         

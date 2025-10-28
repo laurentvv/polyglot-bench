@@ -36,7 +36,7 @@ def print_banner():
 +==============================================================+
 |               Multi-Language Performance Benchmark           |
 |                                                              |
-|           Compare Python * Rust * Go * TypeScript            |
+|        Compare Python * Rust * Go * TypeScript * C++         |
 +==============================================================+
     """
     print(banner)
@@ -315,7 +315,7 @@ Examples:
     # Run command
     run_parser = subparsers.add_parser('run', help='Execute benchmark suite')
     run_parser.add_argument('--languages', '-l', 
-                           choices=['python', 'rust', 'go', 'typescript'],
+                           choices=['python', 'rust', 'go', 'typescript', 'cpp'],
                            nargs='+', default=None,
                            help='Languages to benchmark')
     run_parser.add_argument('--tests', '-t', nargs='+', default=None,
@@ -331,7 +331,7 @@ Examples:
     # Validate command
     validate_parser = subparsers.add_parser('validate', help='Validate language environments')
     validate_parser.add_argument('--languages', '-l',
-                                choices=['python', 'rust', 'go', 'typescript'],
+                                choices=['python', 'rust', 'go', 'typescript', 'cpp'],
                                 nargs='+', default=None,
                                 help='Languages to validate')
     

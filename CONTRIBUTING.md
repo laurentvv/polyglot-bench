@@ -75,6 +75,7 @@ The project follows a modular architecture:
    - Rust: `test_name.rs`
    - Go: `test_name.go`
    - TypeScript: `test_name.ts`
+   - C++: `test_name.cpp`
 3. Create an `input.json` file with test parameters
 4. Follow the existing test structure and conventions
 
@@ -110,6 +111,14 @@ Follow [TypeScript Coding Guidelines](https://github.com/Microsoft/TypeScript/wi
 - Use `prettier` for formatting
 - Include JSDoc comments for public APIs
 - Use strict typing
+
+### C++
+Follow [C++ Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines):
+- Use modern C++ features (C++17 or later)
+- Follow RAII principles for resource management
+- Use smart pointers instead of raw pointers when appropriate
+- Include comprehensive comments for complex algorithms
+- Use consistent naming conventions (snake_case for variables, PascalCase for classes)
 
 ## 🧪 Testing
 

@@ -33,6 +33,15 @@
       "file_extension": ".ts",
       "compile_required": true,
       "runtime_args": []
+    },
+    "cpp": {
+      "executable": "cl.exe",
+      "compile_cmd": "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Auxiliary\\Build\\vcvarsall.bat\" x64 && cl.exe /O2 /EHsc {source} /Fe:{output}",
+      "version_check": "",
+      "timeout": 120,
+      "file_extension": ".cpp",
+      "compile_required": true,
+      "binary_extension": ".exe"
     }
   },
   "test_suites": {

@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 
-import * as fs from 'fs';
 import * as dns from 'dns';
+import * as fs from 'fs';
 import { promisify } from 'util';
 
-interface DnsResult {
+const lookupAsync = promisify(dns.lookup);
+
+interface DomainResult {
     domain: string;
     success: boolean;
     response_time_ms: number;
@@ -19,7 +21,7 @@ interface IterationResult {
     successful_resolutions: number;
     failed_resolutions: number;
     avg_resolution_time_ms: number;
-    domain_results: DnsResult[];
+    domain_results: DomainResult[];
 }
 
 interface TestCase {
@@ -27,9 +29,10 @@ interface TestCase {
     domains_count: number;
     iterations: IterationResult[];
     avg_resolution_time: number;
-    fastest_resolution: number;
-    slowest_resolution: number;
     success_rate: number;
+    total_time: number;
+    fastest_resolution?: number;
+    slowest_resolution?: number;
     total_successful: number;
     total_attempts: number;
 }
@@ -46,35 +49,15 @@ interface Summary {
 
 interface BenchmarkResult {
     start_time: number;
-    test_cases: TestCase[];
-    summary: Summary;
     end_time: number;
     total_execution_time: number;
+    test_cases: TestCase[];
+    summary: Summary;
 }
 
-interface Config {
-    parameters: {
-        domains?: string[];
-        resolution_modes?: string[];
-        iterations?: number;
-        timeout_seconds?: number;
-        concurrent_workers?: number;
-    };
-}
-
-const lookupAsync = promisify(dns.lookup);
-
-// Simple DNS cache
-const dnsCache = new Map<string, DnsResult>();
-
-async function resolveDomainWithCache(domain: string, timeoutMs: number): Promise<DnsResult> {
-    // Check cache first
-    if (dnsCache.has(domain)) {
-        return dnsCache.get(domain)!;
-    }
-
-    const start = process.hrtime.bigint();
-    const result: DnsResult = {
+async function resolveDomain(domain: string, timeout: number = 5000): Promise<DomainResult> {
+    const start = Date.now();
+    const result: DomainResult = {
         domain,
         success: false,
         response_time_ms: 0,
@@ -82,152 +65,119 @@ async function resolveDomainWithCache(domain: string, timeoutMs: number): Promis
     };
 
     try {
-        // Create timeout promise
+        // Create a timeout promise
         const timeoutPromise = new Promise<never>((_, reject) => {
-            setTimeout(() => reject(new Error(`Timeout after ${timeoutMs}ms`)), timeoutMs);
+            setTimeout(() => reject(new Error('Timeout')), timeout);
         });
 
-        // Race between DNS resolution and timeout
-        const lookupPromise = lookupAsync(domain, { all: true }) as Promise<dns.LookupAddress[]>;
-        const addresses = await Promise.race([lookupPromise, timeoutPromise]);
-        
-        const end = process.hrtime.bigint();
-        result.response_time_ms = Number(end - start) / 1e6; // Convert nanoseconds to milliseconds
-        
-        if (addresses && Array.isArray(addresses)) {
-            result.ip_addresses = addresses.map(addr => addr.address);
-        }
-        
-        result.success = result.ip_addresses.length > 0;
-        
+        // Race between DNS lookup and timeout
+        const lookupResult = await Promise.race([
+            lookupAsync(domain, { family: 4 }),
+            timeoutPromise
+        ]);
+
+        const end = Date.now();
+        result.response_time_ms = end - start;
+        result.success = true;
+        result.ip_addresses = [lookupResult.address];
+
     } catch (error) {
-        const end = process.hrtime.bigint();
-        result.response_time_ms = Number(end - start) / 1e6;
-        result.error = `DNS resolution failed: ${error instanceof Error ? error.message : String(error)}`;
+        const end = Date.now();
+        result.response_time_ms = end - start;
+        result.error = error instanceof Error ? error.message : String(error);
     }
 
-    // Cache the result
-    dnsCache.set(domain, result);
-    
     return result;
 }
 
-async function resolveDomain(domain: string, timeoutMs: number): Promise<DnsResult> {
-    return resolveDomainWithCache(domain, timeoutMs);
-}
-
-async function resolveDomainsSequential(domains: string[], timeoutMs: number): Promise<DnsResult[]> {
-    const results: DnsResult[] = [];
-
+async function resolveDomainsSequential(domains: string[], timeout: number = 5000): Promise<DomainResult[]> {
+    const results: DomainResult[] = [];
+    
     for (const domain of domains) {
-        const result = await resolveDomain(domain, timeoutMs);
-        const status = result.success ? '✓' : '✗';
-        console.error(`  Resolved ${domain}: ${status} (${result.response_time_ms.toFixed(2)}ms)`);
+        const result = await resolveDomain(domain, timeout);
         results.push(result);
+        console.error(`  Resolved ${domain}: ${result.success ? '✓' : '✗'} (${result.response_time_ms.toFixed(2)}ms)`);
     }
-
+    
     return results;
 }
 
-async function resolveDomainsConcurrent(domains: string[], maxWorkers: number, timeoutMs: number): Promise<DnsResult[]> {
-    // Use a more efficient semaphore implementation
-    const semaphore = Array(maxWorkers).fill(null).map(() => Promise.resolve());
-    let semaphoreIndex = 0;
-
-    const promises = domains.map(async (domain) => {
-        // Wait for an available slot
-        await semaphore[semaphoreIndex];
-        const currentIndex = semaphoreIndex;
-        semaphoreIndex = (semaphoreIndex + 1) % maxWorkers;
-
-        // Start resolution and update semaphore when done
-        const resolutionPromise = resolveDomain(domain, timeoutMs);
-        semaphore[currentIndex] = resolutionPromise.then(result => {
-            const status = result.success ? '✓' : '✗';
-            console.error(`  Resolved ${domain}: ${status} (${result.response_time_ms.toFixed(2)}ms)`);
-            return result;
-        }).then(() => {}); // Convert to Promise<void>
-
-        return await resolutionPromise;
-    });
-
+async function resolveDomainsConcurrent(domains: string[], timeout: number = 5000): Promise<DomainResult[]> {
+    const promises = domains.map(domain => resolveDomain(domain, timeout));
     const results = await Promise.all(promises);
     
-    // Sort results by domain name for consistent ordering
-    results.sort((a, b) => a.domain.localeCompare(b.domain));
+    for (const result of results) {
+        console.error(`  Resolved ${result.domain}: ${result.success ? '✓' : '✗'} (${result.response_time_ms.toFixed(2)}ms)`);
+    }
     
+    // Sort results by domain name to maintain consistent order
+    results.sort((a, b) => a.domain.localeCompare(b.domain));
     return results;
 }
 
-async function runDnsBenchmark(config: Config): Promise<BenchmarkResult> {
-    const params = config.parameters;
-    
-    // Set defaults
-    const domains = params.domains || ['google.com', 'github.com', 'stackoverflow.com'];
-    const resolutionModes = params.resolution_modes || ['sequential'];
-    const iterations = params.iterations || 3;
-    const timeoutSeconds = params.timeout_seconds || 5;
-    const concurrentWorkers = params.concurrent_workers || 5;
-    const timeoutMs = timeoutSeconds * 1000;
-    
+async function runDnsBenchmark(config: any): Promise<BenchmarkResult> {
+    const domains = config.domains || ['google.com', 'github.com', 'stackoverflow.com', 'microsoft.com', 'amazon.com'];
+    const resolutionModes = config.resolution_modes || ['sequential', 'concurrent'];
+    const iterations = config.iterations || 3;
+    const timeout = (config.timeout_seconds || 5) * 1000; // Convert to ms
+
     const startTime = Date.now();
     const testCases: TestCase[] = [];
     const allResolutionTimes: number[] = [];
     let totalIterations = 0;
-    
+
     for (const mode of resolutionModes) {
         console.error(`Testing DNS resolution mode: ${mode}...`);
-        
+
+        const testCase: TestCase = {
+            resolution_mode: mode,
+            domains_count: domains.length,
+            iterations: [],
+            avg_resolution_time: 0,
+            success_rate: 0,
+            total_time: 0,
+            total_successful: 0,
+            total_attempts: 0
+        };
+
         const modeResolutionTimes: number[] = [];
         let modeSuccessful = 0;
         let modeTotal = 0;
-        const iterationsData: IterationResult[] = [];
-        
+
         for (let i = 0; i < iterations; i++) {
             console.error(`  Iteration ${i + 1}/${iterations}...`);
-            
-            const iterationStart = process.hrtime.bigint();
-            
-            let domainResults: DnsResult[];
-            switch (mode) {
-                case 'sequential':
-                    domainResults = await resolveDomainsSequential(domains, timeoutMs);
-                    break;
-                case 'concurrent':
-                    domainResults = await resolveDomainsConcurrent(domains, concurrentWorkers, timeoutMs);
-                    break;
-                default:
-                    console.error(`Warning: Unknown resolution mode '${mode}', using sequential`);
-                    domainResults = await resolveDomainsSequential(domains, timeoutMs);
-                    break;
+            totalIterations++;
+
+            const iterationStart = Date.now();
+
+            let domainResults: DomainResult[];
+            if (mode === 'sequential') {
+                domainResults = await resolveDomainsSequential(domains, timeout);
+            } else if (mode === 'concurrent') {
+                domainResults = await resolveDomainsConcurrent(domains, timeout);
+            } else {
+                console.error(`Warning: Unknown resolution mode '${mode}', using sequential`);
+                domainResults = await resolveDomainsSequential(domains, timeout);
             }
-            
-            const iterationEnd = process.hrtime.bigint();
-            const iterationTotalTime = Number(iterationEnd - iterationStart) / 1e6; // Convert to milliseconds
-            
+
+            const iterationEnd = Date.now();
+            const iterationTotalTime = iterationEnd - iterationStart;
+
+            // Calculate iteration statistics
             const iterationSuccessful = domainResults.filter(r => r.success).length;
             const iterationFailed = domainResults.length - iterationSuccessful;
-            
-            const successfulTimes = domainResults
-                .filter(r => r.success)
-                .map(r => r.response_time_ms);
-            
+            const successfulTimes = domainResults.filter(r => r.success).map(r => r.response_time_ms);
             const iterationAvgTime = successfulTimes.length > 0 
-                ? successfulTimes.reduce((sum, t) => sum + t, 0) / successfulTimes.length 
+                ? successfulTimes.reduce((a, b) => a + b, 0) / successfulTimes.length 
                 : 0;
-            
+
             // Collect timing data
-            for (const result of domainResults) {
-                if (result.success) {
-                    modeResolutionTimes.push(result.response_time_ms);
-                    allResolutionTimes.push(result.response_time_ms);
-                }
-            }
-            
+            modeResolutionTimes.push(...successfulTimes);
+            allResolutionTimes.push(...successfulTimes);
+
             modeSuccessful += iterationSuccessful;
             modeTotal += domainResults.length;
-            totalIterations++;
-            
+
             const iterationResult: IterationResult = {
                 iteration: i + 1,
                 total_time_ms: iterationTotalTime,
@@ -237,50 +187,40 @@ async function runDnsBenchmark(config: Config): Promise<BenchmarkResult> {
                 avg_resolution_time_ms: iterationAvgTime,
                 domain_results: domainResults
             };
-            
-            iterationsData.push(iterationResult);
+
+            testCase.iterations.push(iterationResult);
         }
-        
+
         // Calculate test case averages
-        const avgResolutionTime = modeResolutionTimes.length > 0 
-            ? modeResolutionTimes.reduce((sum, t) => sum + t, 0) / modeResolutionTimes.length 
-            : 0;
-        
-        const fastestResolution = modeResolutionTimes.length > 0 ? Math.min(...modeResolutionTimes) : 0;
-        const slowestResolution = modeResolutionTimes.length > 0 ? Math.max(...modeResolutionTimes) : 0;
-        const successRate = modeTotal > 0 ? (modeSuccessful / modeTotal) * 100 : 0;
-        
-        const testCase: TestCase = {
-            resolution_mode: mode,
-            domains_count: domains.length,
-            iterations: iterationsData,
-            avg_resolution_time: avgResolutionTime,
-            fastest_resolution: fastestResolution,
-            slowest_resolution: slowestResolution,
-            success_rate: successRate,
-            total_successful: modeSuccessful,
-            total_attempts: modeTotal
-        };
-        
+        if (modeResolutionTimes.length > 0) {
+            testCase.avg_resolution_time = modeResolutionTimes.reduce((a, b) => a + b, 0) / modeResolutionTimes.length;
+            testCase.fastest_resolution = Math.min(...modeResolutionTimes);
+            testCase.slowest_resolution = Math.max(...modeResolutionTimes);
+        }
+
+        testCase.success_rate = modeTotal > 0 ? (modeSuccessful / modeTotal) * 100 : 0;
+        testCase.total_successful = modeSuccessful;
+        testCase.total_attempts = modeTotal;
+
         testCases.push(testCase);
     }
-    
+
+    const endTime = Date.now();
+    const totalExecutionTime = (endTime - startTime) / 1000; // Convert to seconds
+
     // Calculate overall summary
     const successfulResolutions = allResolutionTimes.length;
     const failedResolutions = (totalIterations * domains.length) - successfulResolutions;
-    
     const avgResolutionTime = allResolutionTimes.length > 0 
-        ? allResolutionTimes.reduce((sum, t) => sum + t, 0) / allResolutionTimes.length 
+        ? allResolutionTimes.reduce((a, b) => a + b, 0) / allResolutionTimes.length 
         : 0;
-    
     const fastestResolution = allResolutionTimes.length > 0 ? Math.min(...allResolutionTimes) : 0;
     const slowestResolution = allResolutionTimes.length > 0 ? Math.max(...allResolutionTimes) : 0;
-    
-    const endTime = Date.now();
-    const executionTime = (endTime - startTime) / 1000; // Convert to seconds
-    
+
     return {
-        start_time: startTime,
+        start_time: startTime / 1000, // Convert to seconds
+        end_time: endTime / 1000,
+        total_execution_time: totalExecutionTime,
         test_cases: testCases,
         summary: {
             total_domains: domains.length,
@@ -290,33 +230,31 @@ async function runDnsBenchmark(config: Config): Promise<BenchmarkResult> {
             avg_resolution_time: avgResolutionTime,
             fastest_resolution: fastestResolution,
             slowest_resolution: slowestResolution
-        },
-        end_time: endTime,
-        total_execution_time: executionTime
+        }
     };
 }
 
 async function main() {
-    const args = process.argv.slice(2);
-    if (args.length < 1) {
-        console.error(`Usage: ${process.argv[1]} <config_file>`);
+    if (process.argv.length < 3) {
+        console.error('Usage: node dns_lookup.js <config_file>');
         process.exit(1);
     }
-    
-    const configFile = args[0];
-    
+
+    const configFile = process.argv[2];
+
     try {
         const configData = fs.readFileSync(configFile, 'utf8');
-        const config: Config = JSON.parse(configData);
+        const config = JSON.parse(configData);
+        const parameters = config.parameters || {};
         
-        const results = await runDnsBenchmark(config);
+        const results = await runDnsBenchmark(parameters);
         console.log(JSON.stringify(results, null, 2));
-        
+
     } catch (error) {
         if (error instanceof Error) {
-            if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+            if (error.message.includes('ENOENT')) {
                 console.error(`Error: Config file '${configFile}' not found`);
-            } else if (error.name === 'SyntaxError') {
+            } else if (error.message.includes('JSON')) {
                 console.error(`Error: Invalid JSON in config file: ${error.message}`);
             } else {
                 console.error(`Error: ${error.message}`);
@@ -328,7 +266,4 @@ async function main() {
     }
 }
 
-main().catch(error => {
-        console.error(`Unhandled error: ${error}`);
-        process.exit(1);
-    });
+main();

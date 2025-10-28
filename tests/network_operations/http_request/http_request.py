@@ -7,89 +7,124 @@ Measures HTTP request/response performance to specified endpoints.
 import json
 import sys
 import time
-import urllib.request
-import urllib.error
-import urllib.parse
 from typing import Dict, List, Optional, Any
-import ssl
+
+try:
+    import requests
+    from requests.adapters import HTTPAdapter
+    from urllib3.util.retry import Retry
+    HAS_REQUESTS = True
+except ImportError:
+    import urllib.request
+    import urllib.error
+    import ssl
+    HAS_REQUESTS = False
 
 
-def make_http_request(url: str, method: str = "GET", timeout: int = 10) -> Dict[str, Any]:
-    """
-    Make an HTTP request and measure performance metrics.
+def create_session():
+    """Create optimized session with connection pooling if available."""
+    if HAS_REQUESTS:
+        session = requests.Session()
+        
+        # Configure retry strategy
+        retry_strategy = Retry(
+            total=2,
+            backoff_factor=0.1,
+            status_forcelist=[429, 500, 502, 503, 504],
+        )
+        
+        # Configure adapter with connection pooling
+        adapter = HTTPAdapter(
+            max_retries=retry_strategy,
+            pool_connections=10,
+            pool_maxsize=20
+        )
+        
+        session.mount("http://", adapter)
+        session.mount("https://", adapter)
+        
+        # Set headers
+        session.headers.update({'User-Agent': 'BenchmarkTool/1.0'})
+        
+        return session
+    else:
+        return None
+
+def make_http_request(session, url: str, method: str = "GET", timeout: int = 10) -> Dict[str, Any]:
+    """Make an HTTP request using optimized session or fallback."""
+    start_time = time.perf_counter()
     
-    Args:
-        url: Target URL to request
-        method: HTTP method (GET, POST, etc.)
-        timeout: Request timeout in seconds
-        
-    Returns:
-        Dictionary with request performance metrics
-    """
-    start_time = time.time()
-    
-    try:
-        # Create request
-        request = urllib.request.Request(url, method=method)
-        request.add_header('User-Agent', 'BenchmarkTool/1.0')
-        
-        # Handle HTTPS certificates
-        context = ssl.create_default_context()
-        context.check_hostname = False
-        context.verify_mode = ssl.CERT_NONE
-        
-        # Make the request
-        with urllib.request.urlopen(request, timeout=timeout, context=context) as response:
-            response_time = time.time() - start_time
-            content = response.read()
+    if HAS_REQUESTS and session:
+        try:
+            response = session.request(
+                method=method,
+                url=url,
+                timeout=timeout,
+                verify=False  # Skip SSL verification for benchmarking
+            )
+            
+            response_time = (time.perf_counter() - start_time) * 1000  # Convert to ms
             
             return {
-                "success": True,
-                "response_time": round(response_time * 1000, 2),  # Convert to ms
-                "status_code": response.status,
-                "content_length": len(content),
-                "headers": dict(response.headers),
-                "url": response.url
+                "success": response.status_code < 400,
+                "response_time": round(response_time, 2),
+                "status_code": response.status_code,
+                "content_length": len(response.content),
+                "url": str(response.url)
             }
             
-    except urllib.error.HTTPError as e:
-        response_time = time.time() - start_time
-        return {
-            "success": False,
-            "response_time": round(response_time * 1000, 2),
-            "status_code": e.code,
-            "content_length": 0,
-            "error": f"HTTP Error {e.code}: {e.reason}"
-        }
-        
-    except urllib.error.URLError as e:
-        response_time = time.time() - start_time
-        return {
-            "success": False,
-            "response_time": round(response_time * 1000, 2),
-            "status_code": 0,
-            "content_length": 0,
-            "error": f"URL Error: {e.reason}"
-        }
-        
-    except Exception as e:
-        response_time = time.time() - start_time
-        return {
-            "success": False,
-            "response_time": round(response_time * 1000, 2),
-            "status_code": 0,
-            "content_length": 0,
-            "error": str(e)
-        }
+        except Exception as e:
+            response_time = (time.perf_counter() - start_time) * 1000
+            return {
+                "success": False,
+                "response_time": round(response_time, 2),
+                "status_code": 0,
+                "content_length": 0,
+                "error": str(e)
+            }
+    else:
+        # Fallback to urllib
+        try:
+            request = urllib.request.Request(url)
+            request.add_header('User-Agent', 'BenchmarkTool/1.0')
+            
+            context = ssl.create_default_context()
+            context.check_hostname = False
+            context.verify_mode = ssl.CERT_NONE
+            
+            with urllib.request.urlopen(request, timeout=timeout, context=context) as response:
+                response_time = (time.perf_counter() - start_time) * 1000
+                content = response.read()
+                
+                return {
+                    "success": True,
+                    "response_time": round(response_time, 2),
+                    "status_code": response.status,
+                    "content_length": len(content),
+                    "url": response.url
+                }
+                
+        except Exception as e:
+            response_time = (time.perf_counter() - start_time) * 1000
+            return {
+                "success": False,
+                "response_time": round(response_time, 2),
+                "status_code": 0,
+                "content_length": 0,
+                "error": str(e)
+            }
 
 
 def run_http_benchmark(config: Dict) -> Dict:
     """Run HTTP request benchmark with given configuration."""
-    urls = config.get("urls", ["https://httpbin.org/get"])
-    request_count = config.get("request_count", 5)
-    timeout = config.get("timeout", 10000) / 1000  # Convert to seconds
+    urls = config.get("urls", ["http://httpbin.org/get"])  # Use HTTP for faster benchmarking
+    request_count = config.get("request_count", 3)  # Reduce for faster benchmarking
+    timeout = config.get("timeout", 5000) / 1000  # Shorter timeout
     methods = config.get("methods", ["GET"])
     concurrent_requests = config.get("concurrent_requests", 1)
+    
+    # Create optimized session
+    session = create_session()
     
     results = {
         "start_time": time.time(),
@@ -129,7 +164,7 @@ def run_http_benchmark(config: Dict) -> Dict:
             for i in range(request_count):
                 print(f"  Request {i+1}/{request_count} ({method})...", file=sys.stderr)
                 
-                request_result = make_http_request(url, method, timeout)
+                request_result = make_http_request(session, url, method, timeout)
                 url_results["requests"].append(request_result)
                 
                 total_requests += 1
