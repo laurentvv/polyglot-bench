@@ -58,27 +58,8 @@ struct Results {
     total_execution_time: f64,
 }
 
-fn make_http_request(url: &str, method: &str, timeout_ms: u64) -> RequestResult {
+fn make_http_request(client: &reqwest::blocking::Client, url: &str, method: &str) -> RequestResult {
     let start_time = Instant::now();
-    
-    let client = reqwest::blocking::Client::builder()
-        .timeout(Duration::from_millis(timeout_ms))
-        .danger_accept_invalid_certs(true)
-        .build();
-
-    let client = match client {
-        Ok(c) => c,
-        Err(e) => {
-            let response_time = start_time.elapsed().as_millis() as f64;
-            return RequestResult {
-                success: false,
-                response_time,
-                status_code: 0,
-                content_length: 0,
-                error: Some(format!("Client creation error: {}", e)),
-            };
-        }
-    };
 
     let request_builder = match method.to_uppercase().as_str() {
         "GET" => client.get(url),
@@ -88,7 +69,9 @@ fn make_http_request(url: &str, method: &str, timeout_ms: u64) -> RequestResult 
         _ => client.get(url), // Default to GET
     };
 
-    let request = request_builder.header("User-Agent", "BenchmarkTool/1.0");
+    let request = request_builder
+        .header("User-Agent", "BenchmarkTool/1.0")
+        .header("Connection", "keep-alive");
 
     match request.send() {
         Ok(response) => {
@@ -136,6 +119,15 @@ fn run_http_benchmark(params: &Parameters) -> Results {
     let timeout = params.timeout.unwrap_or(10000);
     let methods = params.methods.as_ref().map(|m| m.clone()).unwrap_or_else(|| vec!["GET".to_string()]);
 
+    // Create a single client with connection pooling
+    let client = reqwest::blocking::Client::builder()
+        .timeout(Duration::from_millis(timeout))
+        .danger_accept_invalid_certs(true)
+        .pool_max_idle_per_host(10)
+        .pool_idle_timeout(Duration::from_secs(30))
+        .build()
+        .expect("Failed to create HTTP client");
+
     let mut urls_results = HashMap::new();
     let mut total_requests = 0u32;
     let mut successful_requests = 0u32;
@@ -161,7 +153,7 @@ fn run_http_benchmark(params: &Parameters) -> Results {
             for i in 0..request_count {
                 eprintln!("  Request {}/{} ({})...", i + 1, request_count, method);
 
-                let request_result = make_http_request(url, method, timeout);
+                let request_result = make_http_request(&client, url, method);
                 
                 total_requests += 1;
                 url_results.total_requests += 1;

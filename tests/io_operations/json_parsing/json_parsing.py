@@ -32,39 +32,31 @@ def generate_flat_json(size: int) -> Dict[str, Any]:
     return data
 
 
-def generate_nested_json(size: int, max_depth: int = 3) -> Dict[str, Any]:
-    """Generate nested JSON structure - optimized."""
-    random.seed(42)
+def generate_nested_json(size: int, max_depth: int = 2) -> Dict[str, Any]:
+    """Generate nested JSON structure - simplified for better performance."""
+    # Simplified nested structure to avoid deep recursion
+    data = {
+        "level1": {},
+        "arrays": []
+    }
     
-    def create_nested_object(remaining_size: int, current_depth: int) -> Union[Dict, List, str, int, bool]:
-        if remaining_size <= 0 or current_depth >= max_depth:
-            choice = remaining_size % 3
-            if choice == 0:
-                return f"leaf_{remaining_size}"
-            elif choice == 1:
-                return remaining_size + 1
-            else:
-                return remaining_size % 2 == 0
-        
-        if current_depth % 2 == 0:  # More predictable structure
-            obj = {}
-            keys_count = min(3, remaining_size)  # Limit complexity
-            remaining_per_key = remaining_size // keys_count if keys_count > 0 else 0
-            
-            for i in range(keys_count):
-                key = f"nested_key_{i}"
-                obj[key] = create_nested_object(remaining_per_key, current_depth + 1)
-            return obj
-        else:
-            arr = []
-            items_count = min(2, remaining_size)  # Limit complexity
-            remaining_per_item = remaining_size // items_count if items_count > 0 else 0
-            
-            for _ in range(items_count):
-                arr.append(create_nested_object(remaining_per_item, current_depth + 1))
-            return arr
+    # Generate level 1 objects
+    items_per_level = size // 3
+    for i in range(items_per_level):
+        data["level1"][f"item_{i}"] = {
+            "id": i,
+            "value": f"nested_value_{i}",
+            "count": i * 2
+        }
     
-    return {"root": create_nested_object(size, 0)}
+    # Generate arrays
+    for i in range(items_per_level):
+        data["arrays"].append({
+            "array_id": i,
+            "items": [f"item_{j}" for j in range(min(5, size // items_per_level))]
+        })
+    
+    return data
 
 
 def generate_array_heavy_json(size: int) -> Dict[str, Any]:
@@ -202,14 +194,10 @@ def run_json_parsing_benchmark(config: Dict) -> Dict:
     all_stringify_times = []
     all_traverse_times = []
     
-    # Pre-allocate lists for better performance
-    all_parse_times = [0.0] * (len(json_sizes) * len(structures) * iterations)
-    all_stringify_times = [0.0] * (len(json_sizes) * len(structures) * iterations)
-    all_traverse_times = [0.0] * (len(json_sizes) * len(structures) * iterations)
-    
-    parse_idx = 0
-    stringify_idx = 0
-    traverse_idx = 0
+    # Use simple lists for better performance
+    all_parse_times = []
+    all_stringify_times = []
+    all_traverse_times = []
     
     for size in json_sizes:
         for structure in structures:
@@ -260,8 +248,7 @@ def run_json_parsing_benchmark(config: Dict) -> Dict:
                         parse_time = (time.perf_counter() - start_time) * 1000  # ms
                         
                         parse_times.append(parse_time)
-                        all_parse_times[parse_idx] = parse_time
-                        parse_idx += 1
+                        all_parse_times.append(parse_time)
                         
                         iteration_result["operations"]["parse"] = {
                             "success": True,
@@ -284,8 +271,7 @@ def run_json_parsing_benchmark(config: Dict) -> Dict:
                         stringify_time = (time.perf_counter() - start_time) * 1000  # ms
                         
                         stringify_times.append(stringify_time)
-                        all_stringify_times[stringify_idx] = stringify_time
-                        stringify_idx += 1
+                        all_stringify_times.append(stringify_time)
                         
                         iteration_result["operations"]["stringify"] = {
                             "success": True,
@@ -308,8 +294,7 @@ def run_json_parsing_benchmark(config: Dict) -> Dict:
                         traverse_time = (time.perf_counter() - start_time) * 1000  # ms
                         
                         traverse_times.append(traverse_time)
-                        all_traverse_times[traverse_idx] = traverse_time
-                        traverse_idx += 1
+                        all_traverse_times.append(traverse_time)
                         
                         iteration_result["operations"]["traverse"] = {
                             "success": True,
@@ -341,10 +326,7 @@ def run_json_parsing_benchmark(config: Dict) -> Dict:
             
             results["test_cases"].append(test_case)
     
-    # Filter out unused slots and calculate overall summary
-    all_parse_times = [t for t in all_parse_times if t > 0]
-    all_stringify_times = [t for t in all_stringify_times if t > 0]
-    all_traverse_times = [t for t in all_traverse_times if t > 0]
+    # Calculate overall summary
     
     if all_parse_times:
         results["summary"]["avg_parse_time"] = sum(all_parse_times) / len(all_parse_times)

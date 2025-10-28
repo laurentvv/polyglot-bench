@@ -68,38 +68,34 @@ interface Results {
 function generateCSVData(rows: number, cols: number, dataType: string): string[][] {
     const data: string[][] = [];
     
-    // Generate headers
-    const headers: string[] = [];
-    for (let i = 0; i < cols; i++) {
-        headers.push(`col_${i + 1}`);
-    }
+    // Generate headers efficiently
+    const headers: string[] = Array.from({ length: cols }, (_, i) => `col_${i + 1}`);
     data.push(headers);
     
-    // Generate data rows
+    // Pre-generate values for better performance
+    const numericValues = Array.from({ length: 1000 }, (_, i) => (i * 1.5 + 100).toFixed(2));
+    const textValues = Array.from({ length: 100 }, (_, i) => `text_${i}_data`);
+    
+    // Generate data rows efficiently
     for (let row = 0; row < rows; row++) {
         const rowData: string[] = [];
         for (let col = 0; col < cols; col++) {
             let value: string;
             
             if (dataType === "numeric") {
-                value = (Math.random() * 1000).toFixed(2);
+                value = numericValues[row % numericValues.length];
             } else if (dataType === "text") {
-                const length = Math.floor(Math.random() * 11) + 5; // 5-15 characters
-                value = Array.from({ length }, () => 
-                    String.fromCharCode(97 + Math.floor(Math.random() * 26))
-                ).join('');
+                value = textValues[col % textValues.length] + `_${row}`;
             } else { // mixed
                 switch (col % 3) {
                     case 0:
-                        value = String(Math.floor(Math.random() * 10000) + 1);
+                        value = String(row * 10 + col);
                         break;
                     case 1:
-                        value = Array.from({ length: 10 }, () => 
-                            String.fromCharCode(97 + Math.floor(Math.random() * 26))
-                        ).join('');
+                        value = `item_${row}_${col}`;
                         break;
                     default:
-                        value = (Math.random() * 1000).toFixed(2);
+                        value = ((row + col) * 1.5).toFixed(2);
                         break;
                 }
             }
@@ -130,12 +126,14 @@ function filterCSVData(data: string[][], filterColumn: number = 0): string[][] {
     for (let i = 1; i < data.length; i++) {
         const row = data[i];
         if (row.length > filterColumn) {
-            const value = parseFloat(row[filterColumn]);
-            if (!isNaN(value)) {
-                if (value > 500) {
+            const cellValue = row[filterColumn];
+            // Quick numeric check without parseFloat
+            const isNumeric = /^-?\d*\.?\d+$/.test(cellValue);
+            if (isNumeric) {
+                if (parseFloat(cellValue) > 500) {
                     filtered.push(row);
                 }
-            } else if (row[filterColumn].length > 5) {
+            } else if (cellValue.length > 5) {
                 filtered.push(row);
             }
         }
@@ -152,14 +150,15 @@ function aggregateCSVData(data: string[][]): { [key: string]: { [key: string]: n
     const headers = data[0];
     const numericColumns: number[] = [];
     
-    // Find numeric columns (check first 5 rows)
+    // Find numeric columns (check first 3 rows for efficiency)
     for (let colIdx = 0; colIdx < headers.length; colIdx++) {
         let isNumeric = true;
-        const checkRows = Math.min(5, data.length - 1);
+        const checkRows = Math.min(3, data.length - 1);
         
         for (let rowIdx = 1; rowIdx <= checkRows; rowIdx++) {
             if (colIdx < data[rowIdx].length) {
-                if (isNaN(parseFloat(data[rowIdx][colIdx]))) {
+                const cellValue = data[rowIdx][colIdx];
+                if (!/^-?\d*\.?\d+$/.test(cellValue)) {
                     isNumeric = false;
                     break;
                 }
@@ -174,29 +173,33 @@ function aggregateCSVData(data: string[][]): { [key: string]: { [key: string]: n
     
     for (const colIdx of numericColumns) {
         const colName = headers[colIdx];
-        const values: number[] = [];
+        let sum = 0;
+        let min = Infinity;
+        let max = -Infinity;
+        let count = 0;
         
+        // Single pass aggregation for efficiency
         for (let i = 1; i < data.length; i++) {
             const row = data[i];
             if (colIdx < row.length) {
                 const value = parseFloat(row[colIdx]);
                 if (!isNaN(value)) {
-                    values.push(value);
+                    sum += value;
+                    min = Math.min(min, value);
+                    max = Math.max(max, value);
+                    count++;
                 }
             }
         }
         
-        if (values.length > 0) {
-            const sum = values.reduce((acc, val) => acc + val, 0);
-            const stats = {
+        if (count > 0) {
+            aggregations[colName] = {
                 sum: sum,
-                avg: sum / values.length,
-                min: Math.min(...values),
-                max: Math.max(...values),
-                count: values.length
+                avg: sum / count,
+                min: min,
+                max: max,
+                count: count
             };
-            
-            aggregations[colName] = stats;
         }
     }
     

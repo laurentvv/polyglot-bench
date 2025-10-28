@@ -14,29 +14,34 @@ from typing import Dict, List, Any, Union
 
 
 def generate_csv_data(rows: int, cols: int, data_type: str) -> List[List[str]]:
-    """Generate CSV data with specified dimensions and data types - optimized."""
+    """Generate CSV data with specified dimensions and data types - highly optimized."""
     headers = [f"col_{i+1}" for i in range(cols)]
     data = [headers]
     
-    # Pre-seed for consistent performance
-    random.seed(42)
+    # Pre-generate values for maximum performance
+    if data_type == "numeric":
+        base_values = [str(round(i * 0.1 + (i % 100) + 1, 2)) for i in range(100)]
+    elif data_type == "text":
+        base_values = [f"text_{i}_data" for i in range(50)]
+    else:  # mixed - pre-generate all patterns
+        numeric_values = [str(i * 10) for i in range(100)]
+        text_values = [f"item_{i}" for i in range(50)]
+        float_values = [str(round(i * 1.5, 2)) for i in range(100)]
     
     for row in range(rows):
         row_data = []
         for col in range(cols):
             if data_type == "numeric":
-                value = str(round(row * col * 0.1 + random.randint(1, 100), 2))
+                value = base_values[(row + col) % len(base_values)]
             elif data_type == "text":
-                # More efficient text generation
-                length = 8 + (row + col) % 5
-                value = f"text_{row}_{col}_{length}"
+                value = base_values[col % len(base_values)] + f"_{row}"
             else:  # mixed
                 if col % 3 == 0:
-                    value = str(row * 10 + col)
+                    value = numeric_values[(row + col) % len(numeric_values)]
                 elif col % 3 == 1:
-                    value = f"item_{row}_{col}"
+                    value = text_values[col % len(text_values)] + f"_{row}"
                 else:
-                    value = str(round((row + col) * 1.5, 2))
+                    value = float_values[(row + col) % len(float_values)]
             
             row_data.append(value)
         data.append(row_data)

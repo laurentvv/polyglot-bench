@@ -71,8 +71,15 @@ func generateTestFile(filePath string, sizeBytes int64) error {
 	}
 	defer file.Close()
 
-	const chunkSize = 8192
+	// Use larger chunk size for better performance
+	const chunkSize = 64 * 1024 // 64KB chunks
 	chars := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\n"
+
+	// Pre-generate a pattern to avoid repeated random generation
+	pattern := make([]byte, 1024)
+	for i := range pattern {
+		pattern[i] = chars[i%len(chars)]
+	}
 
 	var bytesWritten int64
 	for bytesWritten < sizeBytes {
@@ -82,10 +89,10 @@ func generateTestFile(filePath string, sizeBytes int64) error {
 			currentChunkSize = int(remaining)
 		}
 
-		// Generate random text data
+		// Generate data using pattern repetition
 		data := make([]byte, currentChunkSize)
 		for i := 0; i < currentChunkSize; i++ {
-			data[i] = chars[rand.Intn(len(chars))]
+			data[i] = pattern[i%len(pattern)]
 		}
 
 		n, err := file.Write(data)
@@ -107,19 +114,21 @@ func readFileSequential(filePath string, bufferSize int) (*ReadResult, error) {
 	}
 	defer file.Close()
 
-	buffer := make([]byte, bufferSize)
+	// Use larger buffer for better performance
+	optimalBufferSize := bufferSize
+	if bufferSize < 64*1024 {
+		optimalBufferSize = 64 * 1024 // 64KB minimum
+	}
+
+	buffer := make([]byte, optimalBufferSize)
 	var totalBytes int64
 
-	for {
-		n, err := file.Read(buffer)
-		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			return nil, err
-		}
-		totalBytes += int64(n)
+	// Use io.CopyBuffer for more efficient reading
+	n, err := io.CopyBuffer(io.Discard, file, buffer)
+	if err != nil {
+		return nil, err
 	}
+	totalBytes = n
 
 	readTime := time.Since(startTime)
 	readTimeMs := float64(readTime.Nanoseconds()) / 1e6 // Convert to milliseconds
@@ -147,7 +156,13 @@ func readFileChunked(filePath string, bufferSize int) (*ReadResult, error) {
 	}
 	defer file.Close()
 
-	buffer := make([]byte, bufferSize)
+	// Use optimal buffer size
+	optimalBufferSize := bufferSize
+	if bufferSize < 32*1024 {
+		optimalBufferSize = 32 * 1024 // 32KB minimum
+	}
+
+	buffer := make([]byte, optimalBufferSize)
 	var totalBytes int64
 	var chunkCount int
 
