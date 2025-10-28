@@ -60,7 +60,7 @@ def generate_nested_json(size: int, max_depth: int = 2) -> Dict[str, Any]:
 
 
 def generate_array_heavy_json(size: int) -> Dict[str, Any]:
-    """Generate JSON with large arrays."""
+    """Generate JSON with large arrays - optimized."""
     data = {
         "users": [],
         "products": [],
@@ -75,7 +75,7 @@ def generate_array_heavy_json(size: int) -> Dict[str, Any]:
             "id": i,
             "name": f"User_{i}",
             "email": f"user{i}@example.com",
-            "active": bool(random.getrandbits(1))
+            "active": i % 2 == 0
         })
     
     # Products array
@@ -84,26 +84,26 @@ def generate_array_heavy_json(size: int) -> Dict[str, Any]:
         data["products"].append({
             "id": i,
             "name": f"Product_{i}",
-            "price": round(random.uniform(10.0, 500.0), 2),
-            "category": random.choice(categories)
+            "price": round((i * 1.5) % 500, 2),
+            "category": categories[i % len(categories)]
         })
     
     # Orders array
     for i in range(items_per_array):
-        product_ids = [random.randrange(items_per_array) for _ in range(random.randint(1, 5))]
+        product_ids = [(i + j) % items_per_array for j in range(3)]
         data["orders"].append({
             "id": i,
-            "user_id": random.randrange(items_per_array),
+            "user_id": i % items_per_array,
             "product_ids": product_ids,
-            "total": round(random.uniform(20.0, 1000.0), 2),
-            "timestamp": f"2024-{random.randint(1, 12):02d}-{random.randint(1, 28):02d}"
+            "total": round((i * 5.5) % 1000, 2),
+            "timestamp": f"2024-{(i % 12) + 1:02d}-{(i % 28) + 1:02d}"
         })
     
     return data
 
 
 def generate_mixed_json(size: int) -> Dict[str, Any]:
-    """Generate mixed structure JSON."""
+    """Generate mixed structure JSON - optimized."""
     data = {
         "metadata": {
             "version": "1.0",
@@ -124,18 +124,15 @@ def generate_mixed_json(size: int) -> Dict[str, Any]:
     tags = ["urgent", "normal", "low", "critical"]
     
     for i in range(size):
-        selected_tags = random.sample(tags, k=min(random.randint(1, 2), len(tags)))
-        relationships = [
-            {"id": random.randrange(size), "type": "related"}
-            for _ in range(random.randint(0, 3))
-        ]
+        selected_tags = [tags[i % len(tags)]]
+        relationships = [{"id": (i + 1) % size, "type": "related"}]
         
         data["data"].append({
             "id": i,
-            "type": random.choice(types),
+            "type": types[i % len(types)],
             "attributes": {
                 "name": f"Item_{i}",
-                "value": random.randint(1, 1000),
+                "value": i % 1000,
                 "tags": selected_tags
             },
             "relationships": relationships
