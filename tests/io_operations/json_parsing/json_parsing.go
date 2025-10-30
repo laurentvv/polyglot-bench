@@ -64,15 +64,15 @@ func generateFlatJson(size int) interface{} {
 
 	for i := 0; i < size; i++ {
 		key := fmt.Sprintf("key_%d", i)
-		valueType := rand.Intn(3)
+		valueType := i % 3
 
 		switch valueType {
 		case 0:
-			data[key] = fmt.Sprintf("value_%d", rand.Intn(1000))
+			data[key] = fmt.Sprintf("value_%d", i)
 		case 1:
-			data[key] = rand.Intn(1000) + 1
+			data[key] = i*10 + (i % 100)
 		default:
-			data[key] = rand.Float32() < 0.5
+			data[key] = i%2 == 0
 		}
 	}
 

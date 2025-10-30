@@ -4,7 +4,6 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
-	"math/rand"
 	"os"
 	"strconv"
 	"strings"
@@ -70,47 +69,63 @@ type Results struct {
 	TotalExecutionTime float64    `json:"total_execution_time"`
 }
 
-func generateCSVData(rows, cols int, dataType string) [][]string {
-	rand.Seed(time.Now().UnixNano())
-	data := make([][]string, 0, rows+1)
+type TestData struct {
+	CSVData struct {
+		Headers []string   `json:"headers"`
+		Rows    [][]string `json:"rows"`
+	} `json:"csv_data"`
+}
 
-	// Generate headers
+func loadTestData() ([][]string, error) {
+	content, err := os.ReadFile("test_data.json")
+	if err != nil {
+		return nil, err
+	}
+
+	var testData TestData
+	if err := json.Unmarshal(content, &testData); err != nil {
+		return nil, err
+	}
+
+	data := [][]string{testData.CSVData.Headers}
+	data = append(data, testData.CSVData.Rows...)
+	return data, nil
+}
+
+func generateCSVData(rows, cols int, dataType string) [][]string {
+	baseData, err := loadTestData()
+	if err != nil {
+		// Fallback to simple data if JSON loading fails
+		headers := make([]string, cols)
+		for i := 0; i < cols; i++ {
+			headers[i] = fmt.Sprintf("col_%d", i+1)
+		}
+		return [][]string{headers}
+	}
+
+	// Use headers from test data
 	headers := make([]string, cols)
 	for i := 0; i < cols; i++ {
-		headers[i] = fmt.Sprintf("col_%d", i+1)
+		if i < len(baseData[0]) {
+			headers[i] = baseData[0][i]
+		} else {
+			headers[i] = fmt.Sprintf("col_%d", i+1)
+		}
 	}
-	data = append(data, headers)
 
-	// Generate data rows
+	data := [][]string{headers}
+
+	// Replicate base rows to match requested size
+	baseRows := baseData[1:]
 	for row := 0; row < rows; row++ {
+		sourceRow := baseRows[row%len(baseRows)]
 		rowData := make([]string, cols)
 		for col := 0; col < cols; col++ {
-			var value string
-			switch dataType {
-			case "numeric":
-				value = fmt.Sprintf("%.2f", rand.Float64()*1000)
-			case "text":
-				length := rand.Intn(11) + 5 // 5-15 characters
-				runes := make([]rune, length)
-				for i := range runes {
-					runes[i] = rune('a' + rand.Intn(26))
-				}
-				value = string(runes)
-			default: // mixed
-				switch col % 3 {
-				case 0:
-					value = strconv.Itoa(rand.Intn(10000) + 1)
-				case 1:
-					runes := make([]rune, 10)
-					for i := range runes {
-						runes[i] = rune('a' + rand.Intn(26))
-					}
-					value = string(runes)
-				default:
-					value = fmt.Sprintf("%.2f", rand.Float64()*1000)
-				}
+			if col < len(sourceRow) {
+				rowData[col] = sourceRow[col]
+			} else {
+				rowData[col] = fmt.Sprintf("extra_%d_%d", row, col)
 			}
-			rowData[col] = value
 		}
 		data = append(data, rowData)
 	}
@@ -473,23 +488,34 @@ func runCSVProcessingBenchmark(config Config) Results {
 }
 
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "Usage: csv_processing <config_file>")
-		os.Exit(1)
-	}
-
-	configFile := os.Args[1]
-
-	configContent, err := os.ReadFile(configFile)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: Config file '%s' not found: %v\n", configFile, err)
-		os.Exit(1)
-	}
-
 	var config Config
-	if err := json.Unmarshal(configContent, &config); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: Invalid JSON in config file: %v\n", err)
-		os.Exit(1)
+	
+	// Check if arguments were passed (from orchestrator)
+	if len(os.Args) >= 2 {
+		configFile := os.Args[1]
+		
+		// Read from specified config file
+		configContent, err := os.ReadFile(configFile)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: Config file '%s' not found: %v\n", configFile, err)
+			os.Exit(1)
+		}
+
+		if err := json.Unmarshal(configContent, &config); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: Invalid JSON in config file: %v\n", err)
+			os.Exit(1)
+		}
+	} else {
+		// Default configuration for when no config file is provided
+		config = Config{
+			Parameters: Parameters{
+				RowCounts:    []int{1000},
+				ColumnCounts: []int{5},
+				Operations:   []string{"read", "write", "filter", "aggregate"},
+				DataTypes:    []string{"mixed"},
+				Iterations:   3,
+			},
+		}
 	}
 
 	results := runCSVProcessingBenchmark(config)

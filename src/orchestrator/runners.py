@@ -779,7 +779,7 @@ class CppRunner(BaseLanguageRunner):
     """Runner for C++ tests with MSVC compiler."""
     
     def compile_test(self, source_file: str) -> Optional[str]:
-        """Compile C++ source using MSVC."""
+        """Compile C++ source using MSVC with Visual Studio environment."""
         if not os.path.exists(source_file):
             return None
         
@@ -789,10 +789,24 @@ class CppRunner(BaseLanguageRunner):
         # Ensure binaries directory exists
         os.makedirs(self.binaries_dir, exist_ok=True)
         
-        # Use the compile script
-        compile_cmd = ['compile_cpp.bat', source_file, output_file]
+        # Check if executable already exists
+        if os.path.exists(output_file):
+            return output_file
         
-        result = self._run_command(compile_cmd, timeout=60)
+        # Use direct MSVC compilation with vcvars64.bat
+        vcvars_path = r"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
+        
+        if not os.path.exists(vcvars_path):
+            print(f"    C++ compilation failed: Visual Studio 2022 not found at {vcvars_path}")
+            return None
+        
+        # Create compilation command with proper quoting for paths with spaces
+        compile_cmd = [
+            'cmd', '/c',
+            f'"\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat\" && cl /EHsc /O2 /std:c++17 \"{source_file}\" /Fe:\"{output_file}\""'
+        ]
+        
+        result = self._run_command(compile_cmd, timeout=120)
         
         if result.returncode == 0 and os.path.exists(output_file):
             return output_file

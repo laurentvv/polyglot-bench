@@ -58,17 +58,17 @@ function generateFlatJson(size: number): Record<string, any> {
     
     for (let i = 0; i < size; i++) {
         const key = `key_${i}`;
-        const valueType = Math.floor(Math.random() * 3);
+        const valueType = i % 3;
         
         switch (valueType) {
             case 0:
-                data[key] = `value_${Math.floor(Math.random() * 1000)}`;
+                data[key] = `value_${i}`;
                 break;
             case 1:
-                data[key] = Math.floor(Math.random() * 1000) + 1;
+                data[key] = i * 10 + (i % 100);
                 break;
             default:
-                data[key] = Math.random() < 0.5;
+                data[key] = i % 2 === 0;
                 break;
         }
     }

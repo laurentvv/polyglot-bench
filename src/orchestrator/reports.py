@@ -344,6 +344,8 @@ class ReportGenerator:
 
         {self._generate_versions_html(performance_summary)}
         
+        {self._generate_libraries_html()}
+        
         {self._generate_rankings_html(performance_summary)}
         
         {self._generate_test_results_html(performance_summary)}
@@ -429,6 +431,61 @@ class ReportGenerator:
             </div>
         </div>
         '''
+        return html
+    
+    def _generate_libraries_html(self) -> str:
+        """Generate HTML for language-specific libraries used."""
+        libraries = {
+            'python': {
+                'name': 'Python',
+                'libraries': ['Built-in json, csv, gzip', 'NumPy for mathematical operations', 'psutil for system metrics']
+            },
+            'rust': {
+                'name': 'Rust', 
+                'libraries': ['serde_json for JSON processing', 'csv crate for CSV operations', 'flate2 for compression', 'rand for random generation']
+            },
+            'go': {
+                'name': 'Go',
+                'libraries': ['encoding/json (standard library)', 'encoding/csv (standard library)', 'compress/gzip (standard library)', 'net/http for HTTP operations']
+            },
+            'typescript': {
+                'name': 'TypeScript/Node.js',
+                'libraries': ['Native V8 JSON engine', 'Built-in fs, http modules', 'process.hrtime for high-resolution timing']
+            },
+            'cpp': {
+                'name': 'C++',
+                'libraries': ['nlohmann/json v3.12.0 for JSON operations', 'Standard library (std::chrono, std::fstream)', 'MSVC compiler optimizations (-O2)']
+            }
+        }
+        
+        html = '''
+        <div class="section">
+            <h2>Language-Specific Libraries</h2>
+            <div class="explanation">
+                <p><strong>Library Usage:</strong> Each language uses optimized, production-grade libraries to ensure fair performance comparisons. 
+                This represents real-world usage patterns rather than naive implementations.</p>
+            </div>
+            <div class="summary">
+        '''
+        
+        for lang_key, lang_info in libraries.items():
+            html += f'''
+                <div class="metric-card">
+                    <h3 class="language-{lang_key}">{lang_info['name']}</h3>
+                    <div style="font-size: 0.9em; line-height: 1.4;">
+            '''
+            for lib in lang_info['libraries']:
+                html += f'<div>• {lib}</div>'
+            html += '''
+                    </div>
+                </div>
+            '''
+        
+        html += '''
+            </div>
+        </div>
+        '''
+        
         return html
     
     def _generate_test_results_html(self, performance_summary) -> str:

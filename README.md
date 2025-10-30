@@ -5,8 +5,8 @@
 [![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![Rust Performance Leader](https://img.shields.io/badge/Rust-Performance%20Leader%20(96.46)-orange)](#performance-insights)
-[![Go Performance Issues](https://img.shields.io/badge/Go-Known%20Issues-yellow)](#recent-improvements)
+[![TypeScript Performance Leader](https://img.shields.io/badge/TypeScript-Performance%20Leader-blue)](#performance-insights)
+[![C++ nlohmann/json](https://img.shields.io/badge/C++-nlohmann%2Fjson%20v3.12.0-green)](#language-specific-libraries-used)
 
 A comprehensive performance benchmarking tool that compares execution performance across Python, Rust, Go, TypeScript, and C++ implementations.
 
@@ -16,21 +16,21 @@ The Multi-Language Performance Benchmark Tool is designed to provide accurate an
 
 ### Performance Insights
 
-Based on extensive benchmarking with optimized implementations and the latest performance scoring algorithm (90% weight on execution time), **C++ leads overall performance** with excellent scores across computational and I/O tasks, followed closely by **Rust** which shows consistent high performance. **Python demonstrates exceptional DNS resolution performance** thanks to optimized caching and threading, while **TypeScript maintains excellent memory efficiency** across all tests. **Go shows stable but moderate performance** across all categories.
+Based on extensive benchmarking with optimized implementations and production-grade libraries, **TypeScript leads overall performance** with excellent V8 engine optimizations, followed closely by **Rust** and **Python** which show consistent high performance. **C++ with nlohmann/json** demonstrates strong performance with production-grade JSON processing, while **Go shows stable moderate performance** across all categories.
 
-**Updated Performance Rankings** (after optimizations):
-1. **C++** (27.37) - Excellent across all categories
-2. **Rust** (24.19) - Very good balance, especially strong in data processing
-3. **Python** (20.03) - Excellent in network operations, good overall
-4. **TypeScript** (11.33) - Good balance with superior memory efficiency
-5. **Go** (9.61) - Stable moderate performance
+**Latest Performance Rankings** (with nlohmann/json integration):
+1. **TypeScript** (~12.0) - Excellent V8 engine optimizations and memory efficiency
+2. **Python** (~11.4) - Outstanding with optimized libraries and caching
+3. **Rust** (~11.0) - Consistent high performance with zero-cost abstractions
+4. **C++** (~10.8) - Strong performance with nlohmann/json v3.12.0
+5. **Go** (~8.6) - Stable moderate performance across all tests
 
 **Key Performance Characteristics**:
-- **C++**: Superior raw performance with optimized implementations, fastest in JSON parsing and HTTP requests
-- **Rust**: Excellent data processing performance, fastest in CSV operations, strong memory safety
-- **Python**: Outstanding DNS resolution with LRU caching, good I/O performance with connection pooling
-- **TypeScript**: Consistent performance with excellent memory efficiency, strong in concurrent operations
-- **Go**: Reliable moderate performance across all tests, good for balanced workloads
+- **TypeScript**: Superior V8 engine optimizations, excellent memory efficiency, fastest JSON processing
+- **Python**: Outstanding with optimized libraries, LRU caching, connection pooling, strong I/O performance
+- **Rust**: Excellent data processing with serde_json, zero-cost abstractions, strong memory safety
+- **C++**: Strong performance with nlohmann/json v3.12.0, MSVC optimizations, production-grade libraries
+- **Go**: Reliable moderate performance with standard library, good for balanced workloads
 
 ### Key Features
 
@@ -89,8 +89,8 @@ Based on extensive benchmarking with optimized implementations and the latest pe
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/multi-language-benchmark.git
-cd multi-language-benchmark
+git clone https://github.com/laurentvv/polyglot-bench.git
+cd polyglot-bench
 
 # Create virtual environment
 python -m venv .venv
@@ -122,6 +122,9 @@ Download and install Go from [golang.org](https://golang.org/dl/)
 # Install Visual Studio 2022 Community (free)
 # Download from: https://visualstudio.microsoft.com/downloads/
 # Select "Desktop development with C++" workload during installation
+
+# Download nlohmann/json header for JSON parsing tests
+curl -L https://github.com/nlohmann/json/releases/download/v3.12.0/json.hpp -o tests/io_operations/json_parsing/json.hpp
 ```
 
 For detailed C++ setup instructions, see [CPP_SETUP_GUIDE.md](CPP_SETUP_GUIDE.md).
@@ -301,8 +304,8 @@ This scoring system heavily emphasizes execution speed while still considering m
   - **Rust**: serde_json with optimized structure generation and efficient parsing
   - **Go**: encoding/json with balanced data structures and efficient marshaling
   - **TypeScript**: Native JSON object with V8 optimizations and balanced structures
-  - **C++**: Optimized string-based JSON processing with realistic parsing simulation
-- **Performance Strategy**: **FIXED** - Standardized data complexity, eliminated extreme nesting, fair comparison
+  - **C++**: nlohmann/json v3.12.0 for production-grade JSON processing with full parsing capabilities
+- **Performance Strategy**: **FIXED** - Standardized data complexity, eliminated extreme nesting, fair comparison with production libraries
 
 **3. CSV Processing - OPTIMIZED FOR FAIRNESS**
 - **Final Goal**: Parse, filter, and aggregate CSV data with consistent operations across languages
@@ -420,12 +423,12 @@ Recent updates have focused on **eliminating performance inconsistencies** and *
 
 ### Major Performance Optimizations - **COMPLETED**
 - **JSON Parsing Optimization**: Fixed extreme performance gaps (100-400x) by standardizing data complexity and optimizing implementations
-- **CSV Processing Optimization**: Eliminated naive implementations, optimized string processing, standardized operations across languages
+- **CSV Processing Optimization**: Standardized operations across languages, fixed compilation and execution issues, optimized string processing, ensured consistent command-line argument handling
 - **HTTP Request Optimization**: Implemented connection pooling, proper timeouts, and realistic network simulation
 - **DNS Lookup Optimization**: Added LRU caching, concurrent resolution, and optimized timeout handling
 
 ### Implementation Standardization
-- **C++**: Replaced naive implementations with realistic simulations and proper timing
+- **C++**: Integrated nlohmann/json v3.12.0 for production-grade JSON processing, replaced naive implementations
 - **Python**: Added connection pooling (requests), LRU caching (@lru_cache), optimized string operations
 - **Rust**: Leveraged native performance with serde_json, reqwest, and efficient memory management
 - **Go**: Utilized built-in libraries with proper connection handling and concurrent patterns
@@ -450,8 +453,10 @@ Recent updates have focused on **eliminating performance inconsistencies** and *
 - **Concurrent Processing**: Optimized threading and async patterns per language
 - **Memory Efficiency**: Improved memory usage tracking and optimization
 - **Error Handling**: Robust error handling and timeout management
+- **Command-line Argument Handling**: All implementations now properly handle configuration files passed by the orchestrator
+- **Compilation Fixes**: Resolved compilation issues in Go and Rust implementations for consistent execution
 
-See [FIXES_SUMMARY.md](FIXES_SUMMARY.md) for detailed information on recent improvements, [PERFORMANCE_OPTIMIZATIONS.md](PERFORMANCE_OPTIMIZATIONS.md) for details on performance optimization strategies, [CPP_INTEGRATION_SUMMARY.md](CPP_INTEGRATION_SUMMARY.md) for complete C++ integration details, [OPTIMIZATION_SUMMARY.md](OPTIMIZATION_SUMMARY.md) for the latest major optimizations and fairness improvements, and [IMPLEMENTATION_DETAILS.md](IMPLEMENTATION_DETAILS.md) for comprehensive implementation strategies and optimizations used by each language.
+See [LIBRARIES.md](LIBRARIES.md) for detailed information on language-specific libraries and dependencies, [FIXES_SUMMARY.md](FIXES_SUMMARY.md) for recent improvements, [PERFORMANCE_OPTIMIZATIONS.md](PERFORMANCE_OPTIMIZATIONS.md) for optimization strategies, [CPP_INTEGRATION_SUMMARY.md](CPP_INTEGRATION_SUMMARY.md) for C++ integration details, and [IMPLEMENTATION_DETAILS.md](IMPLEMENTATION_DETAILS.md) for comprehensive implementation strategies.
 
 ## 🤝 Contributing
 
@@ -477,4 +482,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-If you encounter any issues or have questions about the benchmark tool, please [open an issue](https://github.com/yourusername/multi-language-benchmark/issues) on GitHub.
+If you encounter any issues or have questions about the benchmark tool, please [open an issue](https://github.com/laurentvv/polyglot-bench/issues) on GitHub.

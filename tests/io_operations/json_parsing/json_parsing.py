@@ -14,18 +14,17 @@ from typing import Dict, List, Any, Union
 
 
 def generate_flat_json(size: int) -> Dict[str, Any]:
-    """Generate flat JSON structure - optimized."""
+    """Generate flat JSON structure - standardized."""
     data = {}
-    # Pre-generate random values for better performance
-    random.seed(42)
+    random.seed(42)  # Fixed seed for consistency
     for i in range(size):
         key = f"key_{i}"
-        value_type = i % 3  # More predictable for consistent performance
+        value_type = i % 3
         
         if value_type == 0:
             data[key] = f"value_{i}"
         elif value_type == 1:
-            data[key] = i * 10 + random.randint(1, 100)
+            data[key] = i * 10 + (i % 100)  # Deterministic for consistency
         else:
             data[key] = i % 2 == 0
     

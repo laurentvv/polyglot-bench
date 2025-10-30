@@ -65,42 +65,55 @@ interface Results {
     total_execution_time: number;
 }
 
+interface TestData {
+    csv_data: {
+        headers: string[];
+        rows: string[][];
+    };
+}
+
+function loadTestData(): string[][] {
+    const testDataContent = fs.readFileSync('test_data.json', 'utf8');
+    const testData: TestData = JSON.parse(testDataContent);
+    
+    const data: string[][] = [testData.csv_data.headers];
+    data.push(...testData.csv_data.rows);
+    return data;
+}
+
 function generateCSVData(rows: number, cols: number, dataType: string): string[][] {
-    const data: string[][] = [];
+    let baseData: string[][];
+    try {
+        baseData = loadTestData();
+    } catch (error) {
+        // Fallback to simple data if JSON loading fails
+        const headers = Array.from({ length: cols }, (_, i) => `col_${i + 1}`);
+        return [headers];
+    }
     
-    // Generate headers efficiently
-    const headers: string[] = Array.from({ length: cols }, (_, i) => `col_${i + 1}`);
-    data.push(headers);
+    // Use headers from test data
+    const headers: string[] = [];
+    for (let i = 0; i < cols; i++) {
+        if (i < baseData[0].length) {
+            headers.push(baseData[0][i]);
+        } else {
+            headers.push(`col_${i + 1}`);
+        }
+    }
     
-    // Pre-generate values for better performance
-    const numericValues = Array.from({ length: 1000 }, (_, i) => (i * 1.5 + 100).toFixed(2));
-    const textValues = Array.from({ length: 100 }, (_, i) => `text_${i}_data`);
+    const data: string[][] = [headers];
     
-    // Generate data rows efficiently
+    // Replicate base rows to match requested size
+    const baseRows = baseData.slice(1);
     for (let row = 0; row < rows; row++) {
+        const sourceRow = baseRows[row % baseRows.length];
         const rowData: string[] = [];
         for (let col = 0; col < cols; col++) {
-            let value: string;
-            
-            if (dataType === "numeric") {
-                value = numericValues[row % numericValues.length];
-            } else if (dataType === "text") {
-                value = textValues[col % textValues.length] + `_${row}`;
-            } else { // mixed
-                switch (col % 3) {
-                    case 0:
-                        value = String(row * 10 + col);
-                        break;
-                    case 1:
-                        value = `item_${row}_${col}`;
-                        break;
-                    default:
-                        value = ((row + col) * 1.5).toFixed(2);
-                        break;
-                }
+            if (col < sourceRow.length) {
+                rowData.push(sourceRow[col]);
+            } else {
+                rowData.push(`extra_${row}_${col}`);
             }
-            
-            rowData.push(value);
         }
         data.push(rowData);
     }

@@ -18,16 +18,15 @@ enum OptimizedValue {
 
 fn generate_flat_json(size: usize) -> Value {
     let mut data = HashMap::new();
-    let mut rng = rand::thread_rng();
     
     for i in 0..size {
         let key = format!("key_{}", i);
-        let value_type = rng.gen_range(0..3);
+        let value_type = i % 3;
         
         let value = match value_type {
-            0 => Value::String(format!("value_{}", rng.gen_range(0..1000))),
-            1 => Value::Number(serde_json::Number::from(rng.gen_range(1..1000))),
-            _ => Value::Bool(rng.gen_bool(0.5)),
+            0 => Value::String(format!("value_{}", i)),
+            1 => Value::Number(serde_json::Number::from(i * 10 + (i % 100))),
+            _ => Value::Bool(i % 2 == 0),
         };
         
         data.insert(key, value);

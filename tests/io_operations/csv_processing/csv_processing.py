@@ -13,37 +13,31 @@ import string
 from typing import Dict, List, Any, Union
 
 
+def load_test_data() -> List[List[str]]:
+    """Load standardized test data from JSON file."""
+    import os
+    test_data_path = os.path.join(os.path.dirname(__file__), 'test_data.json')
+    with open(test_data_path, 'r') as f:
+        test_data = json.load(f)
+    
+    csv_data = test_data['csv_data']
+    data = [csv_data['headers']]
+    data.extend(csv_data['rows'])
+    return data
+
 def generate_csv_data(rows: int, cols: int, data_type: str) -> List[List[str]]:
-    """Generate CSV data with specified dimensions and data types - highly optimized."""
-    headers = [f"col_{i+1}" for i in range(cols)]
+    """Generate CSV data using standardized test data - replicated to match size."""
+    base_data = load_test_data()
+    
+    # Use the headers from test data
+    headers = base_data[0][:cols] if cols <= len(base_data[0]) else base_data[0] + [f"col_{i+1}" for i in range(len(base_data[0]), cols)]
     data = [headers]
     
-    # Pre-generate values for maximum performance
-    if data_type == "numeric":
-        base_values = [str(round(i * 0.1 + (i % 100) + 1, 2)) for i in range(100)]
-    elif data_type == "text":
-        base_values = [f"text_{i}_data" for i in range(50)]
-    else:  # mixed - pre-generate all patterns
-        numeric_values = [str(i * 10) for i in range(100)]
-        text_values = [f"item_{i}" for i in range(50)]
-        float_values = [str(round(i * 1.5, 2)) for i in range(100)]
-    
-    for row in range(rows):
-        row_data = []
-        for col in range(cols):
-            if data_type == "numeric":
-                value = base_values[(row + col) % len(base_values)]
-            elif data_type == "text":
-                value = base_values[col % len(base_values)] + f"_{row}"
-            else:  # mixed
-                if col % 3 == 0:
-                    value = numeric_values[(row + col) % len(numeric_values)]
-                elif col % 3 == 1:
-                    value = text_values[col % len(text_values)] + f"_{row}"
-                else:
-                    value = float_values[(row + col) % len(float_values)]
-            
-            row_data.append(value)
+    # Replicate base rows to match requested size
+    base_rows = base_data[1:]
+    for row_idx in range(rows):
+        source_row = base_rows[row_idx % len(base_rows)]
+        row_data = source_row[:cols] if cols <= len(source_row) else source_row + [f"extra_{row_idx}_{i}" for i in range(len(source_row), cols)]
         data.append(row_data)
     
     return data
