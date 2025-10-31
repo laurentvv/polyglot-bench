@@ -45,35 +45,53 @@ Based on extensive benchmarking with optimized implementations and production-gr
 
 ### Algorithms (4 tests)
 1. **Fibonacci Sequence Calculation**: Calculates the nth Fibonacci number using iterative approach
+   - **Goal**: Test integer arithmetic performance and iterative algorithm efficiency
 2. **Quicksort Implementation**: Sorts arrays using the quicksort algorithm
+   - **Goal**: Evaluate sorting algorithm performance and memory management efficiency
 3. **Binary Search Algorithm**: Searches for values in sorted arrays
+   - **Goal**: Measure search algorithm performance and array access efficiency
 4. **Prime Number Sieving**: Finds prime numbers using the Sieve of Eratosthenes algorithm
+   - **Goal**: Test computational performance for mathematical algorithms and memory operations
 
 ### Data Structures (3 tests)
 1. **Hash Table Operations**: Tests insert, lookup, and delete operations on hash tables
+   - **Goal**: Evaluate key-value storage performance and hash function efficiency
 2. **Binary Tree Traversal**: Measures binary search tree operations including insert, search, and traversal
+   - **Goal**: Assess tree data structure operations and pointer/reference traversal performance
 3. **Linked List Manipulation**: Tests linked list operations including insert, search, and delete
+   - **Goal**: Measure dynamic data structure performance and memory allocation/deallocation efficiency
 
 ### Mathematical Computations (2 tests)
 1. **Pi Calculation**: Estimates π using the Monte Carlo method with vectorized operations
+   - **Goal**: Test floating-point arithmetic performance and random number generation efficiency
 2. **Matrix Multiplication**: Performs matrix multiplication on randomly generated matrices
+   - **Goal**: Evaluate computational performance for mathematical operations and memory access patterns
 
 ### I/O Operations (3 tests) - **OPTIMIZED**
 1. **Large File Reading**: Measures file I/O performance with different file sizes, buffer sizes, and read patterns
+   - **Goal**: Test file system I/O performance and buffer management efficiency
 2. **JSON Parsing**: Tests JSON parsing, stringification, and traversal performance - **Optimized for fairness**
+   - **Goal**: Measure structured data processing performance and parsing algorithm efficiency
 3. **CSV Processing**: Benchmarks CSV file parsing and generation performance - **Optimized for fairness**
+   - **Goal**: Evaluate text processing performance and structured data handling efficiency
 
 ### Network Operations (3 tests) - **OPTIMIZED**
 1. **Ping Test**: Measures network latency and packet loss to specified targets using concurrent execution
+   - **Goal**: Test network interface performance and system call efficiency
 2. **HTTP Request**: Tests HTTP client performance with optimized connection pooling - **Optimized for fairness**
+   - **Goal**: Evaluate network communication performance and connection management efficiency
 3. **DNS Lookup**: Measures DNS resolution performance with caching and threading - **Optimized for fairness**
+   - **Goal**: Assess network lookup performance and cache management efficiency
 
 ### Compression Tests (2 tests)
 1. **GZIP Compression**: Measures GZIP compression performance, ratio, and throughput
+   - **Goal**: Test algorithmic compression performance and memory usage efficiency
 2. **Text Compression**: Tests compression performance for different text types and algorithms
+   - **Goal**: Evaluate data compression efficiency across different text patterns and compression algorithms
 
 ### System Tests (1 test)
 1. **Memory Allocation**: Measures memory allocation, deallocation, and management performance with various patterns
+   - **Goal**: Assess memory management performance and garbage collection/automatic memory management efficiency
 
 ## 🛠️ Installation
 

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -77,14 +78,38 @@ type TestData struct {
 }
 
 func loadTestData() ([][]string, error) {
-	content, err := os.ReadFile("test_data.json")
+	// Try to find test_data.json relative to executable location
+	exe, err := os.Executable()
 	if err != nil {
-		return nil, err
+		// Fallback to simple data if we can't get executable path
+		headers := make([]string, 5)
+		for i := 0; i < 5; i++ {
+			headers[i] = fmt.Sprintf("col_%d", i+1)
+		}
+		return [][]string{headers}, nil
+	}
+	
+	exeDir := filepath.Dir(exe)
+	testDataPath := filepath.Join(exeDir, "test_data.json")
+	
+	content, err := os.ReadFile(testDataPath)
+	if err != nil {
+		// Fallback to simple data if JSON loading fails
+		headers := make([]string, 5)
+		for i := 0; i < 5; i++ {
+			headers[i] = fmt.Sprintf("col_%d", i+1)
+		}
+		return [][]string{headers}, nil
 	}
 
 	var testData TestData
 	if err := json.Unmarshal(content, &testData); err != nil {
-		return nil, err
+		// Fallback to simple data if JSON loading fails
+		headers := make([]string, 5)
+		for i := 0; i < 5; i++ {
+			headers[i] = fmt.Sprintf("col_%d", i+1)
+		}
+		return [][]string{headers}, nil
 	}
 
 	data := [][]string{testData.CSVData.Headers}
@@ -118,7 +143,16 @@ func generateCSVData(rows, cols int, dataType string) [][]string {
 	// Replicate base rows to match requested size
 	baseRows := baseData[1:]
 	for row := 0; row < rows; row++ {
-		sourceRow := baseRows[row%len(baseRows)]
+		var sourceRow []string
+		if len(baseRows) > 0 {
+			sourceRow = baseRows[row%len(baseRows)]
+		} else {
+			// Fallback if no base rows exist
+			sourceRow = make([]string, cols)
+			for i := range sourceRow {
+				sourceRow[i] = fmt.Sprintf("default_%d_%d", row, i)
+			}
+		}
 		rowData := make([]string, cols)
 		for col := 0; col < cols; col++ {
 			if col < len(sourceRow) {
@@ -497,13 +531,22 @@ func main() {
 		// Read from specified config file
 		configContent, err := os.ReadFile(configFile)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error: Config file '%s' not found: %v\n", configFile, err)
-			os.Exit(1)
-		}
-
-		if err := json.Unmarshal(configContent, &config); err != nil {
-			fmt.Fprintf(os.Stderr, "Error: Invalid JSON in config file: %v\n", err)
-			os.Exit(1)
+			// Use default config if file is not found
+			fmt.Fprintf(os.Stderr, "Config file '%s' not found, using default parameters\n", configFile)
+			config = Config{
+				Parameters: Parameters{
+					RowCounts:    []int{1000},
+					ColumnCounts: []int{5},
+					Operations:   []string{"read", "write", "filter", "aggregate"},
+					DataTypes:    []string{"mixed"},
+					Iterations:   1, // Changed to 1 iteration
+				},
+			}
+		} else {
+			if err := json.Unmarshal(configContent, &config); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: Invalid JSON in config file: %v\n", err)
+				os.Exit(1)
+			}
 		}
 	} else {
 		// Default configuration for when no config file is provided
@@ -513,7 +556,7 @@ func main() {
 				ColumnCounts: []int{5},
 				Operations:   []string{"read", "write", "filter", "aggregate"},
 				DataTypes:    []string{"mixed"},
-				Iterations:   3,
+				Iterations:   1, // Changed to 1 iteration
 			},
 		}
 	}

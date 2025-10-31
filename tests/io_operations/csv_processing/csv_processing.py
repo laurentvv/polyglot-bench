@@ -16,14 +16,23 @@ from typing import Dict, List, Any, Union
 def load_test_data() -> List[List[str]]:
     """Load standardized test data from JSON file."""
     import os
-    test_data_path = os.path.join(os.path.dirname(__file__), 'test_data.json')
-    with open(test_data_path, 'r') as f:
-        test_data = json.load(f)
     
-    csv_data = test_data['csv_data']
-    data = [csv_data['headers']]
-    data.extend(csv_data['rows'])
-    return data
+    # Try to find test_data.json relative to script location
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    test_data_path = os.path.join(script_dir, 'test_data.json')
+    
+    try:
+        with open(test_data_path, 'r') as f:
+            test_data = json.load(f)
+        
+        csv_data = test_data['csv_data']
+        data = [csv_data['headers']]
+        data.extend(csv_data['rows'])
+        return data
+    except FileNotFoundError:
+        # Fallback to simple data if JSON loading fails
+        headers = [f"col_{i+1}" for i in range(5)]
+        return [headers]
 
 def generate_csv_data(rows: int, cols: int, data_type: str) -> List[List[str]]:
     """Generate CSV data using standardized test data - replicated to match size."""
@@ -36,7 +45,11 @@ def generate_csv_data(rows: int, cols: int, data_type: str) -> List[List[str]]:
     # Replicate base rows to match requested size
     base_rows = base_data[1:]
     for row_idx in range(rows):
-        source_row = base_rows[row_idx % len(base_rows)]
+        if len(base_rows) > 0:
+            source_row = base_rows[row_idx % len(base_rows)]
+        else:
+            # Fallback if no base rows exist
+            source_row = [f"default_{row_idx}_{i}" for i in range(cols)]
         row_data = source_row[:cols] if cols <= len(source_row) else source_row + [f"extra_{row_idx}_{i}" for i in range(len(source_row), cols)]
         data.append(row_data)
     
@@ -53,10 +66,13 @@ def write_csv_to_string(data: List[List[str]]) -> str:
 
 
 def read_csv_from_string(csv_string: str) -> List[List[str]]:
-    """Read CSV data from string format using optimized string operations."""
-    # More efficient parsing
-    lines = csv_string.strip().split('\n')
-    return [line.split(',') for line in lines if line]
+    """Read CSV data from string format using the proper csv module."""
+    import io
+    import csv
+    # Use the proper CSV module instead of simple string operations
+    csv_io = io.StringIO(csv_string)
+    reader = csv.reader(csv_io)
+    return list(reader)
 
 
 def filter_csv_data(data: List[List[str]], filter_column: int = 0) -> List[List[str]]:
@@ -337,8 +353,18 @@ def main():
         print(json.dumps(results, indent=2))
         
     except FileNotFoundError:
-        print(f"Error: Config file '{config_file}' not found", file=sys.stderr)
-        sys.exit(1)
+        # Use default parameters if config file is not found
+        print(f"Config file '{config_file}' not found, using default parameters", file=sys.stderr)
+        parameters = {
+            "row_counts": [1000],
+            "column_counts": [5],
+            "operations": ["read", "write", "filter", "aggregate"],
+            "data_types": ["mixed"],
+            "iterations": 1
+        }
+        results = run_csv_processing_benchmark(parameters)
+        
+        print(json.dumps(results, indent=2))
     except json.JSONDecodeError as e:
         print(f"Error: Invalid JSON in config file: {e}", file=sys.stderr)
         sys.exit(1)

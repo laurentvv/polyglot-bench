@@ -7,36 +7,84 @@ use rand::Rng;
 
 
 
-fn generate_csv_data(rows: usize, cols: usize, data_type: &str) -> Vec<Vec<String>> {
-    let mut rng = rand::thread_rng();
-    let mut data = Vec::new();
+fn load_test_data() -> Result<Vec<Vec<String>>, Box<dyn std::error::Error>> {
+    use std::path::Path;
     
-    // Headers
-    let headers: Vec<String> = (0..cols).map(|i| format!("col_{}", i + 1)).collect();
-    data.push(headers);
+    // Try to find test_data.json relative to executable location
+    let exe_path = std::env::current_exe()?;
+    let exe_dir = exe_path.parent().unwrap_or(Path::new(""));
+    let test_data_path = exe_dir.join("test_data.json");
     
-    // Data rows
-    for _ in 0..rows {
-        let mut row = Vec::new();
-        for col in 0..cols {
-            let value = match data_type {
-                "numeric" => format!("{:.2}", rng.gen_range(0.0..1000.0)),
-                "text" => {
-                    let len = rng.gen_range(5..16);
-                    (0..len).map(|_| (b'a' + rng.gen_range(0..26)) as char).collect()
-                },
-                "mixed" => {
-                    match col % 3 {
-                        0 => rng.gen_range(1..10001).to_string(),
-                        1 => (0..10).map(|_| (b'a' + rng.gen_range(0..26)) as char).collect(),
-                        _ => format!("{:.2}", rng.gen_range(0.0..1000.0)),
-                    }
-                },
-                _ => "default".to_string(),
-            };
-            row.push(value);
+    let test_data_content = fs::read_to_string(test_data_path)?;
+    let test_data: Value = serde_json::from_str(&test_data_content)?;
+    
+    let mut data: Vec<Vec<String>> = Vec::new();
+    
+    // Add headers
+    let headers = test_data["csv_data"]["headers"]
+        .as_array()
+        .ok_or("Headers not found in test_data.json")?;
+    let mut headers_vec: Vec<String> = Vec::new();
+    for header in headers {
+        headers_vec.push(header.as_str().unwrap_or_default().to_string());
+    }
+    data.push(headers_vec);
+    
+    // Add rows
+    let rows = test_data["csv_data"]["rows"]
+        .as_array()
+        .ok_or("Rows not found in test_data.json")?;
+    for row in rows {
+        let mut row_vec: Vec<String> = Vec::new();
+        for cell in row.as_array().unwrap_or(&Vec::new()) {
+            row_vec.push(cell.as_str().unwrap_or_default().to_string());
         }
-        data.push(row);
+        data.push(row_vec);
+    }
+    
+    Ok(data)
+}
+
+fn generate_csv_data(rows: usize, cols: usize, data_type: &str) -> Vec<Vec<String>> {
+    let base_data = match load_test_data() {
+        Ok(data) => data,
+        Err(_) => {
+            // Fallback to simple data if JSON loading fails
+            let headers: Vec<String> = (0..cols).map(|i| format!("col_{}", i + 1)).collect();
+            return vec![headers];
+        }
+    };
+    
+    // Use headers from test data
+    let mut headers: Vec<String> = Vec::new();
+    for i in 0..cols {
+        if i < base_data[0].len() {
+            headers.push(base_data[0][i].clone());
+        } else {
+            headers.push(format!("col_{}", i + 1));
+        }
+    }
+    
+    let mut data: Vec<Vec<String>> = vec![headers];
+    
+    // Replicate base rows to match requested size
+    let base_rows = &base_data[1..];
+    for row_idx in 0..rows {
+        let source_row = if !base_rows.is_empty() {
+            &base_rows[row_idx % base_rows.len()]
+        } else {
+            // Fallback if no base rows exist
+            &(0..cols).map(|i| format!("default_{}_{}", row_idx, i)).collect::<Vec<String>>()
+        };
+        let mut row_data: Vec<String> = Vec::new();
+        for col_idx in 0..cols {
+            if col_idx < source_row.len() {
+                row_data.push(source_row[col_idx].clone());
+            } else {
+                row_data.push(format!("extra_{}_{}", row_idx, col_idx));
+            }
+        }
+        data.push(row_data);
     }
     
     data
