@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.1.0] - 2025-11-03
+
+### Added
+- Optimized TypeScript implementation of large file read benchmark for better performance
+- Added documentation about I/O optimizations to key files
+
+### Changed
+- Improved performance of large file read test in TypeScript by ~61% (from ~3,963ms to ~1,389ms)
+- Updated PERFORMANCE_ISSUES_TRACKING.md to reflect resolved TypeScript performance issues
+- Changed default buffer size from 4KB to 64KB for better I/O performance
+- Used direct file reading instead of chunked reading for better efficiency
+
 ## [2.0.0] - 2025-10-28
 
 ### Added

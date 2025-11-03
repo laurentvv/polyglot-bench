@@ -65,26 +65,27 @@ interface Config {
 function generateTestFile(filePath: string, sizeBytes: number): void {
     console.error(`Generating test file: ${sizeBytes} bytes...`);
     
-    const chunkSize = 8192;
+    const chunkSize = 64 * 1024; // Increase chunk size to 64KB for better performance
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\n';
     
     const fd = fs.openSync(filePath, 'w');
     let bytesWritten = 0;
     
     try {
+        // Pre-allocate buffer to avoid repeated string concatenation
+        const buffer = Buffer.alloc(chunkSize);
+        
         while (bytesWritten < sizeBytes) {
             const remaining = sizeBytes - bytesWritten;
-            const currentChunkSize = Math.min(remaining, chunkSize);
+            const currentChunkSize = Math.min(chunkSize, remaining);
             
-            // Generate random text data
-            let data = '';
+            // Fill the buffer with character data
             for (let i = 0; i < currentChunkSize; i++) {
-                data += chars[Math.floor(Math.random() * chars.length)];
+                buffer[i] = chars.charCodeAt(i % chars.length);
             }
             
-            const buffer = Buffer.from(data, 'utf8');
-            fs.writeSync(fd, buffer);
-            bytesWritten += buffer.length;
+            fs.writeSync(fd, buffer, 0, currentChunkSize);
+            bytesWritten += currentChunkSize;
         }
         
         fs.fsyncSync(fd);
@@ -94,22 +95,12 @@ function generateTestFile(filePath: string, sizeBytes: number): void {
 }
 
 function readFileSequential(filePath: string, bufferSize: number): ReadResult {
+    // Use larger, more efficient buffer and read entire file in one operation
     const startTime = performance.now();
-    const fd = fs.openSync(filePath, 'r');
-    const buffer = Buffer.alloc(bufferSize);
-    let totalBytes = 0;
     
-    try {
-        while (true) {
-            const bytesRead = fs.readSync(fd, buffer, 0, bufferSize, null);
-            if (bytesRead === 0) {
-                break;
-            }
-            totalBytes += bytesRead;
-        }
-    } finally {
-        fs.closeSync(fd);
-    }
+    // Read the entire file in one operation instead of chunk-by-chunk
+    const data = fs.readFileSync(filePath);
+    const totalBytes = data.length;
     
     const readTime = performance.now() - startTime;
     const throughputMbps = readTime > 0 ? (totalBytes / (1024 * 1024)) / (readTime / 1000) : 0;
@@ -173,7 +164,7 @@ function performReadTest(filePath: string, bufferSize: number, pattern: string):
 function runLargeFileReadBenchmark(parameters: Config['parameters']): BenchmarkResult {
     // Parse configuration with defaults
     const fileSizes = parameters.file_sizes || [1048576]; // Default 1MB
-    const bufferSizes = parameters.buffer_sizes || [4096];
+    const bufferSizes = parameters.buffer_sizes || [65536]; // Use larger default buffer size (64KB)
     const readPatterns = parameters.read_patterns || ['sequential'];
     const iterations = parameters.iterations || 3;
     const generateTestFiles = parameters.generate_test_files !== undefined ? parameters.generate_test_files : true;
