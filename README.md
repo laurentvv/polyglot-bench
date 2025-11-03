@@ -16,14 +16,14 @@ The Multi-Language Performance Benchmark Tool is designed to provide accurate an
 
 ### Performance Insights
 
-Based on extensive benchmarking with optimized implementations and production-grade libraries, **TypeScript leads overall performance** with excellent V8 engine optimizations, followed closely by **Rust** and **Python** which show consistent high performance. **C++ with nlohmann/json** demonstrates strong performance with production-grade JSON processing, while **Go shows stable moderate performance** across all categories.
+Based on extensive benchmarking with optimized implementations and production-grade libraries, **C++ demonstrates excellent performance** with optimized implementations, followed closely by **Rust** and **Python** which show consistent high performance. **TypeScript** shows good performance and excellent memory efficiency across tests. **Go shows stable moderate performance** across all categories.
 
 **Latest Performance Rankings** (with nlohmann/json integration):
-1. **TypeScript** (~12.0) - Excellent V8 engine optimizations and memory efficiency
-2. **Python** (~11.4) - Outstanding with optimized libraries and caching
-3. **Rust** (~11.0) - Consistent high performance with zero-cost abstractions
-4. **C++** (~10.8) - Strong performance with nlohmann/json v3.12.0
-5. **Go** (~8.6) - Stable moderate performance across all tests
+1. **C++** (~87.9) - Excellent with optimized implementations
+2. **Rust** (~31.3) - Consistent high performance with zero-cost abstractions
+3. **Python** (~17.7) - Outstanding network performance with caching and connection pooling
+4. **TypeScript** (~16.5) - Good balance with superior memory efficiency (significantly improved after optimizations)
+5. **Go** (~15.4) - Stable moderate performance across all tests
 
 **Key Performance Characteristics**:
 - **TypeScript**: Superior V8 engine optimizations, excellent memory efficiency, fastest JSON processing
@@ -461,11 +461,11 @@ Recent updates have focused on **eliminating performance inconsistencies** and *
 - **Standardized Workloads**: Consistent data sizes and operation complexity across languages
 
 ### Updated Performance Rankings (Post-Optimization)
-- **C++** (27.37) - Excellent across all categories with optimized implementations
-- **Rust** (24.19) - Consistent high performance, especially strong in data processing
-- **Python** (20.03) - Outstanding network performance with caching and connection pooling
-- **TypeScript** (11.33) - Good balance with superior memory efficiency
-- **Go** (9.61) - Stable moderate performance across all optimized tests
+- **C++** (87.93) - Excellent across all categories with optimized implementations
+- **Rust** (31.34) - Consistent high performance, especially strong in data processing
+- **Python** (17.70) - Outstanding network performance with caching and connection pooling
+- **TypeScript** (16.48) - Good balance with superior memory efficiency (significantly improved from last place after large file read optimization)
+- **Go** (15.41) - Stable moderate performance across all optimized tests
 
 ### Technical Improvements
 - **Connection Pooling**: HTTP requests now use proper connection reuse
@@ -476,6 +476,7 @@ Recent updates have focused on **eliminating performance inconsistencies** and *
 - **Command-line Argument Handling**: All implementations now properly handle configuration files passed by the orchestrator
 - **Compilation Fixes**: Resolved compilation issues in Go and Rust implementations for consistent execution
 - **Go Quicksort Algorithm**: Implemented randomized pivot selection, hybrid approach with insertion sort for small arrays, and tail recursion optimization, improving performance from 843.28ms to 138.53ms (approx. 6x faster)
+- **TypeScript Large File Read Optimization**: Changed from chunked reading with `fs.readSync` to direct reading with `fs.readFileSync`, increased buffer size from 4KB to 64KB, resulting in ~61% performance improvement (from 3,963ms to 1,389ms) and moved TypeScript from last to 4th place in this test
 
 See [LIBRARIES.md](LIBRARIES.md) for detailed information on language-specific libraries and dependencies, [FIXES_SUMMARY.md](FIXES_SUMMARY.md) for recent improvements, [PERFORMANCE_OPTIMIZATIONS.md](PERFORMANCE_OPTIMIZATIONS.md) for optimization strategies, [CPP_INTEGRATION_SUMMARY.md](CPP_INTEGRATION_SUMMARY.md) for C++ integration details, and [IMPLEMENTATION_DETAILS.md](IMPLEMENTATION_DETAILS.md) for comprehensive implementation strategies.
 
