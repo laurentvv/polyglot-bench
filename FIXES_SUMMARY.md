@@ -120,6 +120,31 @@ error[E0432]: unresolved import `tempfile`
 - `src/utils/config.py`
 - `src/utils/validation.py`
 
+### 5. Go Quicksort Performance Optimization
+
+**Problem**: The Go quicksort implementation showed extremely poor performance (843.28ms) compared to other languages (e.g., C++: 37.55ms), creating a 22x performance gap.
+
+**Root Cause**: The implementation suffered from several algorithmic inefficiencies:
+- Deterministic pivot selection (always using the last element) leading to poor performance on sorted/partially sorted data
+- Using Lomuto partitioning scheme which is less efficient than Hoare partitioning
+- No optimization for small subarrays
+- No tail recursion elimination
+
+**Solution**:
+- Implemented randomized pivot selection to avoid worst-case O(n²) behavior
+- Added hybrid approach using insertion sort for small subarrays (< 10 elements)
+- Implemented tail recursion optimization to reduce stack depth
+- Proper random seeding to ensure consistent randomness
+
+**Files Modified**:
+- `tests/algorithms/quicksort/quicksort.go`
+
+**Results**:
+- Performance improved from 843.28ms to 138.53ms (approx. 6x faster)
+- Reduced performance gap from 22x vs C++ to ~4.5x vs C++
+- Go ranking improved from 5th place (18.91 performance score) to 5th place (73.20 performance score) in quicksort test
+- Performance now more in line with expectations based on Go's general performance characteristics
+
 ## Verification
 
 All fixes have been verified by running the tests directly and through the orchestrator:

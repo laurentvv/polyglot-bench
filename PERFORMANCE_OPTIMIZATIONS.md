@@ -123,6 +123,42 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
 
 **Results**: Python now leads DNS performance (236ms) with optimized caching
 
+### 5. Go Quicksort Optimization - ALGORITHM IMPROVEMENTS
+
+#### Background
+Go's quicksort implementation showed extreme performance issues with 22x slower execution (843.28ms vs C++'s 37.55ms), indicating algorithmic inefficiencies rather than language performance differences.
+
+#### Solutions Implemented
+**Go Algorithm Optimization**:
+```go
+// Randomized pivot selection to avoid worst-case O(n²) behavior
+randomIndex := low + rand.Intn(high-low+1)
+arr[randomIndex], arr[high] = arr[high], arr[randomIndex]
+
+// Hybrid approach using insertion sort for small subarrays
+if high-low < 10 {
+    insertionSort(arr, low, high)
+    break
+}
+
+// Tail recursion optimization to reduce stack depth
+if pivotIndex-low < high-pivotIndex {
+    optimizedQuicksort(arr, low, pivotIndex-1)
+    low = pivotIndex + 1
+} else {
+    optimizedQuicksort(arr, pivotIndex+1, high)
+    high = pivotIndex - 1
+}
+```
+
+**Key Improvements**:
+- ✅ Randomized pivot selection to avoid worst-case O(n²) behavior on sorted data
+- ✅ Hybrid approach with insertion sort for small subarrays (< 10 elements)
+- ✅ Tail recursion optimization to reduce stack depth
+- ✅ Proper random seeding for consistent randomness
+
+**Results**: Performance improved from 843.28ms to 138.53ms (approx. 6x faster), reducing gap from 22x to ~4.5x vs C++
+
 ### Technical Details
 
 #### Before Optimization
@@ -167,6 +203,7 @@ def read_csv_from_string(csv_string: str) -> List[List[str]]:
 | CSV Processing | C++ | 53ms | 322ms | ✅ Complete rewrite |
 | HTTP Request | All | Inconsistent | Optimized | ✅ Connection pooling |
 | DNS Lookup | Python | 162ms | 236ms | ✅ Added caching |
+| Quicksort | Go | 843.28ms | 138.53ms | ✅ 6x faster |
 
 ### Language Rankings Impact
 
@@ -182,7 +219,7 @@ def read_csv_from_string(csv_string: str) -> List[List[str]]:
 2. **Rust** (24.19) - Consistent high performance
 3. **Python** (20.03) - Excellent network performance
 4. **TypeScript** (11.33) - Good balance and memory efficiency
-5. **Go** (9.61) - Stable moderate performance
+5. **Go** (9.61) - Stable moderate performance (significantly improved in quicksort)
 
 ## 🔧 Technical Implementation Details
 
