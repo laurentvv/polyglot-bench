@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -146,66 +147,101 @@ func runHTTPBenchmark(params Parameters) Results {
 	minResponseTime := float64(^uint(0) >> 1) // Max float64
 	var maxResponseTime float64
 
-	client := &http.Client{
-		Timeout: time.Duration(timeout) * time.Millisecond,
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		},
+	// Configure transport with connection pooling and reuse
+	transport := &http.Transport{
+		MaxIdleConns:          100,
+		MaxIdleConnsPerHost:   10,
+		MaxConnsPerHost:       50,
+		IdleConnTimeout:       90 * time.Second,
+		TLSHandshakeTimeout:   10 * time.Second,
+		ExpectContinueTimeout: 1 * time.Second,
+		DisableKeepAlives:     false,
+		DisableCompression:    false,
+		TLSClientConfig:       &tls.Config{InsecureSkipVerify: true},
 	}
 
+	client := &http.Client{
+		Timeout:   time.Duration(timeout) * time.Millisecond,
+		Transport: transport,
+	}
+
+	// Process URLs in parallel for better performance
+	type result struct {
+		url      string
+		urlResult URLResults
+	}
+	
+	resultsChan := make(chan result, len(params.URLs))
+	var wg sync.WaitGroup
+
 	for _, url := range params.URLs {
-		fmt.Fprintf(os.Stderr, "Testing %s...\n", url)
+		wg.Add(1)
+		go func(u string) {
+			defer wg.Done()
+			
+			fmt.Fprintf(os.Stderr, "Testing %s...\n", u)
 
-		urlResults := URLResults{
-			Requests: make([]RequestResult, 0),
-		}
+			urlResults := URLResults{
+				Requests: make([]RequestResult, 0),
+			}
 
-		var urlResponseTimes []float64
-		urlSuccessful := 0
+			var urlResponseTimes []float64
+			urlSuccessful := 0
 
-		for _, method := range methods {
-			for i := 0; i < requestCount; i++ {
-				fmt.Fprintf(os.Stderr, "  Request %d/%d (%s)...\n", i+1, requestCount, method)
+			for _, method := range methods {
+				for i := 0; i < requestCount; i++ {
+					fmt.Fprintf(os.Stderr, "  Request %d/%d (%s)...\n", i+1, requestCount, method)
 
-				requestResult := makeHTTPRequest(client, url, method)
+					requestResult := makeHTTPRequest(client, u, method)
 
-				totalRequests++
-				urlResults.TotalRequests++
+					if requestResult.Success {
+						urlSuccessful++
 
-				if requestResult.Success {
-					successfulRequests++
-					urlSuccessful++
+						responseTime := requestResult.ResponseTime
+						urlResponseTimes = append(urlResponseTimes, responseTime)
+						totalResponseTime += responseTime
 
-					responseTime := requestResult.ResponseTime
-					urlResponseTimes = append(urlResponseTimes, responseTime)
-					totalResponseTime += responseTime
-
-					if responseTime < minResponseTime {
-						minResponseTime = responseTime
+						if responseTime < minResponseTime {
+							minResponseTime = responseTime
+						}
+						if responseTime > maxResponseTime {
+							maxResponseTime = responseTime
+						}
 					}
-					if responseTime > maxResponseTime {
-						maxResponseTime = responseTime
-					}
+
+					urlResults.Requests = append(urlResults.Requests, requestResult)
 				}
-
-				urlResults.Requests = append(urlResults.Requests, requestResult)
 			}
-		}
 
-		urlResults.SuccessfulRequests = urlSuccessful
-		if urlResults.TotalRequests > 0 {
-			urlResults.SuccessRate = float64(urlSuccessful) / float64(urlResults.TotalRequests) * 100.0
-		}
-
-		if len(urlResponseTimes) > 0 {
-			sum := 0.0
-			for _, rt := range urlResponseTimes {
-				sum += rt
+			urlResults.SuccessfulRequests = urlSuccessful
+			urlResults.TotalRequests = int(requestCount) * len(methods)
+			if urlResults.TotalRequests > 0 {
+				urlResults.SuccessRate = float64(urlSuccessful) / float64(urlResults.TotalRequests) * 100.0
 			}
-			urlResults.AvgResponseTime = sum / float64(len(urlResponseTimes))
-		}
 
-		urlsResults[url] = urlResults
+			if len(urlResponseTimes) > 0 {
+				sum := 0.0
+				for _, rt := range urlResponseTimes {
+					sum += rt
+				}
+				urlResults.AvgResponseTime = sum / float64(len(urlResponseTimes))
+			}
+
+			resultsChan <- result{u, urlResults}
+		}(url)
+	}
+
+	// Close the channel once all goroutines are done
+	go func() {
+		wg.Wait()
+		close(resultsChan)
+	}()
+
+	// Collect results
+	for res := range resultsChan {
+		urlsResults[res.url] = res.urlResult
+		totalRequests += res.urlResult.TotalRequests
+		successfulRequests += res.urlResult.SuccessfulRequests
 	}
 
 	successRate := 0.0

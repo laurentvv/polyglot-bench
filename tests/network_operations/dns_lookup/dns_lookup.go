@@ -69,20 +69,63 @@ type Config struct {
 	} `json:"parameters"`
 }
 
-// Simple DNS cache
+// Simple DNS cache with TTL and size limits
+type DnsCache struct {
+    items map[string]cachedResult
+    mutex sync.RWMutex
+}
+
+type cachedResult struct {
+    result   DnsResult
+    expireAt time.Time
+}
+
 var (
-	dnsCache   = make(map[string]DnsResult)
-	cacheMutex sync.RWMutex
+    dnsCache = &DnsCache{
+        items: make(map[string]cachedResult),
+    }
+    maxCacheSize = 1000 // Limit cache size to prevent memory issues
 )
+
+func (c *DnsCache) get(domain string) (*DnsResult, bool) {
+    c.mutex.RLock()
+    defer c.mutex.RUnlock()
+    
+    if item, exists := c.items[domain]; exists {
+        if time.Now().Before(item.expireAt) {
+            result := item.result
+            return &result, true
+        } else {
+            // Entry has expired, remove it
+            delete(c.items, domain)
+        }
+    }
+    return nil, false
+}
+
+func (c *DnsCache) set(domain string, result DnsResult, ttl time.Duration) {
+    c.mutex.Lock()
+    defer c.mutex.Unlock()
+    
+    // Remove oldest entries if cache is too large
+    if len(c.items) >= maxCacheSize {
+        for oldDomain := range c.items {
+            delete(c.items, oldDomain)
+            break // Remove just one for now
+        }
+    }
+    
+    c.items[domain] = cachedResult{
+        result:   result,
+        expireAt: time.Now().Add(ttl),
+    }
+}
 
 func resolveDomainWithCache(domain string, timeoutSecs int) DnsResult {
 	// Check cache first
-	cacheMutex.RLock()
-	if cachedResult, exists := dnsCache[domain]; exists {
-		cacheMutex.RUnlock()
-		return cachedResult
+	if cachedResult, exists := dnsCache.get(domain); exists {
+		return *cachedResult
 	}
-	cacheMutex.RUnlock()
 
 	start := time.Now()
 	result := DnsResult{
@@ -92,20 +135,20 @@ func resolveDomainWithCache(domain string, timeoutSecs int) DnsResult {
 		IPAddresses:    []string{},
 	}
 
-	// Create context with timeout for DNS resolution
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutSecs)*time.Second)
-	defer cancel()
-
-	// Set timeout for DNS resolution
+	// Create a global resolver to reuse connections
 	resolver := &net.Resolver{
 		PreferGo: true,
 		Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
 			d := net.Dialer{
 				Timeout: time.Duration(timeoutSecs) * time.Second,
 			}
-			return d.DialContext(ctx, network, address)
+			return d.DialContext(ctx, network, "8.8.8.8:53") // Use a specific DNS server
 		},
 	}
+
+	// Create context with timeout for DNS resolution
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutSecs)*time.Second)
+	defer cancel()
 
 	ips, err := resolver.LookupIPAddr(ctx, domain)
 	elapsed := time.Since(start)
@@ -121,10 +164,8 @@ func resolveDomainWithCache(domain string, timeoutSecs int) DnsResult {
 		}
 	}
 
-	// Cache the result
-	cacheMutex.Lock()
-	dnsCache[domain] = result
-	cacheMutex.Unlock()
+	// Cache the result with a TTL
+	dnsCache.set(domain, result, 30*time.Second) // Cache for 30 seconds
 
 	return result
 }
@@ -151,32 +192,42 @@ func resolveDomainsSequential(domains []string, timeoutSecs int) []DnsResult {
 }
 
 func resolveDomainsConcurrent(domains []string, maxWorkers, timeoutSecs int) []DnsResult {
-	var wg sync.WaitGroup
+	// Create a worker pool for domain resolution
+	jobs := make(chan string, len(domains))
 	resultsChan := make(chan DnsResult, len(domains))
-	semaphore := make(chan struct{}, maxWorkers)
 
-	for _, domain := range domains {
+	// Start workers
+	var wg sync.WaitGroup
+	for i := 0; i < maxWorkers; i++ {
 		wg.Add(1)
-		go func(d string) {
+		go func() {
 			defer wg.Done()
-			semaphore <- struct{}{} // acquire
-
-			result := resolveDomain(d, timeoutSecs)
-			status := "✗"
-			if result.Success {
-				status = "✓"
+			for domain := range jobs {
+				result := resolveDomain(domain, timeoutSecs)
+				status := "✗"
+				if result.Success {
+					status = "✓"
+				}
+				fmt.Fprintf(os.Stderr, "  Resolved %s: %s (%.2fms)\n",
+					domain, status, result.ResponseTimeMs)
+				resultsChan <- result
 			}
-			fmt.Fprintf(os.Stderr, "  Resolved %s: %s (%.2fms)\n",
-				d, status, result.ResponseTimeMs)
-
-			resultsChan <- result
-			<-semaphore // release
-		}(domain)
+		}()
 	}
 
+	// Send jobs to workers
+	go func() {
+		defer close(jobs)
+		for _, domain := range domains {
+			jobs <- domain
+		}
+	}()
+
+	// Wait for all workers to finish
 	wg.Wait()
 	close(resultsChan)
 
+	// Collect results
 	var results []DnsResult
 	for result := range resultsChan {
 		results = append(results, result)

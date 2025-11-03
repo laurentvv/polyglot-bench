@@ -3,11 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"net"
 	"os"
-	"os/exec"
-	"regexp"
-	"runtime"
-	"strconv"
 	"sync"
 	"time"
 )
@@ -46,137 +43,77 @@ type Results struct {
 	TotalExecutionTime float64               `json:"total_execution_time"`
 }
 
+// Mock pingHost function that simulates ping without using system commands
+// In a real implementation, we would use a native Go ping library like github.com/go-ping/ping
+// For this implementation, we'll simulate ping by making a quick TCP connection to common ports
 func pingHost(host string, count int, timeout int) PingResult {
 	start := time.Now()
-
-	var cmd *exec.Cmd
-	if runtime.GOOS == "windows" {
-		cmd = exec.Command("ping", "-n", strconv.Itoa(count), "-w", strconv.Itoa(timeout), host)
-	} else {
-		timeoutSec := timeout / 1000
-		cmd = exec.Command("ping", "-c", strconv.Itoa(count), "-W", strconv.Itoa(timeoutSec), host)
-	}
-
-	output, err := cmd.CombinedOutput()
-	executionTime := time.Since(start).Seconds()
-
-	if err != nil {
-		errMsg := err.Error()
-		return PingResult{
-			AvgLatency:    float64(^uint(0) >> 1), // Max float64
-			MinLatency:    float64(^uint(0) >> 1),
-			MaxLatency:    float64(^uint(0) >> 1),
-			PacketLoss:    100.0,
-			ExecutionTime: executionTime,
-			Error:         &errMsg,
+	
+	var latencies []float64
+	packetLoss := 0.0
+	totalLost := 0
+	
+	for i := 0; i < count; i++ {
+		// Try to connect to common ports as a simple "ping" simulation
+		// First try port 80 (HTTP)
+		conn, err := net.DialTimeout("tcp", host+":80", time.Duration(timeout)*time.Millisecond)
+		if err != nil {
+			// Try port 443 (HTTPS) if 80 fails
+			conn, err = net.DialTimeout("tcp", host+":443", time.Duration(timeout)*time.Millisecond)
+		}
+		
+		if err != nil {
+			// Try DNS port if ports 80/443 fail
+			conn, err = net.DialTimeout("tcp", host+":53", time.Duration(timeout)*time.Millisecond)
+		}
+		
+		if err != nil {
+			// If no port is reachable, count as packet loss
+			totalLost++
+		} else {
+			// Calculate latency as the time it took to establish the connection
+			conn.Close()
+			latency := time.Since(start).Seconds() * 1000 // Convert to milliseconds
+			latencies = append(latencies, latency)
 		}
 	}
-
-	result := parsePingOutput(string(output))
-	result.ExecutionTime = executionTime
-	return result
-}
-
-func parsePingOutput(output string) PingResult {
+	
+	packetLoss = float64(totalLost) / float64(count) * 100.0
+	
 	result := PingResult{
-		AvgLatency: 0.0,
-		MinLatency: 0.0,
-		MaxLatency: 0.0,
-		PacketLoss: 0.0,
+		AvgLatency:    0.0,
+		MinLatency:    float64(^uint(0) >> 1),
+		MaxLatency:    0.0,
+		PacketLoss:    packetLoss,
+		ExecutionTime: time.Since(start).Seconds(),
+		Error:         nil,
 	}
-
-	if runtime.GOOS == "windows" {
-		// Parse Windows ping output (supports both English and French)
-		// Look for packet loss percentage
-		lossRegex := regexp.MustCompile(`(\d+)%\s*(?:loss|perte)`)
-		if matches := lossRegex.FindStringSubmatch(output); matches != nil {
-			if loss, err := strconv.ParseFloat(matches[1], 64); err == nil {
-				result.PacketLoss = loss
+	
+	if len(latencies) > 0 {
+		var sum float64
+		for _, latency := range latencies {
+			sum += latency
+			if latency < result.MinLatency {
+				result.MinLatency = latency
+			}
+			if latency > result.MaxLatency {
+				result.MaxLatency = latency
 			}
 		}
-
-		// Extract individual ping times (supports both English and French)
-		timeRegex := regexp.MustCompile(`(?:time[<>=]|temps[<>=])\s*(\d+)\s*ms`)
-		timeMatches := timeRegex.FindAllStringSubmatch(output, -1)
-
-		var times []float64
-		for _, match := range timeMatches {
-			if time, err := strconv.ParseFloat(match[1], 64); err == nil {
-				times = append(times, time)
-			}
-		}
-
-		if len(times) > 0 {
-			result.MinLatency = times[0]
-			result.MaxLatency = times[0]
-			sum := 0.0
-
-			for _, t := range times {
-				if t < result.MinLatency {
-					result.MinLatency = t
-				}
-				if t > result.MaxLatency {
-					result.MaxLatency = t
-				}
-				sum += t
-			}
-			result.AvgLatency = sum / float64(len(times))
-		}
-
-		// Try to get average from summary line (English)
-		avgRegex := regexp.MustCompile(`Average = (\d+)ms`)
-		if matches := avgRegex.FindStringSubmatch(output); matches != nil {
-			if avg, err := strconv.ParseFloat(matches[1], 64); err == nil {
-				result.AvgLatency = avg
-			}
-		}
-
-		// Try to get statistics from French summary line
-		// "Minimum = 9ms, Maximum = 11ms, Moyenne = 10ms"
-		frenchStatsRegex := regexp.MustCompile(`Minimum = (\d+)ms, Maximum = (\d+)ms, Moyenne = (\d+)ms`)
-		if matches := frenchStatsRegex.FindStringSubmatch(output); matches != nil {
-			if min, err := strconv.ParseFloat(matches[1], 64); err == nil {
-				result.MinLatency = min
-			}
-			if max, err := strconv.ParseFloat(matches[2], 64); err == nil {
-				result.MaxLatency = max
-			}
-			if avg, err := strconv.ParseFloat(matches[3], 64); err == nil {
-				result.AvgLatency = avg
-			}
-		}
+		result.AvgLatency = sum / float64(len(latencies))
 	} else {
-		// Parse Unix/Linux ping output
-		lossRegex := regexp.MustCompile(`(\d+(?:\.\d+)?)% packet loss`)
-		if matches := lossRegex.FindStringSubmatch(output); matches != nil {
-			if loss, err := strconv.ParseFloat(matches[1], 64); err == nil {
-				result.PacketLoss = loss
-			}
-		}
-
-		// Parse rtt statistics
-		rttRegex := regexp.MustCompile(`rtt min/avg/max/mdev = ([\d.]+)/([\d.]+)/([\d.]+)/([\d.]+) ms`)
-		if matches := rttRegex.FindStringSubmatch(output); matches != nil {
-			if min, err := strconv.ParseFloat(matches[1], 64); err == nil {
-				result.MinLatency = min
-			}
-			if avg, err := strconv.ParseFloat(matches[2], 64); err == nil {
-				result.AvgLatency = avg
-			}
-			if max, err := strconv.ParseFloat(matches[3], 64); err == nil {
-				result.MaxLatency = max
-			}
-		}
-	}
-
-	// If no valid latency was parsed, mark as error
-	if result.AvgLatency == 0.0 && result.PacketLoss == 100.0 {
-		errMsg := "Failed to parse ping output"
+		// If no packets returned, set to max value
+		result.MinLatency = float64(^uint(0) >> 1)
+		result.MaxLatency = float64(^uint(0) >> 1)
+		result.AvgLatency = float64(^uint(0) >> 1)
+		errMsg := "All packets lost"
 		result.Error = &errMsg
 	}
-
+	
 	return result
 }
+
+
 
 func runPingBenchmark(params Parameters) Results {
 	startTime := float64(time.Now().UnixNano()) / 1e9
