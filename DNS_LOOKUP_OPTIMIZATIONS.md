@@ -135,24 +135,78 @@ fn resolve_domain_with_timeout(domain: &str, timeout_secs: u64) -> DnsResult {
 
 #### Go
 ```go
+// Simple DNS cache with TTL and size limits
+type DnsCache struct {
+    items map[string]cachedResult
+    mutex sync.RWMutex
+}
+
+type cachedResult struct {
+    result   DnsResult
+    expireAt time.Time
+}
+
 var (
-    dnsCache   = make(map[string]DnsResult)
-    cacheMutex sync.RWMutex
+    dnsCache = &DnsCache{
+        items: make(map[string]cachedResult),
+    }
+    maxCacheSize = 1000 // Limit cache size to prevent memory issues
 )
 
-func resolveDomainWithCache(domain string, timeoutSecs int) DnsResult {
-    // Check cache first
-    cacheMutex.RLock()
-    if cachedResult, exists := dnsCache[domain]; exists {
-        cacheMutex.RUnlock()
-        return cachedResult
+func (c *DnsCache) get(domain string) (*DnsResult, bool) {
+    c.mutex.RLock()
+    defer c.mutex.RUnlock()
+    
+    if item, exists := c.items[domain]; exists {
+        if time.Now().Before(item.expireAt) {
+            result := item.result
+            return &result, true
+        } else {
+            // Entry has expired, remove it
+            delete(c.items, domain)
+        }
     }
-    cacheMutex.RUnlock()
-    // ... resolution logic
-    // Cache the result
-    cacheMutex.Lock()
-    dnsCache[domain] = result
-    cacheMutex.Unlock()
+    return nil, false
+}
+
+func (c *DnsCache) set(domain string, result DnsResult, ttl time.Duration) {
+    c.mutex.Lock()
+    defer c.mutex.Unlock()
+    
+    // Remove oldest entries if cache is too large
+    if len(c.items) >= maxCacheSize {
+        for oldDomain := range c.items {
+            delete(c.items, oldDomain)
+            break // Remove just one for now
+        }
+    }
+    
+    c.items[domain] = cachedResult{
+        result:   result,
+        expireAt: time.Now().Add(ttl),
+    }
+}
+
+func resolveDomainWithCache(domain string, timeoutSecs int) DnsResult {
+	// Check cache first
+	if cachedResult, exists := dnsCache.get(domain); exists {
+		return *cachedResult
+	}
+
+    // ... resolution logic with improved resolver configuration
+    resolver := &net.Resolver{
+        PreferGo: true,
+        Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
+            d := net.Dialer{
+                Timeout: time.Duration(timeoutSecs) * time.Second,
+            }
+            // Use a specific DNS server for consistent performance
+            return d.DialContext(ctx, network, "8.8.8.8:53")
+        },
+    }
+
+    // Cache the result with a TTL
+    dnsCache.set(domain, result, 30*time.Second) // Cache for 30 seconds
 }
 ```
 

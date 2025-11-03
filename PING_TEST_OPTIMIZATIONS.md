@@ -69,13 +69,14 @@ for handle in handles {
 
 #### Go Implementation
 ```go
-// Before: Sequential execution
+// Before: Sequential execution using system ping command
 for _, target := range params.Targets {
     pingResult := pingHost(target, packetCount, timeout)
     // Process result
 }
 
-// After: Concurrent execution with goroutines
+// After: Concurrent execution with native Go networking approach
+// Replaced system exec command with native TCP connection as ping simulation
 var wg sync.WaitGroup
 resultsChan := make(chan struct {
     target string
@@ -94,9 +95,83 @@ for _, target := range params.Targets {
     }(target)
 }
 
+// Close the channel once all goroutines are done
+go func() {
+    wg.Wait()
+    close(resultsChan)
+}()
+
 // Collect results
 for res := range resultsChan {
     // Process result
+}
+
+// Native ping simulation using TCP connections to common ports
+func pingHost(host string, count int, timeout int) PingResult {
+	start := time.Now()
+	
+	var latencies []float64
+	packetLoss := 0.0
+	totalLost := 0
+	
+	for i := 0; i < count; i++ {
+		// Try to connect to common ports as a simple "ping" simulation
+		// First try port 80 (HTTP)
+		conn, err := net.DialTimeout("tcp", host+":80", time.Duration(timeout)*time.Millisecond)
+		if err != nil {
+			// Try port 443 (HTTPS) if 80 fails
+			conn, err = net.DialTimeout("tcp", host+":443", time.Duration(timeout)*time.Millisecond)
+		}
+		
+		if err != nil {
+			// Try DNS port if ports 80/443 fail
+			conn, err = net.DialTimeout("tcp", host+":53", time.Duration(timeout)*time.Millisecond)
+		}
+		
+		if err != nil {
+			// If no port is reachable, count as packet loss
+			totalLost++
+		} else {
+			// Calculate latency as the time it took to establish the connection
+			conn.Close()
+			latency := time.Since(start).Seconds() * 1000 // Convert to milliseconds
+			latencies = append(latencies, latency)
+		}
+	}
+	
+	packetLoss = float64(totalLost) / float64(count) * 100.0
+	
+	result := PingResult{
+		AvgLatency:    0.0,
+		MinLatency:    float64(^uint(0) >> 1),
+		MaxLatency:    0.0,
+		PacketLoss:    packetLoss,
+		ExecutionTime: time.Since(start).Seconds(),
+		Error:         nil,
+	}
+	
+	if len(latencies) > 0 {
+		var sum float64
+		for _, latency := range latencies {
+			sum += latency
+			if latency < result.MinLatency {
+				result.MinLatency = latency
+			}
+			if latency > result.MaxLatency {
+				result.MaxLatency = latency
+			}
+		}
+		result.AvgLatency = sum / float64(len(latencies))
+	} else {
+		// If no packets returned, set to max value
+		result.MinLatency = float64(^uint(0) >> 1)
+		result.MaxLatency = float64(^uint(0) >> 1)
+		result.AvgLatency = float64(^uint(0) >> 1)
+		errMsg := "All packets lost"
+		result.Error = &errMsg
+	}
+	
+	return result
 }
 ```
 
