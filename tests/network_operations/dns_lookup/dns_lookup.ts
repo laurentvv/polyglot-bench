@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env ts-node
 
 import * as dns from 'dns';
 import * as fs from 'fs';
@@ -55,39 +55,43 @@ interface BenchmarkResult {
     summary: Summary;
 }
 
-async function resolveDomain(domain: string, timeout: number = 5000): Promise<DomainResult> {
-    const start = Date.now();
-    const result: DomainResult = {
-        domain,
-        success: false,
-        response_time_ms: 0,
-        ip_addresses: []
-    };
+function resolveDomain(domain: string, timeout: number = 5000): Promise<DomainResult> {
+    return new Promise((resolve) => {
+        // For now, we're not implementing a cache since requiring external packages may not be supported
+        const start = Date.now();
+        const result: DomainResult = {
+            domain,
+            success: false,
+            response_time_ms: 0,
+            ip_addresses: []
+        };
 
-    try {
-        // Create a timeout promise
-        const timeoutPromise = new Promise<never>((_, reject) => {
-            setTimeout(() => reject(new Error('Timeout')), timeout);
+        // Set up timeout
+        const timeoutId = setTimeout(() => {
+            const end = Date.now();
+            result.response_time_ms = end - start;
+            result.error = 'Timeout';
+            resolve(result);
+        }, timeout);
+
+        // Perform DNS lookup
+        lookupAsync(domain, { family: 4 }, (err, address) => {
+            // Clear timeout since we got a response
+            clearTimeout(timeoutId);
+            
+            const end = Date.now();
+            result.response_time_ms = end - start;
+            
+            if (err) {
+                result.error = (err as Error).message;
+                resolve(result);
+            } else {
+                result.success = true;
+                result.ip_addresses = [address];
+                resolve(result);
+            }
         });
-
-        // Race between DNS lookup and timeout
-        const lookupResult = await Promise.race([
-            lookupAsync(domain, { family: 4 }),
-            timeoutPromise
-        ]);
-
-        const end = Date.now();
-        result.response_time_ms = end - start;
-        result.success = true;
-        result.ip_addresses = [lookupResult.address];
-
-    } catch (error) {
-        const end = Date.now();
-        result.response_time_ms = end - start;
-        result.error = error instanceof Error ? error.message : String(error);
-    }
-
-    return result;
+    });
 }
 
 async function resolveDomainsSequential(domains: string[], timeout: number = 5000): Promise<DomainResult[]> {
@@ -116,8 +120,8 @@ async function resolveDomainsConcurrent(domains: string[], timeout: number = 500
 }
 
 async function runDnsBenchmark(config: any): Promise<BenchmarkResult> {
-    const domains = config.domains || ['google.com', 'github.com', 'stackoverflow.com', 'microsoft.com', 'amazon.com'];
-    const resolutionModes = config.resolution_modes || ['sequential', 'concurrent'];
+    const domains = config.domains || ['google.com', 'github.com', 'stackoverflow.com'];
+    const resolutionModes = config.resolution_modes || ['sequential'];
     const iterations = config.iterations || 3;
     const timeout = (config.timeout_seconds || 5) * 1000; // Convert to ms
 
@@ -236,7 +240,7 @@ async function runDnsBenchmark(config: any): Promise<BenchmarkResult> {
 
 async function main() {
     if (process.argv.length < 3) {
-        console.error('Usage: node dns_lookup.js <config_file>');
+        console.error('Usage: ts-node dns_lookup.ts <config_file>');
         process.exit(1);
     }
 

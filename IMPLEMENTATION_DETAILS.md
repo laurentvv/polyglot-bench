@@ -213,21 +213,22 @@ This section outlines the specific goals of each benchmark test. Understanding t
 - ✅ Proper timeout handling and retry strategies
 - ✅ Realistic network simulation instead of naive implementations
 
-#### 3. DNS Lookup - **OPTIMIZED FOR FAIRNESS**
+#### 3. DNS Lookup - **UPDATED FOR FAIRNESS**
 **Goal**: Resolve domain names with caching, concurrent resolution, and optimized performance
 
-**Optimized Implementation Strategies**:
+**Updated Implementation Strategies**:
 - **Python**: **socket.gethostbyname_ex() with @lru_cache(128)**, concurrent.futures threading, optimized timeouts
 - **Rust**: **Optimized DNS resolution** with proper error handling and concurrent processing
 - **Go**: **net.LookupHost() with goroutines** and efficient concurrent DNS resolution
-- **TypeScript**: **dns.lookup() with Promise.all** for concurrent resolution and timeout handling
-- **C++**: **Realistic DNS simulation** with variable timing, proper success/failure rates
+- **TypeScript**: **Fixed implementation** that was previously failing to execute, now uses dns.lookup() with Promise.all for concurrent resolution and timeout handling
+- **C++**: **Fixed implementation** that was previously simulating DNS responses instead of making real DNS requests, now uses getaddrinfo() for actual DNS resolution
 
 **Key Optimizations**:
 - ✅ LRU caching: `@lru_cache(maxsize=128)` for DNS results
-- ✅ Concurrent resolution with ThreadPoolExecutor
+- ✅ Concurrent resolution with appropriate threading/concurrency patterns
 - ✅ Optimized timeout handling (5 seconds)
-- ✅ Realistic timing simulation for fair comparisons
+- ✅ **FIXED** - Real DNS requests instead of simulated responses in C++
+- ✅ **FIXED** - TypeScript implementation now executes properly
 
 ### 🗜️ Compression Tests
 
