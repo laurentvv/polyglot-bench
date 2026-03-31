@@ -6,7 +6,11 @@ Monitors system resources and execution metrics during benchmark tests.
 import os
 import sys
 import time
-import psutil
+try:
+    import psutil
+    HAS_PSUTIL = True
+except ImportError:
+    HAS_PSUTIL = False
 import threading
 from typing import Dict, List, Optional, Any, Callable
 from dataclasses import dataclass, field
@@ -70,7 +74,7 @@ class MetricsCollector:
         self.current_metrics: Optional[ExecutionMetrics] = None
         
         # Monitoring state
-        self.target_process: Optional[psutil.Process] = None
+        self.target_process: Optional[Any] = None
         self.system_metrics_history: List[SystemMetrics] = []
         self.process_metrics_history: List[ProcessMetrics] = []
         
@@ -90,7 +94,7 @@ class MetricsCollector:
         self.process_metrics_history.clear()
         
         # Set target process if provided
-        if process_id:
+        if process_id and HAS_PSUTIL:
             try:
                 self.target_process = psutil.Process(process_id)
             except psutil.NoSuchProcess:
@@ -147,6 +151,9 @@ class MetricsCollector:
     
     def _collect_system_metrics(self) -> Optional[SystemMetrics]:
         """Collect current system metrics."""
+        if not HAS_PSUTIL:
+            return None
+
         try:
             # CPU and memory
             cpu_percent = psutil.cpu_percent(interval=None)
@@ -186,7 +193,7 @@ class MetricsCollector:
     
     def _collect_process_metrics(self) -> Optional[ProcessMetrics]:
         """Collect metrics for the target process."""
-        if not self.target_process:
+        if not HAS_PSUTIL or not self.target_process:
             return None
         
         try:
@@ -257,7 +264,7 @@ class MetricsCollector:
     
     def get_current_system_info(self) -> Dict[str, Any]:
         """Get current system information."""
-        if not self.config.collect_system_info:
+        if not self.config.collect_system_info or not HAS_PSUTIL:
             return {}
         
         try:
@@ -358,10 +365,13 @@ class SimpleMetricsCollector:
     def start(self) -> None:
         """Start timing."""
         self.start_time = time.perf_counter()
-        try:
-            process = psutil.Process()
-            self.peak_memory = process.memory_info().rss
-        except Exception:
+        if HAS_PSUTIL:
+            try:
+                process = psutil.Process()
+                self.peak_memory = process.memory_info().rss
+            except Exception:
+                self.peak_memory = 0
+        else:
             self.peak_memory = 0
     
     def stop(self) -> Dict[str, float]:
@@ -372,12 +382,13 @@ class SimpleMetricsCollector:
         if self.start_time:
             execution_time = self.end_time - self.start_time
         
-        try:
-            process = psutil.Process()
-            current_memory = process.memory_info().rss
-            self.peak_memory = max(self.peak_memory, current_memory)
-        except Exception:
-            pass
+        if HAS_PSUTIL:
+            try:
+                process = psutil.Process()
+                current_memory = process.memory_info().rss
+                self.peak_memory = max(self.peak_memory, current_memory)
+            except Exception:
+                pass
         
         return {
             'execution_time': execution_time,
