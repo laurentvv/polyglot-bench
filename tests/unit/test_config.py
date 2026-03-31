@@ -11,7 +11,7 @@ from utils.config import BenchmarkConfig
 class TestBenchmarkConfig(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.config_path = "tests/unit/test_bench.config.json"
+        cls.config_path = os.path.join(os.path.dirname(__file__), "test_bench.config.json")
         cls.config = BenchmarkConfig(cls.config_path)
 
     @classmethod
