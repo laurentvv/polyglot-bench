@@ -75,7 +75,7 @@ class MetricsCollector:
         self.current_metrics: Optional[ExecutionMetrics] = None
         
         # Monitoring state
-        self.target_process: Optional[psutil.Process] = None
+        self.target_process: Optional[Any] = None
         self.system_metrics_history: List[SystemMetrics] = []
         self.process_metrics_history: List[ProcessMetrics] = []
         
@@ -193,7 +193,7 @@ class MetricsCollector:
     
     def _collect_process_metrics(self) -> Optional[ProcessMetrics]:
         """Collect metrics for the target process."""
-        if not self.target_process:
+        if not HAS_PSUTIL or not self.target_process:
             return None
         
         try:

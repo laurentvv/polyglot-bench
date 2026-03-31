@@ -1,0 +1,51 @@
+{
+  "languages": {
+    "python": {
+      "executable": "python",
+      "version_check": "--version",
+      "timeout": 240,
+      "file_extension": ".py",
+      "compile_required": false
+    },
+    "rust": {
+      "executable": "cargo",
+      "compile_cmd": "cargo build --release",
+      "version_check": "--version",
+      "timeout": 120,
+      "file_extension": ".rs",
+      "compile_required": true,
+      "binary_extension": ".exe"
+    }
+  },
+  "test_suites": {
+    "algorithms": {
+      "enabled": true,
+      "timeout": 30,
+      "iterations": 10,
+      "tests": ["fibonacci"]
+    },
+    "disabled_suite": {
+      "enabled": false,
+      "timeout": 20,
+      "iterations": 5,
+      "tests": ["test"]
+    }
+  },
+  "performance": {
+    "iterations": 10,
+    "warmup_runs": 2,
+    "timeout_per_test": 120,
+    "memory_sampling_interval": 0.1
+  },
+  "output": {
+    "format": "all",
+    "directory": "./results_test",
+    "timestamp": true,
+    "include_metadata": true
+  },
+  "system": {
+    "collect_system_info": true,
+    "monitor_resources": true,
+    "cleanup_binaries": false
+  }
+}
