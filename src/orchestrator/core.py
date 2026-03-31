@@ -8,7 +8,6 @@ import sys
 import time
 import threading
 from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, field
 from datetime import datetime
 import json
 
@@ -16,62 +15,12 @@ import json
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from utils.config import BenchmarkConfig, LanguageConfig, TestSuiteConfig
-
-
-@dataclass
-class TestResult:
-    """Single test execution result."""
-    execution_time: float
-    memory_usage: int
-    cpu_usage: float
-    output: str
-    error: str
-    success: bool
-    language: str
-    test_name: str
-    iteration: int
-    timestamp: datetime = field(default_factory=datetime.now)
-
-
-@dataclass
-class LanguagePerformance:
-    """Aggregated performance metrics for a language on a specific test."""
-    avg_time: float
-    min_time: float
-    max_time: float
-    std_time: float
-    avg_memory: float
-    peak_memory: int
-    avg_cpu: float
-    success_rate: float
-    total_iterations: int
-
-
-@dataclass
-class TestAnalysis:
-    """Analysis results for a specific test across all languages."""
-    test_name: str
-    language_performances: Dict[str, LanguagePerformance]
-    fastest_language: str
-    most_memory_efficient: str
-    most_reliable: str
-
-
-@dataclass
-class PerformanceSummary:
-    """Complete benchmark performance summary."""
-    benchmark_id: str
-    timestamp: datetime
-    total_tests: int
-    total_languages: int
-    total_executions: int
-    results: Dict[str, TestAnalysis]
-    overall_rankings: Any  # Can be OverallRankings object
-    execution_time: float
-    system_info: Dict[str, Any]
-    configuration: Dict[str, Any]
-    summary_statistics: Dict[str, Any]
-    language_versions: Dict[str, str] = field(default_factory=dict)
+from orchestrator.models import (
+    TestResult,
+    LanguagePerformance,
+    TestAnalysis,
+    PerformanceSummary
+)
 
 
 class BenchmarkOrchestrator:

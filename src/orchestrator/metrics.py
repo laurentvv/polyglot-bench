@@ -8,9 +8,8 @@ import sys
 import time
 try:
     import psutil
-    HAS_PSUTIL = True
 except ImportError:
-    HAS_PSUTIL = False
+    psutil = None
 import threading
 from typing import Dict, List, Optional, Any, Callable
 from dataclasses import dataclass, field
@@ -69,6 +68,8 @@ class MetricsCollector:
     
     def __init__(self, system_config: SystemConfig):
         self.config = system_config
+        if psutil is None:
+            self.config.monitor_resources = False
         self.monitoring_active = False
         self.monitoring_thread: Optional[threading.Thread] = None
         self.current_metrics: Optional[ExecutionMetrics] = None
@@ -94,7 +95,7 @@ class MetricsCollector:
         self.process_metrics_history.clear()
         
         # Set target process if provided
-        if process_id and HAS_PSUTIL:
+        if process_id and psutil:
             try:
                 self.target_process = psutil.Process(process_id)
             except psutil.NoSuchProcess:
@@ -151,9 +152,8 @@ class MetricsCollector:
     
     def _collect_system_metrics(self) -> Optional[SystemMetrics]:
         """Collect current system metrics."""
-        if not HAS_PSUTIL:
+        if not psutil:
             return None
-
         try:
             # CPU and memory
             cpu_percent = psutil.cpu_percent(interval=None)
@@ -264,7 +264,7 @@ class MetricsCollector:
     
     def get_current_system_info(self) -> Dict[str, Any]:
         """Get current system information."""
-        if not self.config.collect_system_info or not HAS_PSUTIL:
+        if not self.config.collect_system_info or not psutil:
             return {}
         
         try:
@@ -365,7 +365,7 @@ class SimpleMetricsCollector:
     def start(self) -> None:
         """Start timing."""
         self.start_time = time.perf_counter()
-        if HAS_PSUTIL:
+        if psutil:
             try:
                 process = psutil.Process()
                 self.peak_memory = process.memory_info().rss
@@ -382,7 +382,7 @@ class SimpleMetricsCollector:
         if self.start_time:
             execution_time = self.end_time - self.start_time
         
-        if HAS_PSUTIL:
+        if psutil:
             try:
                 process = psutil.Process()
                 current_memory = process.memory_info().rss
