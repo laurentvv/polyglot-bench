@@ -380,6 +380,9 @@ class EnvironmentValidator:
             try:
                 __import__(package)
             except ImportError:
+                # psutil is now optional
+                if package == 'psutil':
+                    continue
                 missing_packages.append(package)
         
         return missing_packages

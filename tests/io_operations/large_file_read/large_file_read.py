@@ -60,13 +60,14 @@ def read_file_chunked(file_path: str, buffer_size: int) -> Dict[str, Any]:
     start_time = time.time()
     total_bytes = 0
     chunk_count = 0
+    buf = bytearray(buffer_size)
     
     with open(file_path, 'rb') as f:
         while True:
-            data = f.read(buffer_size)
-            if not data:
+            bytes_read = f.readinto(buf)
+            if not bytes_read:
                 break
-            total_bytes += len(data)
+            total_bytes += bytes_read
             chunk_count += 1
     
     read_time = time.time() - start_time
@@ -82,9 +83,12 @@ def read_file_chunked(file_path: str, buffer_size: int) -> Dict[str, Any]:
 
 def measure_memory_usage():
     """Measure current memory usage."""
-    import psutil
-    process = psutil.Process(os.getpid())
-    return process.memory_info().rss / (1024 * 1024)  # MB
+    try:
+        import psutil
+        process = psutil.Process(os.getpid())
+        return process.memory_info().rss / (1024 * 1024)  # MB
+    except ImportError:
+        return 0.0
 
 
 def run_large_file_read_benchmark(config: Dict) -> Dict:

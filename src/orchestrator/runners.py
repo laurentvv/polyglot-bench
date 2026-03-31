@@ -8,7 +8,11 @@ import sys
 import subprocess
 import tempfile
 import time
-import psutil
+try:
+    import psutil
+    HAS_PSUTIL = True
+except ImportError:
+    HAS_PSUTIL = False
 import shlex
 from abc import ABC, abstractmethod
 from typing import Dict, Optional, List, Any
@@ -104,6 +108,9 @@ class BaseLanguageRunner(ABC):
     def _monitor_process_metrics(self, process: subprocess.Popen, 
                                duration: float) -> Dict[str, float]:
         """Monitor process metrics during execution."""
+        if not HAS_PSUTIL:
+            return {'peak_memory': 0, 'avg_cpu': 0.0}
+
         try:
             psutil_process = psutil.Process(process.pid)
             initial_memory = psutil_process.memory_info().rss
