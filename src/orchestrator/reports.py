@@ -15,6 +15,7 @@ from dataclasses import asdict
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 from utils.config import OutputConfig
+from orchestrator.models import PerformanceSummary
 
 
 class ReportGenerator:
@@ -29,7 +30,7 @@ class ReportGenerator:
         
         print(f" Report generator initialized (output: {self.config.directory})")
     
-    def generate_all_reports(self, performance_summary, formats: List[str] = None):
+    def generate_all_reports(self, performance_summary: PerformanceSummary, formats: List[str] = None):
         """Generate reports in all requested formats."""
         if formats is None:
             formats = ['json', 'html', 'csv']
@@ -64,7 +65,7 @@ class ReportGenerator:
         
         return generated_files
     
-    def generate_json_report(self, performance_summary) -> str:
+    def generate_json_report(self, performance_summary: PerformanceSummary) -> str:
         """Generate JSON format report."""
         file_path = os.path.join(
             self.config.directory,
@@ -80,7 +81,7 @@ class ReportGenerator:
         print(f"   JSON report: {os.path.basename(file_path)}")
         return file_path
     
-    def generate_html_report(self, performance_summary) -> str:
+    def generate_html_report(self, performance_summary: PerformanceSummary) -> str:
         """Generate HTML format report with visualizations."""
         file_path = os.path.join(
             self.config.directory,
@@ -95,7 +96,7 @@ class ReportGenerator:
         print(f"   HTML report: {os.path.basename(file_path)}")
         return file_path
     
-    def generate_csv_reports(self, performance_summary) -> List[str]:
+    def generate_csv_reports(self, performance_summary: PerformanceSummary) -> List[str]:
         """Generate CSV format reports."""
         file_paths = []
         
@@ -118,7 +119,7 @@ class ReportGenerator:
         print(f"   CSV reports: {len(file_paths)} files")
         return file_paths
     
-    def _prepare_json_data(self, performance_summary) -> Dict[str, Any]:
+    def _prepare_json_data(self, performance_summary: PerformanceSummary) -> Dict[str, Any]:
         """Prepare data for JSON serialization."""
         data = {
             'benchmark_info': {
@@ -184,7 +185,7 @@ class ReportGenerator:
         
         return data
     
-    def _generate_html_content(self, performance_summary) -> str:
+    def _generate_html_content(self, performance_summary: PerformanceSummary) -> str:
         """Generate HTML report content."""
         html_template = f"""
 <!DOCTYPE html>
@@ -359,7 +360,7 @@ class ReportGenerator:
         
         return html_template
     
-    def _generate_rankings_html(self, performance_summary) -> str:
+    def _generate_rankings_html(self, performance_summary: PerformanceSummary) -> str:
         """Generate HTML for overall rankings."""
         rankings = performance_summary.overall_rankings.by_overall
         
@@ -407,7 +408,7 @@ class ReportGenerator:
         
         return html
 
-    def _generate_versions_html(self, performance_summary) -> str:
+    def _generate_versions_html(self, performance_summary: PerformanceSummary) -> str:
         """Generate HTML for language versions."""
         versions = getattr(performance_summary, 'language_versions', {})
         if not versions:
@@ -431,7 +432,7 @@ class ReportGenerator:
         '''
         return html
     
-    def _generate_test_results_html(self, performance_summary) -> str:
+    def _generate_test_results_html(self, performance_summary: PerformanceSummary) -> str:
         """Generate HTML for individual test results."""
         if not performance_summary.results:
             return '<div class="section"><h2> Test Results</h2><p>No test results available.</p></div>'
@@ -507,7 +508,7 @@ class ReportGenerator:
         html += '</div>'
         return html
     
-    def _generate_comprehensive_csv(self, performance_summary, file_path: str):
+    def _generate_comprehensive_csv(self, performance_summary: PerformanceSummary, file_path: str):
         """Generate comprehensive CSV report."""
         with open(file_path, 'w', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
@@ -553,7 +554,7 @@ class ReportGenerator:
                         round(perf.reliability_score, 2)
                     ])
     
-    def _generate_rankings_csv(self, performance_summary, file_path: str):
+    def _generate_rankings_csv(self, performance_summary: PerformanceSummary, file_path: str):
         """Generate rankings CSV report."""
         with open(file_path, 'w', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)

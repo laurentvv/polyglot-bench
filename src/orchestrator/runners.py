@@ -8,7 +8,10 @@ import sys
 import subprocess
 import tempfile
 import time
-import psutil
+try:
+    import psutil
+except ImportError:
+    psutil = None
 import shlex
 from abc import ABC, abstractmethod
 from typing import Dict, Optional, List, Any
@@ -18,23 +21,7 @@ from datetime import datetime
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 from utils.config import BenchmarkConfig, LanguageConfig
-
-
-class TestResult:
-    """Test execution result with performance metrics."""
-    def __init__(self, execution_time: float, memory_usage: int, cpu_usage: float,
-                 output: str, error: str, success: bool, language: str, 
-                 test_name: str, iteration: int):
-        self.execution_time = execution_time
-        self.memory_usage = memory_usage
-        self.cpu_usage = cpu_usage
-        self.output = output
-        self.error = error
-        self.success = success
-        self.language = language
-        self.test_name = test_name
-        self.iteration = iteration
-        self.timestamp = datetime.now()
+from orchestrator.models import TestResult
 
 
 class BaseLanguageRunner(ABC):
@@ -104,6 +91,8 @@ class BaseLanguageRunner(ABC):
     def _monitor_process_metrics(self, process: subprocess.Popen, 
                                duration: float) -> Dict[str, float]:
         """Monitor process metrics during execution."""
+        if not psutil:
+            return {'peak_memory': 0, 'avg_cpu': 0.0}
         try:
             psutil_process = psutil.Process(process.pid)
             initial_memory = psutil_process.memory_info().rss
