@@ -11,6 +11,9 @@ public:
         if (text.empty()) return "";
         
         std::string compressed;
+        // In worst case, RLE can double the size (e.g. "abcdef" -> "a1b1c1d1e1f1")
+        compressed.reserve(text.size() * 2);
+
         char current = text[0];
         int count = 1;
         
@@ -18,12 +21,14 @@ public:
             if (text[i] == current) {
                 count++;
             } else {
-                compressed += current + std::to_string(count);
+                compressed += current;
+                compressed += std::to_string(count);
                 current = text[i];
                 count = 1;
             }
         }
-        compressed += current + std::to_string(count);
+        compressed += current;
+        compressed += std::to_string(count);
         
         return compressed;
     }
@@ -32,6 +37,9 @@ public:
     static std::string dictionaryCompress(const std::string& text) {
         std::unordered_map<std::string, int> dictionary;
         std::string compressed;
+        // Estimate compressed size to reduce reallocations
+        compressed.reserve(text.size());
+
         int dictIndex = 0;
         
         for (size_t i = 0; i < text.length(); i += 3) {
@@ -39,7 +47,8 @@ public:
             if (dictionary.find(chunk) == dictionary.end()) {
                 dictionary[chunk] = dictIndex++;
             }
-            compressed += std::to_string(dictionary[chunk]) + " ";
+            compressed += std::to_string(dictionary[chunk]);
+            compressed += ' ';
         }
         
         return compressed;
