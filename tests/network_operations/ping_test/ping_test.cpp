@@ -3,9 +3,21 @@
 #include <string>
 #include <vector>
 #include <cstdlib>
+#include <algorithm>
+#include <cctype>
 
 class PingTest {
 public:
+    static bool isValidHost(const std::string& host) {
+        if (host.empty()) return false;
+        for (char c : host) {
+            if (!std::isalnum(static_cast<unsigned char>(c)) && c != '.' && c != '-') {
+                return false;
+            }
+        }
+        return true;
+    }
+
     struct PingResult {
         std::string host;
         bool success;
@@ -22,11 +34,21 @@ public:
         result.avg_time = 0.0;
         result.success = false;
         
+        if (!isValidHost(host)) {
+            std::cerr << "Error: Invalid host format: " << host << std::endl;
+            result.avg_time = 1000.0;
+            return result;
+        }
+
         // Simplified ping test - just measure basic connectivity
         auto start = std::chrono::high_resolution_clock::now();
         
         // Simulate ping with reduced count for speed
+#ifdef _WIN32
         std::string command = "ping -n 1 -w 1000 " + host + " >nul 2>&1";
+#else
+        std::string command = "ping -c 1 -W 1 " + host + " >/dev/null 2>&1";
+#endif
         int exit_code = std::system(command.c_str());
         
         auto end = std::chrono::high_resolution_clock::now();
