@@ -9,7 +9,6 @@ import json
 import csv
 from typing import Dict, List, Optional, Any
 from datetime import datetime
-from dataclasses import asdict
 
 # Add src to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
